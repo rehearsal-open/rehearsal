@@ -1,2 +1,3 @@
 go.sum
 .vscode/settings.json
+*.exe
