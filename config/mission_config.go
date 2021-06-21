@@ -17,6 +17,9 @@ type MissionConfig struct {
 
 func BuildMissionConfig() (*MissionConfig, error) {
 
+	numArgs := len(os.Args)
+
+	// Load config file
 	currentDir, err := os.Getwd()
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -29,19 +32,25 @@ func BuildMissionConfig() (*MissionConfig, error) {
 		return nil, errors.New("Cannot find config file: " + configFile)
 	}
 
-	_, result, err := MarkUpFileLoad(configFile)
-	if err != nil {
-		return nil, errors.WithMessage(err, "Cannot read config file: "+configFile)
-	}
-
 	missionConf := MissionConfig{
 		currentDir: currentDir,
 		configFile: configFile,
 	}
 
+	_, result, err := MarkUpFileLoad(configFile)
+	if err != nil {
+		return nil, errors.WithMessage(err, "Cannot read config file: "+configFile)
+	}
+
 	err = missionConf.parseConfigMap(result)
 	if err != nil {
 		return nil, errors.WithMessage(err, "Cannot understand config file: "+configFile)
+	}
+
+	for iArgs := 2; iArgs < numArgs; iArgs++ {
+		switch os.Args[iArgs] {
+		// Todo: Overwrite Settings with command arguments
+		}
 	}
 
 	return &missionConf, nil
