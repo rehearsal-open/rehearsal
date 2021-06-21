@@ -19,7 +19,7 @@ func BuildMissionConfig() (*MissionConfig, error) {
 
 	numArgs := len(os.Args)
 
-	// Load config file
+	// find config file
 	currentDir, err := os.Getwd()
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -37,6 +37,7 @@ func BuildMissionConfig() (*MissionConfig, error) {
 		configFile: configFile,
 	}
 
+	// read config file
 	_, result, err := MarkUpFileLoad(configFile)
 	if err != nil {
 		return nil, errors.WithMessage(err, "Cannot read config file: "+configFile)
