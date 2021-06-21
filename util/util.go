@@ -1,4 +1,4 @@
-package algorithm
+package util
 
 import (
 	"encoding/json"
