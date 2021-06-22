@@ -11,32 +11,33 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Return whether file is exist
 func FileExist(filename string) bool {
 	_, err := os.Stat(filename)
 	return !os.IsNotExist(err)
 }
 
-func MarkUpFileLoad(filename string) (string, map[string]interface{}, error) {
+// Get object from Mark up language file, supported json(*.json) and yaml(*.yaml, *.yml).
+func MarkUpFileLoad(filename string, result interface{}) (string, error) {
 	buf, err := ioutil.ReadFile(filename)
 
 	if err != nil {
-		return "", nil, errors.WithStack(err)
+		return "", errors.WithStack(err)
 	}
 
-	var result map[string]interface{}
 	ext := filepath.Ext(filename)
 
 	switch ext {
 	case ".yaml":
 	case ".yml":
-		err = yaml.Unmarshal(buf, &result)
+		err = yaml.Unmarshal(buf, result)
 		break
 	case ".json":
-		err = json.Unmarshal(buf, &result)
+		err = json.Unmarshal(buf, result)
 		break
 	default:
-		return ext, nil, errors.New("Invalid File Extension: " + ext)
+		return ext, errors.New("Invalid File Extension: " + ext)
 	}
 
-	return ext, result, nil
+	return ext, nil
 }
