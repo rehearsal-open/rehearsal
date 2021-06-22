@@ -1,4 +1,4 @@
-package config
+package mission
 
 func (conf *MissionConfig) parseConfigMap(mapping map[string]interface{}) error {
 
