@@ -38,7 +38,7 @@ func BuildMissionConfig() (*MissionConfig, error) {
 	}
 
 	// read config file
-	var result interface{}
+	var result map[string]interface{}
 	_, err = MarkUpFileLoad(configFile, &result)
 	if err != nil {
 		return nil, errors.WithMessage(err, "Cannot read config file: "+configFile)
