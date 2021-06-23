@@ -56,6 +56,8 @@ func (exec *Exec) start() {
 			buffer, err := io.ReadAll(stderr)
 			if err != nil {
 				// todo: error send
+				//
+
 			} else if len(buffer) > 0 {
 				// todo: error send
 			}
@@ -75,8 +77,28 @@ func (exec *Exec) start() {
 
 	if err := exec.cmd.Wait(); err != nil {
 		// todo: error send
+		
+	} else if exec.cmd.ProcessState.ExitCode == -1 {
+		// todo: error send
 	}
 
+}
+
+func (exec *Exec) sendErrorChan(err error, priority IOErrorPriority) {
+	// todo: error send
+
+	buffer := IOExpression{
+		fromId: exec.id,
+		data: err.Error()
+		err: IOErrorProps {
+			err: err,
+			priority: priority,
+		}
+	}
+
+	for ch := range exec.errSendTo {
+		ch <- buffer
+	}
 }
 
 // Force stop exec running.

@@ -7,8 +7,22 @@ import (
 type IOExpression struct {
 	fromId int
 	data   string
-	error  error
+	err    IOErrorProps
 }
+
+type IOErrorProps struct {
+	err      error
+	priority int
+}
+
+type IOErrorPriority int
+
+const (
+	ErrorMustKill IOErrorPriority = iota
+	ErrorWarning
+	ErrorCaution
+	ErrorInfomation
+)
 
 type ExecRunOn int
 
