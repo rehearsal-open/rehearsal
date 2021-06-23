@@ -7,7 +7,7 @@ import (
 type IOExpression struct {
 	fromId int
 	data   string
-	other  interface{}
+	error  error
 }
 
 type ExecRunOn int
