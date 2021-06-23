@@ -21,7 +21,7 @@ func ExecMaker(id int, execPath string, args []string, dir string) Exec {
 		},
 		timeoutMs: -1,
 		sendTo:    make([]*(chan IOExpression), 1),
-		Receive:   make(chan IOExpression),
+		Recieve:   make(chan IOExpression),
 		errSendTo: make([]*(chan IOExpression), 1),
 		state:     ExecRunOnWaiting,
 	}

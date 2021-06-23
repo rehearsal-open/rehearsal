@@ -6,7 +6,8 @@ import (
 
 type IOExpression struct {
 	fromId int
-	data   []byte
+	data   string
+	other  interface{}
 }
 
 type ExecRunOn int
@@ -22,7 +23,7 @@ type Exec struct {
 	cmd       exec.Cmd
 	timeoutMs int64
 	sendTo    []*(chan IOExpression)
-	Receive   chan IOExpression
+	Recieve   chan IOExpression
 	errSendTo []*(chan IOExpression)
 	state     ExecRunOn
 }

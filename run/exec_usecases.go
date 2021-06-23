@@ -1,6 +1,8 @@
 package run
 
 import (
+	"io"
+
 	"github.com/pkg/errors"
 )
 
@@ -28,7 +30,52 @@ func (exec *Exec) Start() error {
 	return nil
 }
 
+// Start exec running (Internal function).
 func (exec *Exec) start() {
+	stdin, err := exec.cmd.StdinPipe()
+	if err != nil {
+		// todo: error send
+	}
+	stdout, err := exec.cmd.StdoutPipe()
+	if err != nil {
+		// todo: error send
+	}
+	stderr, err := exec.cmd.StderrPipe()
+	if err != nil {
+		// todo: error send
+	}
+	if err := exec.cmd.Start(); err != nil {
+		// todo: error send
+	}
+
+	go func() {
+		for exec.cmd.ProcessState == nil {
+		}
+		for !exec.cmd.ProcessState.Exited() {
+			// todo: read pipe loop
+			buffer, err := io.ReadAll(stderr)
+			if err != nil {
+				// todo: error send
+			} else if len(buffer) > 0 {
+				// todo: error send
+			}
+
+			buffer, err = io.ReadAll(stdout)
+			if err != nil {
+				// todo: error send
+			} else if len(buffer) > 0 {
+				// todo: output send to sendTo
+			}
+
+			for recieve := range exec.Recieve {
+				io.WriteString(stdin, recieve.data)
+			}
+		}
+	}()
+
+	if err := exec.cmd.Wait(); err != nil {
+		// todo: error send
+	}
 
 }
 
