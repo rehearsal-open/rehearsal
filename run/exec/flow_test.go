@@ -85,7 +85,7 @@ func TestExecFlow(t *testing.T) {
 					// }
 
 				} else if isExit {
-					os.WriteFile("out.txt", bufout.Bytes(), 0666)
+					os.WriteFile("test_out.txt", bufout.Bytes(), 0666)
 					t.Log(beforeLength, ", ", len)
 					return
 				}
