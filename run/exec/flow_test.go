@@ -36,17 +36,33 @@ func TestExecFlow(t *testing.T) {
 	// cmd.Stdin = bufin
 	stdin, _ := cmd.StdinPipe()
 
+	input := make(chan string)
+	output := make(chan string)
+
 	if err := cmd.Start(); err != nil {
 		t.Log("cmd.Start() errored: ", err)
 		t.Fail()
 	}
 
+	go func(enter chan string) {
+		for i := 0; i < 10000; i++ {
+			enter <- (strconv.Itoa(i) + "\n")
+			time.Sleep(time.Millisecond + 5)
+		}
+	}(input)
+
 	go func() {
 		t.Log("input setter initialized.")
-		for i := 0; i < 10000; i++ {
-			io.WriteString(stdin, strconv.Itoa(i)+"\n")
+		for {
+			select {
+			case input := <-input:
+				io.WriteString(stdin, input)
+
+			case output := <-output:
+				t.Log(output)
+			}
+
 			// bufin.WriteString(strconv.Itoa(i) + "\n")
-			time.Sleep(time.Millisecond + 5)
 		}
 	}()
 
@@ -67,10 +83,14 @@ func TestExecFlow(t *testing.T) {
 
 				if len > beforeLength && bufout.Bytes()[len-1] != 0 {
 					bytes := bufout.Bytes()[beforeLength:len]
-					t.Log("bytes is valid")
+					// t.Log("bytes is valid")
 					str := string(bytes)
-					t.Log(str, "(", beforeLength, ", ", len, ")")
+					output <- str
+					// t.Log(str, "(", beforeLength, ", ", len, ")")
 					beforeLength = len
+
+					time.Sleep(time.Millisecond)
+
 					break
 					// for {
 
