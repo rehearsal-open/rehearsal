@@ -2,8 +2,13 @@ package exec
 
 import (
 	"bytes"
+	"context"
+	"io"
+	"os"
 	"os/exec"
+	"strconv"
 	"testing"
+	"time"
 )
 
 const (
@@ -13,7 +18,9 @@ const (
 
 func TestExecFlow(t *testing.T) {
 
-	cmd := exec.Command("python", python1)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "python", python1)
 	data := make(chan string)
 	// out, err := cmd.StdoutPipe()
 
@@ -22,13 +29,26 @@ func TestExecFlow(t *testing.T) {
 	// 	t.Fail()
 	// }
 
-	var buf bytes.Buffer
-	cmd.Stdout = &buf
+	bufout := bytes.NewBuffer(make([]byte, 0))
+	// bufout.Grow(100000)
+	// bufin := bytes.NewBuffer(make([]byte, 0))
+	cmd.Stdout = bufout
+	// cmd.Stdin = bufin
+	stdin, _ := cmd.StdinPipe()
 
 	if err := cmd.Start(); err != nil {
 		t.Log("cmd.Start() errored: ", err)
 		t.Fail()
 	}
+
+	go func() {
+		t.Log("input setter initialized.")
+		for i := 0; i < 10000; i++ {
+			io.WriteString(stdin, strconv.Itoa(i)+"\n")
+			// bufin.WriteString(strconv.Itoa(i) + "\n")
+			time.Sleep(time.Millisecond + 5)
+		}
+	}()
 
 	go func() {
 		t.Log("output getter initialized.")
@@ -43,14 +63,29 @@ func TestExecFlow(t *testing.T) {
 				isExit = true
 			default:
 
-				len := buf.Len()
+				len := bufout.Len()
 
-				if len > beforeLength {
-					bytes := buf.Bytes()[beforeLength:len]
+				if len > beforeLength && bufout.Bytes()[len-1] != 0 {
+					bytes := bufout.Bytes()[beforeLength:len]
+					t.Log("bytes is valid")
 					str := string(bytes)
-					t.Log(str)
+					t.Log(str, "(", beforeLength, ", ", len, ")")
 					beforeLength = len
+					break
+					// for {
+
+					// 	if r, _ := utf8.DecodeLastRune(bytes); r != utf8.RuneError {
+
+					// 	} else if len == beforeLength {
+					// 		break
+					// 	} else {
+					// 		len--
+					// 		t.Log("bytes is invalid")
+					// 	}
+					// }
+
 				} else if isExit {
+					os.WriteFile("out.txt", bufout.Bytes(), 0666)
 					t.Log(beforeLength, ", ", len)
 					return
 				}
@@ -58,7 +93,9 @@ func TestExecFlow(t *testing.T) {
 		}
 	}()
 
-	cmd.Wait()
+	if err := cmd.Wait(); err != nil {
+		t.Log("process errored: " + err.Error())
+	}
 	func() { data <- "process ended" }()
 	returnMsg := <-data
 	t.Log(returnMsg)
