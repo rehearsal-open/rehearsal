@@ -11,7 +11,7 @@ func (exec *Exec) Execute() {
 	buferr := bytes.NewBuffer(make([]byte, 0))
 	exitOut := make(chan string, 1)
 	exitIn := make(chan string, 1)
-	// exitErr := make(chan string, 1)
+	exitErr := make(chan string, 1)
 
 	exec.cmd.Stdout = bufout
 	exec.cmd.Stderr = buferr
@@ -54,7 +54,31 @@ func (exec *Exec) Execute() {
 					bytes := bufout.Bytes()[preLen:crtLen]
 					exec.sendOut(string(bytes))
 					preLen = crtLen
-					break
+				} else if isExit {
+					return
+				}
+			}
+		}
+	}()
+
+	go func() {
+		var finalizeStr string
+		defer func() { exitErr <- finalizeStr }()
+		preLen := int(0)
+		isExit := false
+
+		for {
+			select {
+			case data := <-exitErr:
+				finalizeStr = data
+				isExit = true
+			default:
+				crtLen := buferr.Len()
+
+				if crtLen > preLen && buferr.Bytes()[crtLen-1] != 0 {
+					bytes := bufout.Bytes()[preLen:crtLen]
+					exec.sendErr(string(bytes), ErrorWarning)
+					preLen = crtLen
 				} else if isExit {
 					return
 				}
