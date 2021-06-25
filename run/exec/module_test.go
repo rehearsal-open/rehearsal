@@ -17,7 +17,7 @@ func TestExecModule(t *testing.T) {
 		for {
 			select {
 			case data := <-out:
-				t.Log(data.data)
+				t.Log(data.Data)
 			}
 		}
 	}(logout)

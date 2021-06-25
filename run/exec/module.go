@@ -6,7 +6,7 @@ import (
 
 type Packet struct {
 	pid      int
-	data     string
+	Data     string
 	priority ErrorPriority
 }
 

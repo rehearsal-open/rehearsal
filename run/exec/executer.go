@@ -30,7 +30,7 @@ func (exec *Exec) Execute() {
 			case data := <-exitIn:
 				finalizeStr = data
 			case input := <-exec.in:
-				io.WriteString(stdin, input.data)
+				io.WriteString(stdin, input.Data)
 			}
 		}
 	}()
@@ -73,7 +73,7 @@ func (exec *Exec) sendErr(msg string, priority ErrorPriority) {
 	for _, ch := range exec.err {
 		ch <- Packet{
 			pid:      exec.cmd.Process.Pid,
-			data:     msg,
+			Data:     msg,
 			priority: priority,
 		}
 	}
@@ -83,7 +83,7 @@ func (exec *Exec) sendOut(msg string) {
 	for _, ch := range exec.out {
 		ch <- Packet{
 			pid:      exec.cmd.Process.Pid,
-			data:     msg,
+			Data:     msg,
 			priority: ErrorInfomation,
 		}
 	}
