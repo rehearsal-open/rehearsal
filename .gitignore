@@ -1,6 +1,2 @@
-go.sum
-.vscode/settings.json
-*.exe
-test_*.txt
 in.txt
 out.txt
