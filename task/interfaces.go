@@ -2,13 +2,15 @@ package task
 
 import (
 	"github.com/rehearsal-open/rehearsal/engine"
+	"github.com/rehearsal-open/rehearsal/entity"
 	. "github.com/rehearsal-open/rehearsal/packet/task"
 )
 
 type Task interface {
-	AssignEngine(config engine.RehearsalEngine, name string) error
-	AppendOutPipe(Task) error
-	AppendErrPipe(Task) error
+	TaskConfig() *entity.TaskConf
+	AssignEngine(engine engine.RehearsalEngine, name string) error
+	AppendOutPipe(reciever Task) error
+	AppendErrPipe(reciever Task) error
 	InputChan() chan Packet
 	Initialize() error
 	Wait() error

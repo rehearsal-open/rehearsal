@@ -5,21 +5,21 @@ import (
 )
 
 type Packet struct {
-	sendFrom string
-	data     string
-	color    color.CliColor
+	SendFromName string
+	DataStr      string
+	Color        color.CliColor
 }
 
 func (p *Packet) SendFrom() string {
-	return p.sendFrom
+	return p.SendFromName
 }
 
 func (p *Packet) Data() string {
-	return p.data
+	return p.DataStr
 }
 
 func (p *Packet) ForeColor() color.CliColor {
-	return p.color
+	return p.Color
 }
 
 func (p *Packet) BackColor() color.CliColor {
@@ -27,5 +27,5 @@ func (p *Packet) BackColor() color.CliColor {
 }
 
 func (p *Packet) ConsoleOut() string {
-	return color.Fore(p.color) + p.data
+	return color.Fore(p.Color) + p.DataStr
 }
