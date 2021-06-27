@@ -21,9 +21,13 @@ const (
 	White
 )
 
+const (
+	Clear string = "\x1b[0m"
+)
+
 func Fore(col CliColor) string {
 	if col < Black || White < col {
-		return "\x1b[0m"
+		return Clear
 	} else {
 		return "\x1b[" + strconv.Itoa(30+int(col)) + "m"
 	}
@@ -31,7 +35,7 @@ func Fore(col CliColor) string {
 
 func Back(col CliColor) string {
 	if col < Black || White < col {
-		return "\x1b[0m"
+		return Clear
 	} else {
 		return "\x1b[" + strconv.Itoa(40+int(col)) + "m"
 	}
