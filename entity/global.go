@@ -14,7 +14,7 @@ type Conf struct {
 
 // Each task configuration
 type TaskConf struct {
-	Kind     string         `yaml:"kind" json:"kind"`
+	Type     string         `yaml:"type" json:"type"`
 	Name     string         `yaml:"-" json:"-"`
 	Path     string         `yaml:"execPath" json:"execPath"`
 	Args     []string       `yaml:"args,omitempty" json:"args,omitempty"`
@@ -23,3 +23,7 @@ type TaskConf struct {
 	SyncMs   int            `yaml:"syncms" json:"syncms"`
 	Color    color.CliColor `yaml:"-" json:"-"`
 }
+
+const (
+	CLITask string = "CLI"
+)
