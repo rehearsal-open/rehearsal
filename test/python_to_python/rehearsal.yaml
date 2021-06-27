@@ -1,4 +1,4 @@
-directory: ./
+directory: ./src
 syncms: 10
 tasks: 
   - name: Out
