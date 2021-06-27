@@ -9,7 +9,7 @@ import (
 
 	"github.com/rehearsal-open/rehearsal/engine"
 	"github.com/rehearsal-open/rehearsal/entity"
-	. "github.com/rehearsal-open/rehearsal/packet/task"
+	. "github.com/rehearsal-open/rehearsal/packet"
 	"github.com/rehearsal-open/rehearsal/task"
 )
 
@@ -53,6 +53,10 @@ func (t *Task) AssignEngine(engine engine.RehearsalEngine, name string) error {
 	t.cancel = cancel
 	t.cmd = exec.CommandContext(ctx, t.Path, t.Args...)
 	return nil
+}
+
+func (t *Task) TaskConfig() *entity.TaskConf {
+	return t.TaskConf
 }
 
 func (t *Task) AppendOutPipe(reciever task.Task) error {

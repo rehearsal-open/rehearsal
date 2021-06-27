@@ -129,6 +129,11 @@ func (t *Task) execute() {
 		}
 	}
 
+	if err := t.cmd.Start(); err != nil {
+		// todo: error manage
+		return
+	}
+
 	// input listener
 	go func() {
 		var finalizeStr string
@@ -243,7 +248,7 @@ func (t *Task) execute() {
 
 func (t *Task) sendOut(msg string) {
 	for _, ch := range t.out {
-		ch <- task.Packet{
+		ch <- &task.Packet{
 			SendFromName: t.Name,
 			DataStr:      msg,
 			Color:        t.Color,
@@ -253,7 +258,7 @@ func (t *Task) sendOut(msg string) {
 
 func (t *Task) sendErr(msg string) {
 	for _, ch := range t.err {
-		ch <- task.Packet{
+		ch <- &task.Packet{
 			SendFromName: t.Name,
 			DataStr:      msg,
 			Color:        t.Color,
