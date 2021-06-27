@@ -6,7 +6,7 @@ import (
 )
 
 type Task interface {
-	AssignConfig(config entity.Conf, name string) error
+	AssignConfig(config *entity.Conf, name string) error
 	AppendOutPipe(Task) error
 	AppendErrPipe(Task) error
 	InputChan() chan Packet
