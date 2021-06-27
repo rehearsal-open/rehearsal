@@ -6,16 +6,16 @@ import (
 
 // Global configuration
 type Conf struct {
-	Dir        string              `yaml:"directory" json:"directory"`
-	SyncMs     int                 `yaml:"syncms" json:"syncms"`
-	Tasks      map[string]TaskConf `yaml:"tasks" json:"tasks"`
-	MaxNameLen int                 `yaml:"-" json:":"`
+	Dir        string     `yaml:"directory" json:"directory"`
+	SyncMs     int        `yaml:"syncms" json:"syncms"`
+	Tasks      []TaskConf `yaml:"tasks" json:"tasks"`
+	MaxNameLen int        `yaml:"-" json:":"`
 }
 
 // Each task configuration
 type TaskConf struct {
+	Name     string         `yaml:"name" json:"name"`
 	Type     string         `yaml:"type" json:"type"`
-	Name     string         `yaml:"-" json:"-"`
 	Path     string         `yaml:"execPath" json:"execPath"`
 	Args     []string       `yaml:"args,omitempty" json:"args,omitempty"`
 	ColorStr string         `yaml:"color,omitempty" json:"color,omitempty"`
