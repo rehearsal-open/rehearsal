@@ -18,6 +18,7 @@ func LoadArgs(config *entity.Conf) error {
 		} else if _, err := os.Stat(path); err != nil {
 			return errors.WithMessage(err, "cannot found file: "+path)
 		} else {
+			config.ConfigDir = filepath.Dir(path)
 			switch filepath.Ext(path) {
 			case ".yml":
 				return errors.WithMessage(Yaml(path, config), "yaml parse failed.")

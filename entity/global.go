@@ -6,6 +6,7 @@ import (
 
 // Global configuration
 type Conf struct {
+	ConfigDir  string     `yaml:"-" json:"-"`
 	Dir        string     `yaml:"directory" json:"directory"`
 	SyncMs     int        `yaml:"syncms" json:"syncms"`
 	Tasks      []TaskConf `yaml:"tasks" json:"tasks"`
