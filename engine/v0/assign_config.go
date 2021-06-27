@@ -38,6 +38,7 @@ func (e *RehearsalEngine) AssignConfig(config *entity.Conf) error {
 		e.Conf.SyncMs = 1
 	}
 
+	e.Conf.TasksMap = make(map[string]*entity.TaskConf)
 	for iTask, _ := range e.Conf.Tasks {
 
 		t := &e.Conf.Tasks[iTask]
@@ -80,9 +81,11 @@ func (e *RehearsalEngine) AssignConfig(config *entity.Conf) error {
 		default:
 			return errors.New("task's kind unsupported: " + t.Type)
 		}
-		if err := e.tasks[t.Name].AssignConfig(config, t.Name); err != nil {
+		if err := e.tasks[t.Name].AssignEngine(e, t.Name); err != nil {
 			return errors.WithStack(err)
 		}
+
+		e.TasksMap[t.Name] = t
 	}
 
 	return nil

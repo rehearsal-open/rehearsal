@@ -9,3 +9,7 @@ type RehearsalEngine struct {
 	*entity.Conf
 	tasks map[string]task.Task
 }
+
+func (e *RehearsalEngine) Config() *entity.Conf {
+	return e.Conf
+}

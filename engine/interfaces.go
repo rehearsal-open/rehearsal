@@ -6,6 +6,7 @@ import (
 
 type RehearsalEngine interface {
 	AssignConfig(config *entity.Conf) error
+	Config() *entity.Conf
 	Execute() error
 	Kill() error
 }

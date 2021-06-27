@@ -6,11 +6,12 @@ import (
 
 // Global configuration
 type Conf struct {
-	ConfigDir  string     `yaml:"-" json:"-"`
-	Dir        string     `yaml:"directory" json:"directory"`
-	SyncMs     int        `yaml:"syncms" json:"syncms"`
-	Tasks      []TaskConf `yaml:"tasks" json:"tasks"`
-	MaxNameLen int        `yaml:"-" json:":"`
+	ConfigDir  string               `yaml:"-" json:"-"`
+	Dir        string               `yaml:"directory" json:"directory"`
+	SyncMs     int                  `yaml:"syncms" json:"syncms"`
+	Tasks      []TaskConf           `yaml:"tasks" json:"tasks"`
+	MaxNameLen int                  `yaml:"-" json:"-"`
+	TasksMap   map[string]*TaskConf `yaml:"-" json:"-"`
 }
 
 // Each task configuration
