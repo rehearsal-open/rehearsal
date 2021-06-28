@@ -3,7 +3,7 @@ package task
 import (
 	"github.com/rehearsal-open/rehearsal/engine"
 	"github.com/rehearsal-open/rehearsal/entity"
-	. "github.com/rehearsal-open/rehearsal/packet/task"
+	"github.com/rehearsal-open/rehearsal/packet"
 )
 
 type Task interface {
@@ -11,7 +11,7 @@ type Task interface {
 	AssignEngine(engine engine.RehearsalEngine, name string) error
 	AppendOutPipe(reciever Task) error
 	AppendErrPipe(reciever Task) error
-	InputChan() chan Packet
+	InputChan() chan packet.Packet
 	Initialize() error
 	Wait() error
 	Finalize() error

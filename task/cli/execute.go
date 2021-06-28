@@ -20,11 +20,6 @@ func (t *Task) Initialize() error {
 
 	go t.execute()
 	<-t.waiter
-	if t.finalized {
-		close(t.kill)
-		close(t.progress)
-		close(t.waiter)
-	}
 	return nil
 }
 
@@ -32,11 +27,6 @@ func (t *Task) Wait() error {
 	if !t.finalized {
 		t.progress <- ""
 		<-t.waiter
-		if t.finalized {
-			close(t.kill)
-			close(t.progress)
-			close(t.waiter)
-		}
 	}
 	return nil
 }
@@ -45,15 +35,18 @@ func (t *Task) Finalize() error {
 	if !t.finalized {
 		t.progress <- ""
 		<-t.waiter
-		close(t.kill)
-		close(t.progress)
-		close(t.waiter)
 	}
+	close(t.kill)
+	close(t.progress)
+	close(t.waiter)
+	close(t.in)
 	return nil
 }
 
 func (t *Task) Kill() {
-	close(t.kill)
+	if !t.finalized {
+		close(t.kill)
+	}
 }
 
 func (t *Task) execute() {
@@ -230,16 +223,6 @@ func (t *Task) execute() {
 	t.waiter <- Successfully
 	if !t.finalized {
 		<-t.progress
-	}
-
-	// reset input channel
-	for isExist := true; isExist; {
-		select {
-		case <-t.in:
-			continue
-		default:
-			isExist = false
-		}
 	}
 
 	defer func() { t.waiter <- Successfully }()
