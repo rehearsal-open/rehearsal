@@ -39,6 +39,7 @@ func (e *RehearsalEngine) AssignConfig(config *entity.Conf) error {
 	}
 
 	e.Conf.TasksMap = make(map[string]*entity.TaskConf)
+	e.tasks = make(map[string]task.Task)
 	for iTask, _ := range e.Conf.Tasks {
 
 		t := &e.Conf.Tasks[iTask]
