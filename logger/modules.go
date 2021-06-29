@@ -64,14 +64,14 @@ func (l *Logger) routine() {
 				from := packet.SendFrom()
 				lstr := len(str)
 
-				if lstr > 1 && str[lstr-2:] == "\n\r" {
+				if lstr > 1 && (str[lstr-2:lstr] == "\n\r" || str[lstr-2:lstr] == "\r\n") {
 					str = str[0 : lstr-2]
 				} else if lstr > 0 && (str[lstr-1] == '\n' || str[lstr-1] == '\r') {
 					str = str[0 : lstr-1]
 				}
 
 				outputs := from + strings.Repeat(" ", 1+l.maxNameLength-len(from)) + "\t: "
-				str = strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(str, "\n\r", "\n"), "\r", "\n"), "\n", "\n"+strings.Repeat(" ", 17+l.maxNameLength)+"\t\t: ")
+				str = strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(str, "\n\r", "\n"), "\r\n", "\n"), "\r", "\n"), "\n", "\n"+strings.Repeat(" ", 17+l.maxNameLength)+"\t\t: ")
 				// if strings.Contains(str, "\n") || strings.Contains(str, "\r") {
 				// 	outputs = fmt.Sprintln(outputs + "(multi lines...)\n" + str)
 				// } else {
