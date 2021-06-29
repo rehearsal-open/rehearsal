@@ -1,20 +1,20 @@
-directory: src
+directory: .
 syncms: 10
 tasks: 
   - name: Out
     type: CLI
-    execPath: python
+    execPath: .venv/scripts/python.exe
     args:
-      - "./python2.py"
+      - "./src/python2.py"
     sendTo:
       - InOut
-    show: true
+    show: false
 
   - name: InOut
     type: CLI
-    execPath: python
+    execPath: .venv/scripts/python.exe
     args:
-      - "./python1.py"
+      - "./src/python1.py"
     show: true
   
     

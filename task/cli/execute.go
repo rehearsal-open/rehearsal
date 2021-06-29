@@ -91,6 +91,10 @@ func (t *Task) execute() {
 			WaitForOutputKill()
 			t.killed = true
 			return
+		default:
+
+			time.Sleep(time.Duration(t.engine.Config().SyncMs))
+
 		}
 	}
 
@@ -118,6 +122,8 @@ func (t *Task) execute() {
 				if !isContinue {
 					defer close(exitIn)
 					return
+				} else {
+					time.Sleep(time.Duration(t.taskConf.SyncMs))
 				}
 			}
 		}
@@ -148,6 +154,8 @@ func (t *Task) execute() {
 				} else if skipped && !isContinue {
 					defer close(exitOut)
 					return
+				} else {
+					time.Sleep(time.Duration(t.taskConf.SyncMs))
 				}
 			}
 		}
@@ -179,6 +187,8 @@ func (t *Task) execute() {
 				} else if skipped && !isContinue {
 					defer close(exitErr)
 					return
+				} else {
+					time.Sleep(time.Duration(t.taskConf.SyncMs))
 				}
 			}
 		}
@@ -205,6 +215,8 @@ func (t *Task) execute() {
 		default:
 			if !isContinue[0] {
 				isContinue[1] = false
+			} else {
+				time.Sleep(time.Duration(t.taskConf.SyncMs))
 			}
 		}
 	}

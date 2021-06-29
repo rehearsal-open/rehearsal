@@ -21,6 +21,7 @@ type Task struct {
 func (t *Task) AssignEngine(e engine.RehearsalEngine, conf *entity.TaskConfig, name string) error {
 	t.engine = e
 	t.config = conf
+	t.config.SyncMs = e.Config().SyncMs
 	t.in = make(chan stdout.Packet)
 	t.killed = false
 
@@ -93,6 +94,8 @@ func (t *Task) routine() {
 			if !isContinue {
 				defer close(t.exitRoutine)
 				return
+			} else {
+				time.Sleep(time.Duration(t.config.SyncMs))
 			}
 		}
 	}

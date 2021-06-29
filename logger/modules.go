@@ -65,13 +65,13 @@ func (l *Logger) routine() {
 				lstr := len(str)
 
 				if lstr > 1 && str[lstr-2:] == "\n\r" {
-					str = str[:lstr-2]
+					str = str[0 : lstr-2]
 				} else if lstr > 0 && (str[lstr-1] == '\n' || str[lstr-1] == '\r') {
-					str = str[:lstr-1]
+					str = str[0 : lstr-1]
 				}
 
-				outputs := from + strings.Repeat(" ", 1+l.maxNameLength-len(from)) + ": "
-
+				outputs := from + strings.Repeat(" ", 1+l.maxNameLength-len(from)) + "\t: "
+				str = strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(str, "\n\r", "\n"), "\r", "\n"), "\n", "\n"+strings.Repeat(" ", 17+l.maxNameLength)+"\t\t: ")
 				// if strings.Contains(str, "\n") || strings.Contains(str, "\r") {
 				// 	outputs = fmt.Sprintln(outputs + "(multi lines...)\n" + str)
 				// } else {
@@ -89,6 +89,8 @@ func (l *Logger) routine() {
 			if !isContinue {
 				defer close(l.exitRoutine)
 				return
+			} else {
+				time.Sleep(time.Duration(l.config.SyncMs))
 			}
 		}
 	}

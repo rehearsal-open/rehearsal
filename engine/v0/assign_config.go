@@ -26,6 +26,11 @@ func (e *RehearsalEngine) AssignConfig(conf *entity.Config) error {
 		return errors.WithStack(err)
 	}
 
+	// syncMs
+	if e.config.SyncMs < 1 {
+		e.config.SyncMs = 1
+	}
+
 	// option's tasks
 	{
 
@@ -36,6 +41,10 @@ func (e *RehearsalEngine) AssignConfig(conf *entity.Config) error {
 			for i, _ := range e.config.TaskConf {
 
 				taskConf := &e.config.TaskConf[i]
+
+				if taskConf.SyncMs < 1 {
+					taskConf.SyncMs = e.config.SyncMs
+				}
 
 				if !regex.MatchString(taskConf.Name) {
 					return errors.New("task's name is unmatch: use alphabet, number or underbar, don't begin with underbar")

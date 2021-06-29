@@ -2,13 +2,13 @@ package v0
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/task"
 )
 
 func (e *RehearsalEngine) Run() error {
-	// todo: write definition
 
 	type exitTask struct {
 		err  error
@@ -60,6 +60,8 @@ func (e *RehearsalEngine) Run() error {
 			}
 			e.logger.SystemPrint(fmt.Sprint("running end(", iTask+1, "/", nTask, " : ", exited.task.Config().Name, ")"))
 			iTask++
+		default:
+			time.Sleep(time.Duration(e.config.SyncMs))
 		}
 	}
 

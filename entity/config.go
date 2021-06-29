@@ -15,4 +15,5 @@ type TaskConfig struct {
 	Args     []string `yaml:"args"`
 	ShowOut  bool     `yaml:"show"`
 	SendTo   []string `yaml:"sendTo"`
+	SyncMs   int      `yaml:"syncms"`
 }
