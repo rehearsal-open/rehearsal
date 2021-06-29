@@ -1,0 +1,4 @@
+{
+    "stm32-for-vscode.makePath": false,
+    "stm32-for-vscode.armToolchainPath": false
+}

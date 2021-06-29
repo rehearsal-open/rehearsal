@@ -2,14 +2,12 @@ package v0
 
 import (
 	"github.com/rehearsal-open/rehearsal/entity"
+	"github.com/rehearsal-open/rehearsal/logger"
 	"github.com/rehearsal-open/rehearsal/task"
 )
 
 type RehearsalEngine struct {
-	*entity.Conf
-	tasks map[string]task.Task
-}
-
-func (e *RehearsalEngine) Config() *entity.Conf {
-	return e.Conf
+	config *entity.Config
+	tasks  map[string]task.Task
+	logger *logger.Logger
 }

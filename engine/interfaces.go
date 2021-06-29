@@ -5,8 +5,7 @@ import (
 )
 
 type RehearsalEngine interface {
-	AssignConfig(config *entity.Conf) error
-	Config() *entity.Conf
-	Execute() error
+	AssignConfig(conf *entity.Config) error
+	Run() error
 	Kill() error
 }
