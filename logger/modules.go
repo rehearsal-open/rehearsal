@@ -50,6 +50,10 @@ func (l *Logger) SystemPrint(msg string) {
 	}
 }
 
+func (l *Logger) PacketPrint(packet packet.Packet) {
+	l.packetChannel <- packet
+}
+
 func (l *Logger) routine() {
 	isContinue := true
 	for {
@@ -83,7 +87,8 @@ func (l *Logger) routine() {
 			isContinue = false
 		default:
 			if !isContinue {
-				l.packetChannel <- nil
+				defer close(l.exitRoutine)
+				return
 			}
 		}
 	}
@@ -96,8 +101,8 @@ func (l *Logger) Finalize() {
 	for {
 		time.Sleep(10 * time.Millisecond)
 		if _, exist := <-l.exitRoutine; !exist {
-			close(l.exitRoutine)
 			close(l.packetChannel)
+			return
 		}
 	}
 }

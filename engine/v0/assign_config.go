@@ -8,9 +8,10 @@ import (
 	"github.com/rehearsal-open/rehearsal/entity"
 	"github.com/rehearsal-open/rehearsal/logger"
 	"github.com/rehearsal-open/rehearsal/task"
+	"github.com/rehearsal-open/rehearsal/task/out"
 )
 
-func (e RehearsalEngine) AssignConfig(conf *entity.Config) error {
+func (e *RehearsalEngine) AssignConfig(conf *entity.Config) error {
 
 	// assign
 	e.config = conf
@@ -48,10 +49,18 @@ func (e RehearsalEngine) AssignConfig(conf *entity.Config) error {
 		}
 	}
 
-	// system's task (and config)
+	// system task (and config)
 	{
 
-		// output task
+		// standard output task
+		outTaskConf := entity.TaskConfig{
+			Name: "$std-out",
+		}
+
+		e.config.TaskConf = append(e.config.TaskConf, outTaskConf)
+
+		outTask := out.Task{}
+		outTask.AssignEngine(e)
 
 	}
 	return nil

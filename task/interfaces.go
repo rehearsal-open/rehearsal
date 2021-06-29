@@ -14,21 +14,24 @@ type Task interface {
 	// call as goroutine, run start and return after task is stop.
 	RunWait() error
 
+	// after kill, must call finalize
+	Kill()
+
 	// call when all tasks are stopped
 	Finalize()
 }
 
-type InTask interface {
+type RecieverTask interface {
 	Task
 	In() chan packet.Packet
 }
 
 type OutTask interface {
 	Task
-	AppendTaskAsOut(InTask) error
+	AppendTaskAsOut(RecieverTask) error
 }
 
 type ErrTask interface {
 	Task
-	AppendErrAsErr(InTask) error
+	AppendErrAsErr(RecieverTask) error
 }
