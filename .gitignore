@@ -2,3 +2,4 @@ in.txt
 out.txt
 *.exe
 .venv
+test/ahc003/tools
