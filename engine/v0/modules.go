@@ -15,7 +15,3 @@ type RehearsalEngine struct {
 func (e *RehearsalEngine) Config() *entity.Config {
 	return e.config
 }
-
-func (e *RehearsalEngine) Logger() *logger.Logger {
-	return e.logger
-}

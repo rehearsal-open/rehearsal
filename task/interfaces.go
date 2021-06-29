@@ -24,11 +24,13 @@ type Task interface {
 type RecieverTask interface {
 	Task
 	In() chan packet.Packet
+	BytesFromString(src string, sendFrom string) ([]byte, error)
 }
 
 type OutTask interface {
 	Task
 	AppendTaskAsOut(RecieverTask) error
+	BytesToString(src []byte, sendTo string) (string, error)
 }
 
 type ErrTask interface {

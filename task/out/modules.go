@@ -16,13 +16,21 @@ type Task struct {
 	killed      bool
 }
 
-func (t *Task) AssignEngine(e engine.RehearsalEngine) error {
+func (t *Task) AssignEngine(e engine.RehearsalEngine, name string) error {
 	t.engine = e
 	t.in = make(chan packet.Packet)
-	t.logger = t.engine.Logger()
 	t.killed = false
 
 	return nil
+}
+
+func (t *Task) AssignLogger(l *logger.Logger) error {
+	t.logger = l
+	return nil
+}
+
+func (t *Task) BytesFromString(src string, sendFrom string) ([]byte, error) {
+	return []byte(src), nil
 }
 
 func (t *Task) In() chan packet.Packet {

@@ -26,6 +26,8 @@ func (e *RehearsalEngine) AssignConfig(conf *entity.Config) error {
 	e.logger.SystemPrint(fmt.Sprintln("Hpppy world"))
 	e.logger.SystemPrint(fmt.Sprintln("Hpppy\nworld"))
 
+	stdoutTasks := make(map[string]task.Task, 0)
+
 	// option's tasks
 	{
 
@@ -45,6 +47,11 @@ func (e *RehearsalEngine) AssignConfig(conf *entity.Config) error {
 					return errors.New("unsupported task's type: " + taskConf.Type + " (task's name is " + taskConf.Name + ")")
 				}
 				e.tasks[taskConf.Name] = task
+
+				// append system task reciever
+				if taskConf.ShowOut {
+					stdoutTasks[taskConf.Name] = task
+				}
 			}
 		}
 	}
@@ -52,15 +59,30 @@ func (e *RehearsalEngine) AssignConfig(conf *entity.Config) error {
 	// system task (and config)
 	{
 
+		const (
+			outTaskName string = "$std-out"
+		)
+
 		// standard output task
 		outTaskConf := entity.TaskConfig{
-			Name: "$std-out",
+			Name: outTaskName,
 		}
 
 		e.config.TaskConf = append(e.config.TaskConf, outTaskConf)
 
-		outTask := out.Task{}
-		outTask.AssignEngine(e)
+		outTask := &out.Task{}
+		outTask.AssignEngine(e, outTaskName)
+		outTask.AssignLogger(e.logger)
+		e.tasks[outTaskName] = task.Task(outTask)
+		for name, t := range stdoutTasks {
+			if outtask, ok := t.(task.OutTask); !ok {
+				return errors.New("cannot standard out, this is reciever only: " + name)
+			} else if err := outtask.AppendTaskAsOut(outTask); err != nil {
+				return errors.WithStack(err)
+			}
+		}
+
+		e.logger.SystemPrint(fmt.Sprint(e))
 
 	}
 	return nil

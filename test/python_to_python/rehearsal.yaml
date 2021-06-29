@@ -8,11 +8,13 @@ tasks:
       - "./python2.py"
     sendTo:
       - InOut
+    show: true
 
   - name: InOut
     type: CLI
     execPath: python
     args:
       - "./python1.py"
+    show: true
   
     
