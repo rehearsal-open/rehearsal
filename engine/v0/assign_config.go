@@ -21,9 +21,9 @@ func (e RehearsalEngine) AssignConfig(conf *entity.Config) error {
 		return errors.WithStack(err)
 	}
 
-	e.logger.Print("Happy New Year")
-	e.logger.Print(fmt.Sprintln("Hpppy world"))
-	e.logger.Print(fmt.Sprintln("Hpppy\nworld"))
+	e.logger.SystemPrint("Happy New Year")
+	e.logger.SystemPrint(fmt.Sprintln("Hpppy world"))
+	e.logger.SystemPrint(fmt.Sprintln("Hpppy\nworld"))
 
 	// option's tasks
 	{

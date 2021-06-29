@@ -44,7 +44,7 @@ func (l *Logger) AssignConfig(conf *entity.Config) error {
 	return nil
 }
 
-func (l *Logger) Print(msg string) {
+func (l *Logger) SystemPrint(msg string) {
 	l.packetChannel <- &systemlog.Packet{
 		Msg: msg,
 	}
