@@ -1,19 +1,19 @@
 package stdout
 
 type Packet struct {
-	sendFrom     string
+	Name         string
 	cliDecorated string
-	data         string
+	Data         string
 }
 
 func (p *Packet) SendFrom() string {
-	return p.sendFrom
+	return p.Name
 }
 
 func (p *Packet) GetString() string {
-	return p.data
+	return p.Data
 }
 
 func (p *Packet) CLIView() string {
-	return p.cliDecorated
+	return p.Data
 }

@@ -13,6 +13,8 @@ func main() {
 		log.Fatal(err)
 	} else if err := engine.AssignConfig(entity); err != nil {
 		log.Fatal(err)
+	} else if err := engine.Run(); err != nil {
+		log.Fatal(err)
 	}
 	engine.Finalize()
 }

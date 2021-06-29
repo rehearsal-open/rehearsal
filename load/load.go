@@ -42,6 +42,8 @@ func loadConfigYaml(conf *entity.Config) error {
 		if err := d.Decode(conf); err != nil {
 			return errors.WithStack(err)
 		}
+
+		conf.Dir = filepath.Join(filepath.Dir(conf.YamlPath), conf.Dir)
 	}
 
 	return nil

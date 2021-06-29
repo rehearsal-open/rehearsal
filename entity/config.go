@@ -14,4 +14,5 @@ type TaskConfig struct {
 	ExecPath string   `yaml:"execPath"`
 	Args     []string `yaml:"args"`
 	ShowOut  bool     `yaml:"show"`
+	SendTo   []string `yaml:"sendTo"`
 }
