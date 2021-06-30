@@ -10,4 +10,13 @@ tasks:
       - --bin
       - gen
       - seeds.txt
+    sendTo:
+      - communicator
+    show: false
+
+  - name: communicator
+    type: CLI
+    execPath: ./../.venv/scripts/python.exe
+    args:
+      - ./../communicator.py
     show: true
