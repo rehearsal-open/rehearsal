@@ -25,7 +25,9 @@ func Load() (*entity.Config, error) {
 			conf.YamlPath = abs
 		}
 		return &conf, errors.WithStack(loadConfigYaml(&conf))
-
+	case "about":
+		conf.Command = "about"
+		return &conf, nil
 	default:
 		return nil, errors.New("unknown command: " + args[1])
 	}
