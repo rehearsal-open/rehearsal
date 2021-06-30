@@ -22,7 +22,7 @@ func main() {
 				log.Fatal(err)
 			}
 		case "about":
-			fmt.Println(entity.AboutInfomation)
+			fmt.Println(entity.AboutInfomation())
 		}
 	}
 	engine.Finalize()
