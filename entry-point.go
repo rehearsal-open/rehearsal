@@ -11,6 +11,9 @@ import (
 
 func main() {
 	engine := v0.RehearsalEngine{}
+
+	fmt.Println(entity.GeneralPulicLicenseAbstruct)
+
 	if en, err := load.Load(); err != nil {
 		log.Fatal(err)
 	} else {

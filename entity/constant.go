@@ -14,9 +14,28 @@ const (
  //_\     /  \     /_\\ \\_ \ \____ \\_______// \\   ___/  / \\_______// \ ______  / \\_ \ \____ ________\  / \ ______  / \\_________ 
  //_\  __/\  /\__  /_\\  \_\ \____/  \_______/   \\  \____/   \_______/   \\ \____/   \_\ \____/ \_________/   \\ \____/   \________/ 
 
-Rehearsal v0.9.0
-under General Public License
+Rehearsal v0.9.0 / process-connecting test tool
+Copyright (C) 2021  Kasai Koji
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 `
+	GeneralPulicLicenseAbstruct string = `
+rehearsal v0.9.0  Copyright (C) 2021  Kasai Koji
+This program comes with ABSOLUTELY NO WARRANTY; for details type 'rehearsal about'.
+This is free software, and you are welcome to redistribute it
+under certain conditions; type 'rehearsal about' for details.
+	`
 )
 
 func AboutInfomation() string {
