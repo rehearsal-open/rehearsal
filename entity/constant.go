@@ -30,7 +30,7 @@ const (
  //_\     /  \     /_\\ \\_ \ \____ \\_______// \\   ___/  / \\_______// \ ______  / \\_ \ \____ ________\  / \ ______  / \\_________ 
  //_\  __/\  /\__  /_\\  \_\ \____/  \_______/   \\  \____/   \_______/   \\ \____/   \_\ \____/ \_________/   \\ \____/   \________/ 
 
-rehearsal v0.9.0 / process-connecting test tool
+rehearsal v0.9.0 / process-conecting test tool
 Copyright (C) 2021  Kasai Koji
 
 This program is free software: you can redistribute it and/or modify
