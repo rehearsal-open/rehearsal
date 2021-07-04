@@ -12,7 +12,7 @@
 
 ```
 
-ハッカソン用の発表資料を公開しています。ぜひご覧ください。 [Google Slide]() [Youtube]() [niconico]()
+ハッカソン用の発表資料を公開しています。ぜひご覧ください。 [Google Slide](https://docs.google.com/presentation/d/1BZcwHe4nWJIgxGl1mR7c9_kgf23wZgf0JXtp0F24t0I/edit?usp=sharing) [Youtube](https://youtu.be/IeI_CtIQk_A)
 
 ## Contents
 
