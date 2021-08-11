@@ -48,41 +48,78 @@ package %s
 
 func main() {
 
+	// Command Documentation
+	// make-gofile [root directory path] [adding *.go file's relative path] [author name] ([module name])
+
 	// get command environment
 	wd, _ := os.Getwd()
-	if len(os.Args) < 3 {
+
+	// check number of arguments
+	if len(os.Args) < 4 {
 		log.Fatalln("command has a few arguments....",
 			"this cli use: make-gofile <relative file path> <author name> (<package name>)")
-	} else if len(os.Args) > 4 {
+	} else if len(os.Args) > 5 {
 		log.Fatalln("command has much arguments....",
 			"this cli use: make-gofile <relative file path> <author name> (<package name>)")
 	}
-	relPath := os.Args[1]
-	author := os.Args[2]
-	path := filepath.Join(wd, relPath)
-	dir := filepath.Dir(path)
-	var pkgName string
-	if len(os.Args) == 4 {
-		pkgName = os.Args[3]
+
+	// variable definates
+	var (
+		absPath    string // absolute path
+		absPathDir string
+		relPath    string // relative path, base directory is root directory
+		pkgName    string // package name
+		rootDir    string // root of repository's absolute path
+		author     string = os.Args[3]
+	)
+
+	// making absolute path
+	if abs, err := filepath.Abs(wd); err != nil {
+		log.Fatalln(err.Error)
 	} else {
-		pkgName = strings.Split(filepath.Base(dir), ".")[0]
+		absPath = filepath.Join(abs, os.Args[2])
+		absPathDir = filepath.Dir(absPath)
+	}
+
+	// making root directory path
+	if root, err := filepath.Abs(os.Args[1]); err != nil {
+		log.Fatalln(err.Error())
+	} else if f, err := os.Stat(root); os.IsNotExist(err) || !f.IsDir() {
+		log.Fatalln("you must use in root directory of repository....",
+			fmt.Sprint("current directory: ", wd))
+	} else {
+		rootDir = root
+	}
+
+	// making relative path
+	if f, err := os.Stat(filepath.Join(rootDir, "/.git")); os.IsNotExist(err) || !f.IsDir() {
+		log.Fatalln("you must use in root directory of repository....",
+			fmt.Sprint("current directory: ", wd))
+	} else if rel, err := filepath.Rel(rootDir, absPath); err != nil {
+		log.Fatalln(err.Error())
+	} else {
+		relPath = strings.ReplaceAll(rel, "\\", "/")
+	}
+
+	// making package name
+	if len(os.Args) == 5 {
+		pkgName = os.Args[4]
+	} else {
+		pkgName = strings.Split(filepath.Base(absPathDir), ".")[0]
 	}
 
 	// check directory and filename
-	if f, err := os.Stat(filepath.Join(wd, "/.git")); os.IsNotExist(err) || !f.IsDir() {
-		log.Fatalln("you must use in root directory of repository....",
-			fmt.Sprint("current directory: ", wd))
-	} else if f, err := os.Stat(dir); os.IsNotExist(err) || !f.IsDir() {
+	if f, err := os.Stat(absPathDir); os.IsNotExist(err) || !f.IsDir() {
 		log.Fatalln("you must select already made directory; make directory....\n",
-			fmt.Sprint("your select file: ", dir))
-	} else if f, err := os.Stat(path); !(os.IsNotExist(err) || f.IsDir()) {
+			fmt.Sprint("your select file: ", absPathDir))
+	} else if f, err := os.Stat(absPath); !(os.IsNotExist(err) || f.IsDir()) {
 		log.Fatalln("your select file has already existed....")
-	} else if filepath.Ext(path) != ".go" {
+	} else if filepath.Ext(absPath) != ".go" {
 		log.Fatalln("this script makes only .go files....")
 	}
 
 	// make & write file
-	file, err := os.Create(path)
+	file, err := os.Create(absPath)
 	if err != nil {
 		log.Fatal(err)
 	}
