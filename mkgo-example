@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# THIS FILE IS ./mkgo file example
+
+RootPath=`dirname $0`
+GoMaker=${RootPath}/.for-dev/make-gofile
+AbsFilePath=`pwd`/$1
+
+go run $GoMaker "$RootPath" $1 "Kasai Koji" $2
