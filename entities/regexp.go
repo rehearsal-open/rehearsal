@@ -17,70 +17,70 @@
 package entities
 
 import (
-	"errors"
 	"regexp"
+
+	"github.com/streamwest-1629/guarantee_str"
 )
 
 const (
 	// for user defined name (tasks, phases, and so on...)
-	userDefinedName = "[a-zA-Z][a-zA-Z0-9_-]*"
+	userDefinedNameRegex = "[a-zA-Z][a-zA-Z0-9_-]*"
 	// for system defined name (tasks, phases, and so on...)
-	systemDefinedName = "__[a-zA-Z][a-zA-Z0-9_-]*"
+	systemDefinedNameRegex = "__[a-zA-Z][a-zA-Z0-9_-]*"
 	// for user and system defined name (tasks, phases, and so on...)
-	definedName = "(__)?[a-zA-Z][a-zA-Z0-9_-]*"
+	definedNameRegex = "(__)?[a-zA-Z][a-zA-Z0-9_-]*"
 	// for task's fullname, including phase and task's name
-	taskFullName = definedName + "::" + definedName
+	taskFullNameRegex = definedNameRegex + "::" + definedNameRegex
 	// for user defined task's fullname, including phase and task user's defined name
-	userTaskFullName = userDefinedName + "::" + userDefinedName
+	userTaskFullNameRegex = userDefinedNameRegex + "::" + userDefinedNameRegex
 )
 
-type __Regexp struct {
-	userDefinedName   *regexp.Regexp // for user defined name(tasks, phases, and so on): "[a-zA-Z][a-zA-Z0-9_-]*"
-	systemDefinedName *regexp.Regexp // for system defined name(tasks, phases, and so on): "__[a-zA-Z][a-zA-Z0-9_-]*"
-	definedName       *regexp.Regexp // for user and system name(tasks, phases, and so on): "(__)?[a-zA-Z][a-zA-Z0-9_-]*"
-	taskFullName      *regexp.Regexp // for task's fullname: "(__)?[a-zA-Z][a-zA-Z0-9_-]*::(__)?[a-zA-Z][a-zA-Z0-9_-]*"
-	userTaskFullName  *regexp.Regexp // for user defined task's fullname: "[a-zA-Z][a-zA-Z0-9_-]*::[a-zA-Z][a-zA-Z0-9_-]*"
-}
+var (
+	// for user defined name(tasks, phases, and so on): "[a-zA-Z][a-zA-Z0-9_-]*"
+	userDefinedNameFilter = guarantee_str.MakeRegexpFilter(regexp.MustCompile(userDefinedNameRegex))
+	// for system defined name(tasks, phases, and so on): "__[a-zA-Z][a-zA-Z0-9_-]*"
+	systemDefinedNameFilter = guarantee_str.MakeRegexpFilter(regexp.MustCompile(systemDefinedNameRegex))
+	// for user and system name(tasks, phases, and so on): "(__)?[a-zA-Z][a-zA-Z0-9_-]*"
+	definedNameFilter = guarantee_str.MakeRegexpFilter((regexp.MustCompile(definedNameRegex)))
+	// for task's fullname: "(__)?[a-zA-Z][a-zA-Z0-9_-]*::(__)?[a-zA-Z][a-zA-Z0-9_-]*"
+	taskFullNameFilter = guarantee_str.MakeRegexpFilter(regexp.MustCompile(taskFullNameRegex))
+	// for user defined task's fullname: "[a-zA-Z][a-zA-Z0-9_-]*::[a-zA-Z][a-zA-Z0-9_-]*"
+	userTaskFullNameFilter = guarantee_str.MakeRegexpFilter(regexp.MustCompile(userTaskFullNameRegex))
+)
 
-var Regexp __Regexp = __Regexp{
-	userDefinedName:   regexp.MustCompile(userDefinedName),
-	systemDefinedName: regexp.MustCompile(systemDefinedName),
-	definedName:       regexp.MustCompile(definedName),
-	taskFullName:      regexp.MustCompile(taskFullName),
-	userTaskFullName:  regexp.MustCompile(userTaskFullName),
-}
+// to make internal embed structure
+type internalGuarantee struct{ *guarantee_str.GuaranteeStr }
 
-// regular expression for user defined name(tasks, phases, and so on): "[a-zA-Z][a-zA-Z0-9]*"
-func (r *__Regexp) UserDefinedName() *regexp.Regexp { return r.userDefinedName }
+type DefinedName struct{ *internalGuarantee }
 
-// for system defined name(tasks, phases, and so on): "__[a-zA-Z][a-zA-Z0-9]*"
-func (r *__Regexp) SystemDefinedName() *regexp.Regexp { return r.systemDefinedName }
-
-// for user and system name(tasks, phases, and so on): "([a-zA-Z]|__[a-zA-Z])[a-zA-Z0-9]*"
-func (r *__Regexp) DefinedName() *regexp.Regexp { return r.definedName }
-
-// for task's fullname: "([a-zA-Z]|__[a-zA-Z])[a-zA-Z0-9]*::([a-zA-Z]|__[a-zA-Z])[a-zA-Z0-9]*"
-func (r *__Regexp) TaskFullName() *regexp.Regexp { return r.taskFullName }
-
-// for user defined task's fullname: "[a-zA-Z][a-zA-Z0-9]*::[a-zA-Z][a-zA-Z0-9]*"
-func (r *__Regexp) UserTaskFullName() *regexp.Regexp { return r.userTaskFullName }
-
-// string value satisfied entitities.Regexp.DefinedName regular expression
-type DefinedName string
-
-// check value satisfied regular expression and assign it
-func (defined DefinedName) Assign(name string) error {
-	if found := Regexp.definedName.FindAllStringIndex(name, -1); len(found) == 1 {
-		if found[0][0] == 0 && found[0][1] == len(name) {
-			defined = DefinedName(name)
-			return nil
-		}
+func MakeDefinedName(name string) (*DefinedName, error) {
+	if guarantee, err := definedNameFilter.MakeGuarantee(name); err != nil {
+		return nil, err
+	} else {
+		return &DefinedName{
+			internalGuarantee: &internalGuarantee{
+				GuaranteeStr: guarantee,
+			},
+		}, nil
 	}
-	return errors.New(name + " is invalid (not satisfied DefinedName regular expression)")
 }
 
-type TaskFullName string
+func (name *DefinedName) IsSystemName() bool {
+	_, err := systemDefinedNameFilter.ChangeGuarantee(name.GuaranteeStr)
+	return err == nil
+}
 
-func MakeTaskFullName(phaseName DefinedName, taskName DefinedName) TaskFullName {
-	return TaskFullName(phaseName + "::" + taskName)
+// task's fullname, including phase name and task name
+type TaskFullName struct{ *internalGuarantee }
+
+func MakeTaskFullName(phaseName, taskName string) (*TaskFullName, error) {
+	if guarantee, err := definedNameFilter.MakeGuarantee(phaseName + "::" + taskName); err != nil {
+		return nil, err
+	} else {
+		return &TaskFullName{
+			internalGuarantee: &internalGuarantee{
+				GuaranteeStr: guarantee,
+			},
+		}, nil
+	}
 }
