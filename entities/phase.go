@@ -29,6 +29,7 @@ func (p *Phase) appendTask(name string, kind string, detail TaskDetail) (task *T
 
 		// make task
 		task = &Task{
+			phase:        p.name,
 			name:         name,
 			Kind:         kind,
 			SyncInterval: p.SyncInterval,

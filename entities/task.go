@@ -17,6 +17,7 @@
 package entities
 
 func (t *Task) Name() string       { return t.name }
+func (t *Task) Fullname() string   { return t.phase + "::" + t.name }
 func (t *Task) Detail() TaskDetail { return t.detail }
 func (t *Task) CheckFormat() error {
 	if err := taskkindFilter(t.Kind); err != nil {
