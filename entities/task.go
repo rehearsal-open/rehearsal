@@ -16,30 +16,15 @@
 
 package entities
 
-import (
-	"time"
-)
-
-// constant names task's kind, should be satisfied a entities.UserDefinedName regular expression
-type TaskKind string
-
-// constant names task's kind, should be satisfied a entities.UserDefinedName regular
-type TaskDetailProperty int
-
-type TaskDetail []interface{}
-
-const (
-	ExecuteCuiTask TaskKind = "executeCui"
-	ConsoleTask    TaskKind = "console"
-)
-
-// defined configuration of rehearsal task, its lifespan
-type Task struct {
-	Name         DefinedName    // be satisfied a entities.DefinedName regular expression
-	SyncInterval time.Duration  // i/o syncronization interval, default value is (*Default).Sync
-	kind         TaskKind       // kind of task, select from entities.TaskKind enum
-	SendTo       []TaskFullName // tasks' full name which i/o data send to, satisfied a entities.TaskFullName regular expression
-	Details      TaskDetail     // detail configuration indivisually defined by task's kind
-	BeginPhase   DefinedName    // name of phase which begins, must be equal to phase which appended it
-	UntilPhase   DefinedName    // name of phase until which this task continue, default value is launching phase's name
+func (t *Task) Name() string       { return t.name }
+func (t *Task) Detail() TaskDetail { return t.detail }
+func (t *Task) CheckFormat() error {
+	if err := taskkindFilter(t.Kind); err != nil {
+		return err
+	} else if err := encodingFilter(t.Encoding); err != nil {
+		return err
+	} else if err := t.detail.CheckFormat(); err != nil {
+		return err
+	}
+	return nil
 }
