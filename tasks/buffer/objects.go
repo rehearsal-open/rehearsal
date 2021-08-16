@@ -20,6 +20,7 @@ import (
 	"sync"
 
 	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/entities/element"
 )
 
 type (
@@ -27,7 +28,7 @@ type (
 	Buffer struct {
 		mutex    *sync.RWMutex
 		task     *entities.Task
-		element  entities.TaskElement
+		element  element.TaskElement
 		packets  []packetBase
 		reciever []Reciever
 		ch       chan []byte

@@ -17,18 +17,19 @@
 package gateways
 
 import (
-	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/entities/element"
+	"github.com/rehearsal-open/rehearsal/entities/run_state"
 	"github.com/rehearsal-open/rehearsal/tasks/buffer"
 )
 
 type (
 	Task interface {
-		IsSupporting(element entities.TaskElement) bool
-		ElementState(element entities.TaskElement) entities.RunningState
+		IsSupporting(element element.TaskElement) bool
+		ElementState(element element.TaskElement) run_state.RunningState
 		BeginTask() error // begin main task
 		StopTask()        // stop reciever and main task
 		ReleaseResource() // delete buffer and so on
-		AppendReciever(sender entities.TaskElement, reciever buffer.Reciever) error
-		Reciever(element entities.TaskElement) buffer.Reciever
+		AppendReciever(sender element.TaskElement, reciever buffer.Reciever) error
+		Reciever(element element.TaskElement) buffer.Reciever
 	}
 )

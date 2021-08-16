@@ -1,4 +1,4 @@
-// tasks/buffer/packet_base.go
+// entities/run_state/objects.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -14,21 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package buffer
+package run_state
 
-import (
-	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/entities/element"
+type RunningState int
+
+const (
+	Waiting RunningState = iota
+	Running
+	Closed
+	Finalized
 )
-
-func (pb *packetBase) Close() error {
-	pb.nClosed++
-	if pb.nClosed >= pb.nSend {
-		pb.bytes = nil
-	}
-	return nil
-}
-
-func (p *packetBase) Sender() (*entities.Task, element.TaskElement) {
-	return p.buffer.task, p.buffer.element
-}
