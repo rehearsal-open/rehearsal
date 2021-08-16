@@ -1,4 +1,4 @@
-// tasks/gateways/cui/cui_test.go
+// tasks/infrastructure.gateways/cui/cui_test.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@ package cui_test
 import (
 	"os"
 
-	cui_entity "github.com/rehearsal-open/rehearsal/tasks/gateways/cui.entity"
+	cui_entity "github.com/rehearsal-open/rehearsal/tasks/infrastrcuture.gateways/cui.entity"
 )
 
 var (

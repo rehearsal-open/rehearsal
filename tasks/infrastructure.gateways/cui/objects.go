@@ -1,4 +1,4 @@
-// tasks/gateways/cui.entity/objects.go
+// tasks/infrastructure.gateways/cui/objects.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -16,17 +16,21 @@
 
 package cui
 
-import "time"
+import (
+	"io"
+	"os/exec"
 
-type (
-	Detail struct {
-		Path      string
-		Args      []string
-		Dir       string
-		Timelimit time.Duration
-	}
+	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/tasks/basis.gateways"
+	"github.com/rehearsal-open/rehearsal/tasks/infrastructure.gateways/cui.entity"
 )
 
-func (d *Detail) CheckFormat() error {
-	return nil
-}
+type (
+	task struct {
+		basis.Task
+		*cui.Detail
+		*exec.Cmd
+		entity *entities.Task
+		stdin  io.Writer
+	}
+)

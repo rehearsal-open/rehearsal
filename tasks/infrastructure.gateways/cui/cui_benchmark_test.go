@@ -1,4 +1,4 @@
-// tasks/gateways/cui/cui_benchmark_test.go
+// tasks/infrastructure.gateways/cui/cui_benchmark_test.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ import (
 
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/element"
-	"github.com/rehearsal-open/rehearsal/tasks/gateways/cui"
+	"github.com/rehearsal-open/rehearsal/tasks/infrastructure.gateways/cui"
 )
 
 func BenchmarkModule2(b *testing.B) {
