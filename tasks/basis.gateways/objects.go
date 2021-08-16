@@ -34,7 +34,7 @@ type (
 		// call when main task's closing
 		Close(err error)
 		// call when main just after task's begining
-		ListenStart() error
+		ListenStart(callback [element.NumTaskElement]RecieveCallback)
 	}
 
 	Task interface {
@@ -54,7 +54,6 @@ type (
 		IsSupporting(elem element.TaskElement) bool
 		ExecuteMain(args MainFuncArguments) error
 		StopMain()
-		RecieverCallback(elem element.TaskElement) (RecieveCallback, error)
 	}
 
 	internalTask struct {

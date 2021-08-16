@@ -17,6 +17,7 @@
 package cui
 
 import (
+	"bytes"
 	"io"
 	"os/exec"
 
@@ -48,7 +49,7 @@ func Make(entity *entities.Task) (cuiTask gateways.Task, err error) {
 	result.Cmd = exec.Command(result.Detail.Path, result.Detail.Args...)
 	result.Cmd.Dir = result.Detail.Dir
 
-	return cuiTask, nil
+	return &result, nil
 }
 
 func (cui *task) IsSupporting(elem element.TaskElement) bool {
@@ -59,11 +60,13 @@ func (cui *task) IsSupporting(elem element.TaskElement) bool {
 
 func (cui *task) ExecuteMain(args basis.MainFuncArguments) error {
 
+	var stdIn io.Writer
+
 	// listener
 	if stdin, err := cui.Cmd.StdinPipe(); err != nil {
 		return err
 	} else {
-		cui.stdin = stdin
+		stdIn = stdin
 	}
 
 	// writer
@@ -80,8 +83,12 @@ func (cui *task) ExecuteMain(args basis.MainFuncArguments) error {
 
 	callback := [element.NumTaskElement]basis.RecieveCallback{nil}
 	callback[element.StdIn] = func(recieve buffer.Packet) error {
-		if cui.stdin != nil {
-			io.Copy(cui.stdin, &recieve)
+		if stdIn != nil {
+			buffer := bytes.NewBuffer(make([]byte, 0))
+			io.Copy(buffer, &recieve)
+			if _, err := io.Copy(stdIn, buffer); err != nil {
+				panic(err.Error())
+			}
 			return nil
 		} else {
 			panic("stdin finalized")
@@ -90,19 +97,24 @@ func (cui *task) ExecuteMain(args basis.MainFuncArguments) error {
 
 	if err := cui.Start(); err != nil {
 		return err
+	} else {
+
+		args.ListenStart(callback)
+
+		// start running element
+		go func() {
+			err := error(nil)
+			err = cui.Cmd.Wait()
+			if err != nil {
+				panic(err.Error())
+			}
+			args.Close(err)
+			cui.stdin = nil
+		}()
+
+		return nil
 	}
 
-	args.ListenStart(callback)
-
-	// start running element
-	go func() {
-		err := error(nil)
-		err = cui.Cmd.Wait()
-		args.Close(err)
-		cui.stdin = nil
-	}()
-
-	return nil
 }
 
 func (cui *task) StopMain() {
