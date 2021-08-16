@@ -1,4 +1,4 @@
-// tasks/buffer/objects.go
+// tasks/basis.gateways/element.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -14,43 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package buffer
+package basis
 
-import (
-	"sync"
+import "github.com/rehearsal-open/rehearsal/tasks/buffer"
 
-	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/entities/element"
-)
-
-type (
-	// Contains written buffer
-	Buffer struct {
-		mutex    *sync.RWMutex
-		task     *entities.Task
-		element  element.TaskElement
-		packets  []*packetBase
-		reciever []Reciever
-		ch       chan []byte
-		running  bool
-	}
-
-	// Contains sending packet
-	packetBase struct {
-		buffer  *Buffer
-		bytes   []byte
-		nClosed int
-		nSend   int
-	}
-
-	// Contains packet
-	Packet struct {
-		*packetBase
-		offset int
-	}
-
-	// Recieves Packet
-	Reciever interface {
-		SendPacket(p Packet)
-	}
-)
+func (elem *Element) SendPacket(p buffer.Packet) {
+	elem.reciever[elem.TaskElement] <- p
+}

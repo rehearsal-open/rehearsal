@@ -25,11 +25,12 @@ import (
 type (
 	Task interface {
 		IsSupporting(element element.TaskElement) bool
+		MainState() run_state.RunningState
 		ElementState(element element.TaskElement) run_state.RunningState
 		BeginTask() error // begin main task
 		StopTask()        // stop reciever and main task
 		ReleaseResource() // delete buffer and so on
 		AppendReciever(sender element.TaskElement, reciever buffer.Reciever) error
-		Reciever(element element.TaskElement) buffer.Reciever
+		Reciever(element element.TaskElement) (buffer.Reciever, error)
 	}
 )
