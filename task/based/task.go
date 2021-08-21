@@ -211,7 +211,7 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]Reciever) {
 				for {
 					packet, exist := <-basis.elements[i].reciever
 					if exist {
-						callback[elem](packet)
+						callback[elem](&packet)
 					} else {
 						return
 					}

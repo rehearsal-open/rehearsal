@@ -29,7 +29,7 @@ import (
 
 type (
 	// Callback functions called when task recieves packet.
-	Reciever func(recieved buffer.Packet)
+	Reciever func(recieved *buffer.Packet)
 
 	// Defines main task's argumetns to call basis functions.
 	// These functions must to be called.
