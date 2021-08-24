@@ -21,16 +21,17 @@ import "github.com/rehearsal-open/rehearsal/entities"
 type (
 	Parser    map[string]interface{}
 	Rehearsal struct {
-		entities.Rehearsal `map-to:"<-"`
-		Phases             []Phase `map-to:"phase!"`
+		*entities.Rehearsal `map-to:"<-"`
+		Phases              []Phase `map-to:"phase!"`
 	}
 	Phase struct {
-		Name  string `map-to:"name!"`
 		Index int    `map-to:"at"`
+		Name  string `map-to:"name"`
 		Tasks []Task `map-to:"task!"`
 	}
 	Task struct {
-		entities.Task `map-to:"<-"`
-		Clone         map[string]interface{} `map-to:"<-"`
+		*entities.Task `map-to:"<-"`
+		Clone          map[string]interface{} `map-to:"<-"`
+		SendTo         []string               `map-to:"sendto"`
 	}
 )
