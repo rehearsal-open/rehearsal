@@ -1,6 +1,6 @@
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
-gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
-gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
-gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v22aHH28wwpauUhK9Oo=
-gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
+github.com/streamwest-1629/convertobject v0.0.0-20210824052619-aed184c11097 h1:NNFBDRlLDhwiknA6BzbvHZNPLfv7/BlWay/I4908s14=
+github.com/streamwest-1629/convertobject v0.0.0-20210824052619-aed184c11097/go.mod h1:EwxCn+MkHu5S8JaWByWQNIstASoIGDoipnK8ktFmTzA=
+github.com/streamwest-1629/textfilter v0.0.0-20210822001714-e4dccd31c159 h1:bDoPVEEA9sUhwuS/xhXp22vF/7sZXFlcRClmJlWIBXU=
+github.com/streamwest-1629/textfilter v0.0.0-20210822001714-e4dccd31c159/go.mod h1:Q6/64TDWYaVw4m/zl8QP36rvh4SEGWG09/ezIO0PANI=

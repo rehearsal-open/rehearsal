@@ -21,6 +21,7 @@ import "github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 type (
 	// Defines configuration of rehearsal excuting and each task  default configuration's value.
 	Rehearsal struct {
+		Version  float64 `map-to:"version!"`
 		tasks    []*Task
 		nameList map[string]int
 	}
@@ -28,15 +29,15 @@ type (
 	// Defines configuration of rehearsal task, its lifespan.
 	Task struct {
 		Phasename string
-		Taskname  string
-		Kind      string
+		Taskname  string `map-to:"name!"`
+		Kind      string `map-to:"kind!"`
 		Detail    TaskDetail
 		sendto    []Reciever
 	}
 
 	// Defines functions whose task's detail structure must be statisfied as task's detail structure.
 	TaskDetail interface {
-		// Validate member value.
+		// Validate member value.@
 		// If it is able to fix them, should do that.
 		CheckFormat() error
 		// Parse from map object and assign this instance.
