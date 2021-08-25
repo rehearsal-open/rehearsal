@@ -44,6 +44,8 @@ func (b *Buffer) Write(bytes []byte) (written int, err error) {
 	clone = append(clone, bytes...)
 	written = len(clone)
 
+	b.ch <- clone
+
 	return written, nil
 }
 

@@ -37,33 +37,44 @@ func TestWholeAlgorithm(t *testing.T) {
 						"name":      "python_1",
 						"kind":      "cui",
 						"wait-stop": true,
-						// "sendto": []
+						"cmd":       "python",
+						"args": []interface{}{
+							"../test/py2py/01/python2.py",
+						},
+						"sendto": []interface{}{
+							"phase_1::python_2",
+						},
 					},
 					mapped.MappingType{
 						"name":      "python_2",
 						"kind":      "cui",
 						"wait-stop": true,
+						"cmd":       "python",
+						"args": []interface{}{
+							"../test/py2py/01/python1.py",
+						},
 						// "sendto": []
 					},
 				},
 			},
-			mapped.MappingType{
-				"name": "phase_2",
-				"task": []interface{}{
-					mapped.MappingType{
-						"name":      "python_1",
-						"kind":      "cui",
-						"wait-stop": true,
-						// "sendto": []
-					},
-					mapped.MappingType{
-						"name":      "python_2",
-						"kind":      "cui",
-						"wait-stop": true,
-						// "sendto": []
-					},
-				},
-			},
+			// mapped.MappingType{
+			// 	"name": "phase_2",
+			// 	"task": []interface{}{
+			// 		mapped.MappingType{
+			// 			"name":      "python_1",
+			// 			"kind":      "cui",
+			// 			"wait-stop": true,
+			// 			"cmd":       "python",
+			// 			// "sendto": []
+			// 		},
+			// 		// mapped.MappingType{
+			// 		// 	"name":      "python_2",
+			// 		// 	"kind":      "cui",
+			// 		// 	"wait-stop": true,
+			// 		// 	// "sendto": []
+			// 		// },
+			// 	},
+			// },
 		},
 	}
 
@@ -77,6 +88,10 @@ func TestWholeAlgorithm(t *testing.T) {
 
 	en := engine.Rehearsal{}
 	if err := en.Reset(&parser, taskMaker, nil); err != nil {
+		panic(err)
+	}
+
+	if err := en.Execute(); err != nil {
 		panic(err)
 	}
 

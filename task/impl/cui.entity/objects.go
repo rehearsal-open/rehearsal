@@ -17,20 +17,35 @@
 package cui
 
 import (
+	"os"
 	"time"
 
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/parser/mapped"
+	"github.com/streamwest-1629/convertobject"
 )
 
 type (
 	Detail struct {
-		Path      string   `map-to:"cmd"`
+		Path      string   `map-to:"cmd!"`
 		Args      []string `map-to:"args"`
 		Dir       string   `map-to:"dir"`
+		IsWait    bool     `map-to:"wait-stop"`
 		Timelimit time.Duration
 	}
 )
+
+var (
+	DirPathDefault string
+)
+
+func init() {
+	if wd, err := os.Getwd(); err != nil {
+		panic(err)
+	} else {
+		DirPathDefault = wd
+	}
+}
 
 func (d *Detail) CheckFormat() error {
 	return nil
@@ -38,6 +53,18 @@ func (d *Detail) CheckFormat() error {
 
 func GetDetail(mapping mapped.MappingType, dest *entities.Task) error {
 	// TODO: WRITE IT
+
+	detail := &Detail{
+		IsWait: true,
+		Dir:    DirPathDefault,
+		Args:   []string{},
+	}
+
+	if err := convertobject.DirectConvert(mapping, detail); err != nil {
+		return err
+	} else {
+		dest.IsWait, dest.Detail = detail.IsWait, detail
+	}
 
 	return nil
 }

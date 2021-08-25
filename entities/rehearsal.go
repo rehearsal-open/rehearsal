@@ -21,6 +21,9 @@ import "github.com/pkg/errors"
 func (r *Rehearsal) AddTask(task *Task) {
 	at, name := len(r.tasks), task.Fullname()
 	r.tasks = append(r.tasks, task)
+	if r.nameList == nil {
+		r.nameList = make(map[string]int)
+	}
 	r.nameList[name] = at
 }
 

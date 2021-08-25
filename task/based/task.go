@@ -209,7 +209,7 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]Reciever) {
 			// begin to listen element goroutine
 			go func(elem int) {
 				for {
-					packet, exist := <-basis.elements[i].reciever
+					packet, exist := <-basis.elements[elem].reciever
 					if exist {
 						callback[elem](&packet)
 					} else {
