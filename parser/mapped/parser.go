@@ -23,12 +23,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
-	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/streamwest-1629/convertobject"
 	"github.com/streamwest-1629/textfilter"
 )
 
-func (p *Parser) Parse(creator task.DetailCreator) (*entities.Rehearsal, error) {
+func (p *Parser) Parse() (*entities.Rehearsal, error) {
 
 	r := Rehearsal{}
 	const errMsg = "cannot parse from map to object"
@@ -37,7 +36,7 @@ func (p *Parser) Parse(creator task.DetailCreator) (*entities.Rehearsal, error) 
 		phases = map[string]*Phase{}
 	)
 
-	if err := convertobject.DirectConvert(map[string]interface{}(*p), &r); err != nil {
+	if err := convertobject.DirectConvert(p.mapped, &r); err != nil {
 		return nil, errors.WithMessage(err, errMsg)
 	}
 
@@ -92,9 +91,11 @@ func (p *Parser) Parse(creator task.DetailCreator) (*entities.Rehearsal, error) 
 			if err := textfilter.RegisterFiltering(taskFilter, task.Fullname(), func() error {
 
 				// set task detail data
-				if err := creator.AssignTaskDetail(task.Kind, task.Task, task.Clone); err != nil {
+				if err := p.DetailMaker.MakeDetail(task.Kind, task.Clone, task.Task); err != nil {
 					return err
 				}
+
+				task.LaunchAt = iPhase
 
 				r.Rehearsal.AddTask(task.Task)
 

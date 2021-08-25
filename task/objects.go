@@ -55,16 +55,4 @@ type (
 		// Get reciever selected by task element.
 		Reciever(element task_element.Enum) (buffer.Reciever, error)
 	}
-
-	// Definates functions to make task's detail instance.
-	DetailCreator interface {
-		// Assign task's detail with configuration.
-		AssignTaskDetail(kind string, entity *entities.Task, mapped map[string]interface{}) error
-	}
-
-	// Definates functions to make task's instance.
-	TaskCreator interface {
-		// Create new task instance.
-		MakeTask(kind string, entity *entities.Task) (Task, error)
-	}
 )

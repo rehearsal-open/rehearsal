@@ -1,0 +1,61 @@
+// task/maker/objects.go
+// Copyright (C) 2021 Kasai Koji
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+package maker
+
+import (
+	"github.com/pkg/errors"
+	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/task"
+)
+
+type (
+	// task's instance maker
+	Maker struct {
+		taskMakers map[string]TaskMaker
+	}
+	TaskMaker interface {
+		MakeDetail(src interface{}, dest *entities.Task) error
+		MakeTask(entity *entities.Task) (task.Task, error)
+	}
+)
+
+var (
+	ErrCannotSupportKind = errors.New("cannot found task's kind from supported list")
+)
+
+func (m *Maker) MakeDetail(kind string, src interface{}, dest *entities.Task) error {
+	if maker, support := m.taskMakers[kind]; !support {
+		return ErrCannotSupportKind
+	} else {
+		return errors.WithStack(maker.MakeDetail(src, dest))
+	}
+}
+
+func (m *Maker) MakeTask(kind string, entity *entities.Task) (task.Task, error) {
+	if maker, support := m.taskMakers[kind]; !support {
+		return nil, ErrCannotSupportKind
+	} else if task, err := maker.MakeTask(entity); err != nil {
+		return nil, errors.WithStack(err)
+	} else {
+		return task, err
+	}
+}
+
+func (m *Maker) IsSupportedKind(kind string) bool {
+	_, support := m.taskMakers[kind]
+	return support
+}

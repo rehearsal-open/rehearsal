@@ -31,6 +31,7 @@ type (
 		Phasename string
 		Taskname  string `map-to:"name!"`
 		Kind      string `map-to:"kind!"`
+		LaunchAt  int
 		Detail    TaskDetail
 		sendto    []Reciever
 	}
@@ -40,11 +41,6 @@ type (
 		// Validate member value.@
 		// If it is able to fix them, should do that.
 		CheckFormat() error
-		// Parse from map object and assign this instance.
-		//
-		// taskName argument is given this format: "<task name>'s ".
-		// It should be use for error message with property name.
-		ParseMap(taskName string, mapping map[interface{}]interface{}) error
 		// Convert from TaskDetail to string.
 		String() string
 	}

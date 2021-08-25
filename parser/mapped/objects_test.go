@@ -24,7 +24,7 @@ import (
 )
 
 func TestParse(t *testing.T) {
-	val := Parser{
+	val := MappingType{
 		"version": 0.202109,
 		"phase": []interface{}{
 			map[string]interface{}{
