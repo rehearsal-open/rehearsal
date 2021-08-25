@@ -22,7 +22,7 @@ type (
 	MappingType = map[string]interface{}
 	Parser      struct {
 		DetailMaker
-		mapped MappingType
+		Mapped MappingType
 	}
 	Rehearsal struct {
 		*entities.Rehearsal `map-to:"<-"`
@@ -30,7 +30,7 @@ type (
 	}
 	Phase struct {
 		Index int    `map-to:"at"`
-		Name  string `map-to:"name"`
+		Name  string `map-to:"name!"`
 		Tasks []Task `map-to:"task!"`
 	}
 	Task struct {

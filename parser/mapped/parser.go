@@ -36,7 +36,7 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 		phases = map[string]*Phase{}
 	)
 
-	if err := convertobject.DirectConvert(p.mapped, &r); err != nil {
+	if err := convertobject.DirectConvert(p.Mapped, &r); err != nil {
 		return nil, errors.WithMessage(err, errMsg)
 	}
 

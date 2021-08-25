@@ -42,6 +42,10 @@ var (
 	ErrCannotSupportKind = errors.New("cannot found task's kind from supported list")
 )
 
+func (m *Maker) RegisterMaker(kind string, maker TaskMaker) {
+	m.taskMakers[kind] = maker
+}
+
 func (m *Maker) MakeDetail(src mapped.MappingType, dest *entities.Task) error {
 	if maker, support := m.taskMakers[dest.Kind]; !support {
 		return ErrCannotSupportKind
