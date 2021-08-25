@@ -1,4 +1,4 @@
-// engine/objects.go
+// engine/task.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -16,27 +16,33 @@
 
 package engine
 
-import (
-	"sync"
+func (r *Rehearsal) Execute() error {
 
-	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/frontend"
-	"github.com/rehearsal-open/rehearsal/task"
-)
+	defer r.releaseResources()
 
-type (
-	Rehearsal struct {
-		frontend   frontend.Frontend
-		entity     *entities.Rehearsal
-		tasks      []Task
-		beginTasks [][]int
-		waitTasks  [][]int
-		closeTasks [][]int
-		lock       *sync.Mutex
+	for i := range r.beginTasks {
+		beginTasks, waitTasks, closeTasks := r.beginTasks[i], r.waitTasks[i], r.closeTasks[i]
+
+		for _, val := range beginTasks {
+
+			if err := r.tasks[val].BeginTask(); err != nil {
+				return err
+			}
+		}
+
+		for _, val := range waitTasks {
+			r.tasks[val].WaitClosing()
+		}
+
+		for _, val := range closeTasks {
+			r.tasks[val].StopTask()
+		}
 	}
+	return nil
+}
 
-	Task struct {
-		task.Task
-		entity *entities.Task
+func (r *Rehearsal) releaseResources() {
+	for i := range r.tasks {
+		r.tasks[i].ReleaseResource()
 	}
-)
+}

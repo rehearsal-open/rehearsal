@@ -23,7 +23,6 @@ import (
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/frontend"
 	"github.com/rehearsal-open/rehearsal/parser"
-	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/rehearsal-open/rehearsal/task/maker"
 )
 
@@ -45,7 +44,7 @@ func (r *Rehearsal) Reset(parser parser.Parser, maker maker.Maker, frontend fron
 		nEntity = entity.NPhase + 2
 	}
 
-	r.tasks = make([]task.Task, 0, r.entity.LenTask()*2)
+	r.tasks = make([]Task, 0, r.entity.LenTask()*2)
 	r.beginTasks = make([][]int, nEntity)
 	r.closeTasks = make([][]int, nEntity)
 	r.waitTasks = make([][]int, nEntity)
@@ -64,7 +63,10 @@ func (r *Rehearsal) Reset(parser parser.Parser, maker maker.Maker, frontend fron
 
 			appended := len(r.tasks)
 			nameList[entity.Fullname()] = appended
-			r.tasks = append(r.tasks, task)
+			r.tasks = append(r.tasks, Task{
+				Task:   task,
+				entity: entity,
+			})
 
 			// append running schedules
 			r.beginTasks[entity.LaunchAt+1] = append(r.beginTasks[entity.LaunchAt+1], appended)
