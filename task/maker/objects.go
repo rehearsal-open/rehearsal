@@ -37,16 +37,16 @@ var (
 	ErrCannotSupportKind = errors.New("cannot found task's kind from supported list")
 )
 
-func (m *Maker) MakeDetail(kind string, src interface{}, dest *entities.Task) error {
-	if maker, support := m.taskMakers[kind]; !support {
+func (m *Maker) MakeDetail(src interface{}, dest *entities.Task) error {
+	if maker, support := m.taskMakers[dest.Kind]; !support {
 		return ErrCannotSupportKind
 	} else {
 		return errors.WithStack(maker.MakeDetail(src, dest))
 	}
 }
 
-func (m *Maker) MakeTask(kind string, entity *entities.Task) (task.Task, error) {
-	if maker, support := m.taskMakers[kind]; !support {
+func (m *Maker) MakeTask(entity *entities.Task) (task.Task, error) {
+	if maker, support := m.taskMakers[entity.Kind]; !support {
 		return nil, ErrCannotSupportKind
 	} else if task, err := maker.MakeTask(entity); err != nil {
 		return nil, errors.WithStack(err)

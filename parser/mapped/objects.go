@@ -40,6 +40,6 @@ type (
 	}
 
 	DetailMaker interface {
-		MakeDetail(kind string, src MappingType, dest *entities.Task) error
+		MakeDetail(src MappingType, dest *entities.Task) error
 	}
 )

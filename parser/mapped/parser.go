@@ -52,6 +52,8 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 		fullNameRegexp,
 	}
 
+	r.Rehearsal.NPhase = len(r.Phases)
+
 	// check phase name and set index
 	for iPhase := range r.Phases {
 		phase := &r.Phases[iPhase]
@@ -95,7 +97,7 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 				entity.LaunchAt, entity.CloseAt = iPhase, iPhase
 
 				// set task detail data
-				if err := p.DetailMaker.MakeDetail(task.Kind, task.Clone, task.Task); err != nil {
+				if err := p.DetailMaker.MakeDetail(task.Clone, task.Task); err != nil {
 					return err
 				}
 
