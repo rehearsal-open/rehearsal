@@ -43,6 +43,9 @@ var (
 )
 
 func (m *Maker) RegisterMaker(kind string, maker TaskMaker) {
+	if m.taskMakers == nil {
+		m.taskMakers = make(map[string]TaskMaker)
+	}
 	m.taskMakers[kind] = maker
 }
 

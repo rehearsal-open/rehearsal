@@ -40,8 +40,8 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 		return nil, errors.WithMessage(err, errMsg)
 	}
 
-	shortNameRegexp := textfilter.RegexpMatches(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
-	fullNameRegexp := textfilter.RegexpMatches(`^[a-zA-Z_][a-zA-Z0-9_]*::[a-zA-Z_][a-zA-Z0-9_]*$`)
+	shortNameRegexp := textfilter.RegexpMatches(`^[a-zA-Z][a-zA-Z0-9_]*$`)
+	fullNameRegexp := textfilter.RegexpMatches(`^[a-zA-Z][a-zA-Z0-9_]*::[a-zA-Z][a-zA-Z0-9_]*$`)
 
 	phaseFilter := textfilter.Multiple([]textfilter.Filter{
 		textfilter.Identifier(),
