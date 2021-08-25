@@ -19,6 +19,7 @@ package based
 import (
 	"io"
 	"sync"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
@@ -56,6 +57,26 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 	// initialize reciever element
 	if support[task_element.StdIn] {
 		basis.elements[task_element.StdIn].reciever = make(chan buffer.Packet)
+		basis.elements[task_element.StdIn].packets = []buffer.Packet{}
+		basis.elements[task_element.StdIn].packetPos = 0
+		basis.elements[task_element.StdIn].packetLock = &sync.Mutex{}
+
+		go func() {
+			for {
+				packet, exist := <-basis.elements[task_element.StdIn].reciever
+
+				if exist {
+
+					basis.elements[task_element.StdIn].packetLock.Lock()
+					basis.elements[task_element.StdIn].packets = append(basis.elements[task_element.StdIn].packets, packet)
+					basis.elements[task_element.StdIn].packetLock.Unlock()
+
+				} else {
+					return
+				}
+			}
+		}()
+
 	}
 
 	// initialize sender element
@@ -209,12 +230,19 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]Reciever) {
 			// begin to listen element goroutine
 			go func(elem int) {
 				for {
-					packet, exist := <-basis.elements[elem].reciever
-					if exist {
-						callback[elem](&packet)
-					} else {
-						return
+
+					for len(basis.elements[elem].packets) <= basis.elements[elem].packetPos {
+						time.Sleep(time.Millisecond)
+						if basis.elements[elem].packets == nil {
+							return
+						}
 					}
+
+					basis.elements[elem].lock.Lock()
+					callback[elem](&basis.elements[elem].packets[basis.elements[elem].packetPos])
+					basis.elements[elem].packetPos++
+					basis.elements[elem].lock.Unlock()
+
 				}
 			}(i)
 			basis.elements[i].state = task_state.Running

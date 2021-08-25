@@ -93,10 +93,13 @@ type (
 
 	taskElement struct {
 		*internalTask
-		element  task_element.Enum
-		state    task_state.Enum
-		sender   *buffer.Buffer
-		reciever chan buffer.Packet
+		element    task_element.Enum
+		state      task_state.Enum
+		sender     *buffer.Buffer
+		reciever   chan buffer.Packet
+		packets    []buffer.Packet
+		packetPos  int
+		packetLock *sync.Mutex
 	}
 )
 

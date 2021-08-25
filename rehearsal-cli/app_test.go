@@ -25,74 +25,89 @@ import (
 	"github.com/rehearsal-open/rehearsal/task/maker"
 )
 
-func TestWholeAlgorithm(t *testing.T) {
+func BenchmarkWholeAlgorithm(t *testing.B) {
 
-	parsemap := mapped.MappingType{
-		"version": 0.202109,
-		"phase": []interface{}{
-			mapped.MappingType{
-				"name": "phase_1",
-				"task": []interface{}{
-					mapped.MappingType{
-						"name":      "python_1",
-						"kind":      "cui",
-						"wait-stop": true,
-						"cmd":       "python",
-						"args": []interface{}{
-							"../test/py2py/01/python2.py",
+	t.StopTimer()
+
+	for i, l := 0, t.N; i < l; i++ {
+		parsemap := mapped.MappingType{
+			"version": 0.202109,
+			"phase": []interface{}{
+				mapped.MappingType{
+					"name": "phase_1",
+					"task": []interface{}{
+						mapped.MappingType{
+							"name":      "python_1",
+							"kind":      "cui",
+							"wait-stop": true,
+							"cmd":       "python",
+							"args": []interface{}{
+								"../test/py2py/01/python2.py",
+							},
+							"sendto": []interface{}{
+								"phase_1::python_2",
+								"phase_2::python_2",
+							},
 						},
-						"sendto": []interface{}{
-							"phase_1::python_2",
+						mapped.MappingType{
+							"name":      "python_2",
+							"kind":      "cui",
+							"wait-stop": true,
+							"cmd":       "python",
+							"args": []interface{}{
+								"../test/py2py/01/python1.py",
+							},
+							// "sendto": []
 						},
 					},
-					mapped.MappingType{
-						"name":      "python_2",
-						"kind":      "cui",
-						"wait-stop": true,
-						"cmd":       "python",
-						"args": []interface{}{
-							"../test/py2py/01/python1.py",
+				},
+				mapped.MappingType{
+					"name": "phase_2",
+					"task": []interface{}{
+						// mapped.MappingType{
+						// 	"name":      "python_1",
+						// 	"kind":      "cui",
+						// 	"wait-stop": true,
+						// 	"cmd":       "python",
+						// 	// "sendto": []
+						// },
+						mapped.MappingType{
+							"name":      "python_2",
+							"kind":      "cui",
+							"wait-stop": true,
+							"cmd":       "python",
+							"args": []interface{}{
+								"./test/py2py/01/python1.py",
+							},
+							"dir": "../",
+							// "sendto": []
 						},
-						// "sendto": []
 					},
 				},
 			},
-			// mapped.MappingType{
-			// 	"name": "phase_2",
-			// 	"task": []interface{}{
-			// 		mapped.MappingType{
-			// 			"name":      "python_1",
-			// 			"kind":      "cui",
-			// 			"wait-stop": true,
-			// 			"cmd":       "python",
-			// 			// "sendto": []
-			// 		},
-			// 		// mapped.MappingType{
-			// 		// 	"name":      "python_2",
-			// 		// 	"kind":      "cui",
-			// 		// 	"wait-stop": true,
-			// 		// 	// "sendto": []
-			// 		// },
-			// 	},
-			// },
-		},
-	}
+		}
 
-	taskMaker := maker.Maker{}
-	taskMaker.RegisterMaker("cui", &cui.MakeCollection)
+		taskMaker := maker.Maker{}
+		taskMaker.RegisterMaker("cui", &cui.MakeCollection)
 
-	parser := mapped.Parser{
-		DetailMaker: &taskMaker,
-		Mapped:      parsemap,
-	}
+		parser := mapped.Parser{
+			DetailMaker: &taskMaker,
+			Mapped:      parsemap,
+		}
 
-	en := engine.Rehearsal{}
-	if err := en.Reset(&parser, taskMaker, nil); err != nil {
-		panic(err)
-	}
+		en := engine.Rehearsal{}
+		if err := en.Reset(&parser, taskMaker, nil); err != nil {
+			panic(err)
+		}
 
-	if err := en.Execute(); err != nil {
-		panic(err)
+		t.StartTimer()
+
+		if err := en.Execute(); err != nil {
+			panic(err)
+		}
+
+		t.StopTimer()
+
 	}
 
 	t.Log("ok")
