@@ -32,6 +32,8 @@ type (
 		Taskname  string `map-to:"name!"`
 		Kind      string `map-to:"kind!"`
 		LaunchAt  int
+		CloseAt   int
+		IsWait    bool `map-to:"wait-stop"`
 		Detail    TaskDetail
 		sendto    []Reciever
 	}

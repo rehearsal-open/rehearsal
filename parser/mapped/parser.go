@@ -85,17 +85,19 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 
 		for iTask := range phase.Tasks {
 			task := &phase.Tasks[iTask]
+			entity := task.Task
 
 			task.Phasename = phase.Name
 
-			if err := textfilter.RegisterFiltering(taskFilter, task.Fullname(), func() error {
+			if err := textfilter.RegisterFiltering(taskFilter, entity.Fullname(), func() error {
+
+				// set task's launch, wait, close default value
+				entity.LaunchAt, entity.CloseAt = iPhase, iPhase
 
 				// set task detail data
 				if err := p.DetailMaker.MakeDetail(task.Kind, task.Clone, task.Task); err != nil {
 					return err
 				}
-
-				task.LaunchAt = iPhase
 
 				r.Rehearsal.AddTask(task.Task)
 
