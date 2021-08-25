@@ -1,4 +1,4 @@
-// task/impl/cui.entity/objects.go
+// rehearsal-cli/objects.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -14,34 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package cui
+package main
 
-import (
-	"time"
 
-	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/parser/mapped"
-)
-
-type (
-	Detail struct {
-		Path      string   `map-to:"cmd"`
-		Args      []string `map-to:"args"`
-		Dir       string   `map-to:"dir"`
-		Timelimit time.Duration
-	}
-)
-
-func (d *Detail) CheckFormat() error {
-	return nil
-}
-
-func GetDetail(mapping mapped.MappingType, dest *entities.Task) error {
-	// TODO: WRITE IT
-
-	return nil
-}
-
-func (d *Detail) String() string {
-	return ""
-}
