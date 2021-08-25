@@ -16,7 +16,12 @@
 
 package cui
 
-import "time"
+import (
+	"time"
+
+	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/parser/mapped"
+)
 
 type (
 	Detail struct {
@@ -31,7 +36,8 @@ func (d *Detail) CheckFormat() error {
 	return nil
 }
 
-func (d *Detail) ParseMap(taskName string, mapping map[interface{}]interface{}) error {
+func GetDetail(mapping mapped.MappingType, dest *entities.Task) error {
+	// TODO: WRITE IT
 	return nil
 }
 

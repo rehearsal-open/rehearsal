@@ -27,7 +27,13 @@ import (
 	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/buffer"
 	"github.com/rehearsal-open/rehearsal/task/impl/cui.entity"
+	"github.com/rehearsal-open/rehearsal/task/maker"
 )
+
+var MakeCollection = maker.MakerCollection{
+	MakeDetailFunc: cui.GetDetail,
+	MakeTaskFunc:   Make,
+}
 
 func Make(entity *entities.Task) (t task.Task, err error) {
 

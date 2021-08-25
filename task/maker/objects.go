@@ -19,6 +19,7 @@ package maker
 import (
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/parser/mapped"
 	"github.com/rehearsal-open/rehearsal/task"
 )
 
@@ -28,8 +29,12 @@ type (
 		taskMakers map[string]TaskMaker
 	}
 	TaskMaker interface {
-		MakeDetail(src interface{}, dest *entities.Task) error
+		MakeDetail(src mapped.MappingType, dest *entities.Task) error
 		MakeTask(entity *entities.Task) (task.Task, error)
+	}
+	MakerCollection struct {
+		MakeDetailFunc func(src mapped.MappingType, dest *entities.Task) error
+		MakeTaskFunc   func(entity *entities.Task) (task.Task, error)
 	}
 )
 
@@ -37,7 +42,7 @@ var (
 	ErrCannotSupportKind = errors.New("cannot found task's kind from supported list")
 )
 
-func (m *Maker) MakeDetail(src interface{}, dest *entities.Task) error {
+func (m *Maker) MakeDetail(src mapped.MappingType, dest *entities.Task) error {
 	if maker, support := m.taskMakers[dest.Kind]; !support {
 		return ErrCannotSupportKind
 	} else {
@@ -58,4 +63,12 @@ func (m *Maker) MakeTask(entity *entities.Task) (task.Task, error) {
 func (m *Maker) IsSupportedKind(kind string) bool {
 	_, support := m.taskMakers[kind]
 	return support
+}
+
+func (c *MakerCollection) MakeDetail(src mapped.MappingType, dest *entities.Task) error {
+	return c.MakeDetailFunc(src, dest)
+}
+
+func (c *MakerCollection) MakeTask(entity *entities.Task) (task.Task, error) {
+	return c.MakeTaskFunc(entity)
 }
