@@ -131,8 +131,9 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 					return nil, err
 				} else {
 					task.Task.AddRelation(entities.Reciever{
-						Reciever: sendto,
-						Element:  task_element.StdIn,
+						Reciever:        sendto,
+						ElementSender:   task_element.StdOut,
+						ElementReciever: task_element.StdIn,
 					})
 				}
 			}

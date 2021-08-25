@@ -24,6 +24,7 @@ type (
 		Version  float64 `map-to:"version!"`
 		tasks    []*Task
 		nameList map[string]int
+		NPhase   int
 	}
 
 	// Defines configuration of rehearsal task, its lifespan.
@@ -49,7 +50,8 @@ type (
 
 	// Defines relation bitween task and task.
 	Reciever struct {
-		Reciever *Task
-		Element  task_element.Enum
+		Reciever        *Task
+		ElementSender   task_element.Enum
+		ElementReciever task_element.Enum
 	}
 )
