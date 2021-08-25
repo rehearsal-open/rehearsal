@@ -21,14 +21,12 @@ import (
 
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/frontend"
-	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/rehearsal-open/rehearsal/task"
 )
 
 type (
 	Rehearsal struct {
 		frontend   frontend.Frontend
-		parser     parser.Parser
 		entity     *entities.Rehearsal
 		tasks      []task.Task
 		beginTasks [][]int
