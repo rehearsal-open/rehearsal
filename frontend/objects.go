@@ -25,6 +25,6 @@ type (
 		LoggerTask() *task.Task
 
 		// Put system log.
-		Log(msg string)
+		Log(flag int, msg string)
 	}
 )

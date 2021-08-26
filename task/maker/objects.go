@@ -29,11 +29,11 @@ type (
 		taskMakers map[string]TaskMaker
 	}
 	TaskMaker interface {
-		MakeDetail(src mapped.MappingType, dest *entities.Task) error
+		MakeDetail(def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error
 		MakeTask(entity *entities.Task) (task.Task, error)
 	}
 	MakerCollection struct {
-		MakeDetailFunc func(src mapped.MappingType, dest *entities.Task) error
+		MakeDetailFunc func(def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error
 		MakeTaskFunc   func(entity *entities.Task) (task.Task, error)
 	}
 )
@@ -49,11 +49,11 @@ func (m *Maker) RegisterMaker(kind string, maker TaskMaker) {
 	m.taskMakers[kind] = maker
 }
 
-func (m *Maker) MakeDetail(src mapped.MappingType, dest *entities.Task) error {
+func (m *Maker) MakeDetail(def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error {
 	if maker, support := m.taskMakers[dest.Kind]; !support {
 		return ErrCannotSupportKind
 	} else {
-		return errors.WithStack(maker.MakeDetail(src, dest))
+		return errors.WithStack(maker.MakeDetail(def, src, dest))
 	}
 }
 
@@ -72,8 +72,8 @@ func (m *Maker) IsSupportedKind(kind string) bool {
 	return support
 }
 
-func (c *MakerCollection) MakeDetail(src mapped.MappingType, dest *entities.Task) error {
-	return c.MakeDetailFunc(src, dest)
+func (c *MakerCollection) MakeDetail(def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error {
+	return c.MakeDetailFunc(def, src, dest)
 }
 
 func (c *MakerCollection) MakeTask(entity *entities.Task) (task.Task, error) {

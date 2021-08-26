@@ -21,10 +21,11 @@ import "github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 type (
 	// Defines configuration of rehearsal excuting and each task  default configuration's value.
 	Rehearsal struct {
-		Version  float64 `map-to:"version!"`
-		tasks    []*Task
-		nameList map[string]int
-		NPhase   int
+		Version    float64 `map-to:"version!"`
+		DefaultDir string  `map-to:"dir"`
+		tasks      []*Task
+		nameList   map[string]int
+		NPhase     int
 	}
 
 	// Defines configuration of rehearsal task, its lifespan.

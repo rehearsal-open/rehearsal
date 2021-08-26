@@ -14,101 +14,98 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package main_test
+package main
 
-import (
-	"testing"
+import "testing"
 
-	"github.com/rehearsal-open/rehearsal/engine"
-	"github.com/rehearsal-open/rehearsal/parser/mapped"
-	"github.com/rehearsal-open/rehearsal/task/impl/cui"
-	"github.com/rehearsal-open/rehearsal/task/maker"
-)
+// func BenchmarkWholeAlgorithm(t *testing.B) {
 
-func BenchmarkWholeAlgorithm(t *testing.B) {
+// 	t.StopTimer()
 
-	t.StopTimer()
+// 	for i, l := 0, t.N; i < l; i++ {
+// 		parsemap := mapped.MappingType{
+// 			"version": 0.202109,
+// 			"phase": []interface{}{
+// 				mapped.MappingType{
+// 					"name": "phase_1",
+// 					"task": []interface{}{
+// 						mapped.MappingType{
+// 							"name":      "python_1",
+// 							"kind":      "cui",
+// 							"wait-stop": true,
+// 							"cmd":       "python",
+// 							"args": []interface{}{
+// 								"../test/py2py/01/python2.py",
+// 							},
+// 							"sendto": []interface{}{
+// 								"phase_1::python_2",
+// 								"phase_2::python_2",
+// 							},
+// 						},
+// 						mapped.MappingType{
+// 							"name":      "python_2",
+// 							"kind":      "cui",
+// 							"wait-stop": true,
+// 							"cmd":       "python",
+// 							"args": []interface{}{
+// 								"../test/py2py/01/python1.py",
+// 							},
+// 							// "sendto": []
+// 						},
+// 					},
+// 				},
+// 				mapped.MappingType{
+// 					"name": "phase_2",
+// 					"task": []interface{}{
+// 						// mapped.MappingType{
+// 						// 	"name":      "python_1",
+// 						// 	"kind":      "cui",
+// 						// 	"wait-stop": true,
+// 						// 	"cmd":       "python",
+// 						// 	// "sendto": []
+// 						// },
+// 						mapped.MappingType{
+// 							"name":      "python_2",
+// 							"kind":      "cui",
+// 							"wait-stop": true,
+// 							"cmd":       "python",
+// 							"args": []interface{}{
+// 								"./test/py2py/01/python1.py",
+// 							},
+// 							"dir": "../",
+// 							// "sendto": []
+// 						},
+// 					},
+// 				},
+// 			},
+// 		}
 
-	for i, l := 0, t.N; i < l; i++ {
-		parsemap := mapped.MappingType{
-			"version": 0.202109,
-			"phase": []interface{}{
-				mapped.MappingType{
-					"name": "phase_1",
-					"task": []interface{}{
-						mapped.MappingType{
-							"name":      "python_1",
-							"kind":      "cui",
-							"wait-stop": true,
-							"cmd":       "python",
-							"args": []interface{}{
-								"../test/py2py/01/python2.py",
-							},
-							"sendto": []interface{}{
-								"phase_1::python_2",
-								"phase_2::python_2",
-							},
-						},
-						mapped.MappingType{
-							"name":      "python_2",
-							"kind":      "cui",
-							"wait-stop": true,
-							"cmd":       "python",
-							"args": []interface{}{
-								"../test/py2py/01/python1.py",
-							},
-							// "sendto": []
-						},
-					},
-				},
-				mapped.MappingType{
-					"name": "phase_2",
-					"task": []interface{}{
-						// mapped.MappingType{
-						// 	"name":      "python_1",
-						// 	"kind":      "cui",
-						// 	"wait-stop": true,
-						// 	"cmd":       "python",
-						// 	// "sendto": []
-						// },
-						mapped.MappingType{
-							"name":      "python_2",
-							"kind":      "cui",
-							"wait-stop": true,
-							"cmd":       "python",
-							"args": []interface{}{
-								"./test/py2py/01/python1.py",
-							},
-							"dir": "../",
-							// "sendto": []
-						},
-					},
-				},
-			},
-		}
+// 		taskMaker := maker.Maker{}
+// 		taskMaker.RegisterMaker("cui", &cui.MakeCollection)
 
-		taskMaker := maker.Maker{}
-		taskMaker.RegisterMaker("cui", &cui.MakeCollection)
+// 		parser := mapped.Parser{
+// 			DetailMaker: &taskMaker,
+// 			Mapped:      parsemap,
+// 		}
 
-		parser := mapped.Parser{
-			DetailMaker: &taskMaker,
-			Mapped:      parsemap,
-		}
+// 		en := engine.Rehearsal{}
+// 		if err := en.Reset(&parser, taskMaker, nil); err != nil {
+// 			panic(err)
+// 		}
 
-		en := engine.Rehearsal{}
-		if err := en.Reset(&parser, taskMaker, nil); err != nil {
-			panic(err)
-		}
+// 		t.StartTimer()
 
-		t.StartTimer()
+// 		if err := en.Execute(); err != nil {
+// 			panic(err)
+// 		}
 
-		if err := en.Execute(); err != nil {
-			panic(err)
-		}
+// 		t.StopTimer()
 
-		t.StopTimer()
+// 	}
 
-	}
+// 	t.Log("ok")
+// }
 
-	t.Log("ok")
+func TestRun(t *testing.T) {
+	Run("../test/py2py/01/rehearsal.yml")
 }

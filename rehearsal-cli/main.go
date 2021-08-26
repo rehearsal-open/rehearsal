@@ -15,3 +15,41 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package main
+
+import (
+	"flag"
+	"fmt"
+)
+
+var (
+	cmd string
+)
+
+func init() {
+	init_run()
+	flag.Usage = PutHelpDefault
+}
+
+func main() {
+	flag.Parse()
+
+	if flag.NArg() < 1 {
+		fmt.Println("This program is required subcommands!")
+		PutHelpDefault()
+	}
+
+	switch flag.Arg(0) {
+	case "run":
+		if flag.NArg() < 2 {
+			fmt.Println("'rehearsal-cli run' command is require config file's path")
+			fmt.Println(helpRun)
+			return
+		} else if sub := flag.Arg(1); sub == "help" {
+			fmt.Println(helpRun)
+			return
+		} else if err := Run(sub); err != nil {
+			fmt.Println(err.Error())
+			return
+		}
+	}
+}

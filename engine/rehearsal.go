@@ -22,32 +22,24 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/frontend"
-	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/rehearsal-open/rehearsal/task/maker"
 )
 
-func (r *Rehearsal) Reset(parser parser.Parser, maker maker.Maker, frontend frontend.Frontend) error {
+func (r *Rehearsal) Reset(entity *entities.Rehearsal, maker *maker.Maker, frontend frontend.Frontend) error {
 
 	(*r) = Rehearsal{
 		frontend: frontend,
 		lock:     &sync.Mutex{},
+		entity:   entity,
 	}
 
-	var nEntity int
+	nPhase := r.entity.NPhase + 2
 	nameList := map[string]int{}
 
-	// parser entity
-	if entity, err := parser.Parse(); err != nil {
-		return errors.WithStack(err)
-	} else {
-		r.entity = entity
-		nEntity = entity.NPhase + 2
-	}
-
 	r.tasks = make([]Task, 0, r.entity.LenTask()*2)
-	r.beginTasks = make([][]int, nEntity)
-	r.closeTasks = make([][]int, nEntity)
-	r.waitTasks = make([][]int, nEntity)
+	r.beginTasks = make([][]int, nPhase)
+	r.closeTasks = make([][]int, nPhase)
+	r.waitTasks = make([][]int, nPhase)
 
 	for i := range r.beginTasks {
 		r.beginTasks[i], r.closeTasks[i], r.waitTasks[i] = []int{}, []int{}, []int{}

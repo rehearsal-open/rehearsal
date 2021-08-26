@@ -27,9 +27,11 @@ import (
 	"github.com/streamwest-1629/textfilter"
 )
 
-func (p *Parser) Parse() (*entities.Rehearsal, error) {
+func (p *Parser) Parse(dest *entities.Rehearsal) error {
 
-	r := Rehearsal{}
+	r := Rehearsal{
+		Rehearsal: dest,
+	}
 	const errMsg = "cannot parse from map to object"
 
 	var (
@@ -37,7 +39,7 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 	)
 
 	if err := convertobject.DirectConvert(p.Mapped, &r); err != nil {
-		return nil, errors.WithMessage(err, errMsg)
+		return errors.WithMessage(err, errMsg)
 	}
 
 	shortNameRegexp := textfilter.RegexpMatches(`^[a-zA-Z][a-zA-Z0-9_]*$`)
@@ -64,7 +66,7 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 			}
 			return nil
 		}); err != nil {
-			return nil, errors.WithMessage(err, errMsg)
+			return errors.WithMessage(err, errMsg)
 		}
 	}
 
@@ -97,7 +99,7 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 				entity.LaunchAt, entity.CloseAt = iPhase, iPhase
 
 				// set task detail data
-				if err := p.DetailMaker.MakeDetail(task.Clone, task.Task); err != nil {
+				if err := p.DetailMaker.MakeDetail(r.Rehearsal, task.Clone, task.Task); err != nil {
 					return err
 				}
 
@@ -106,7 +108,7 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 				return nil
 
 			}); err != nil {
-				return nil, errors.WithMessage(err, errMsg)
+				return errors.WithMessage(err, errMsg)
 			}
 		}
 	}
@@ -124,11 +126,11 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 				if err := shortNameRegexp(rel); err == nil {
 					rel = task.Phasename + "::" + rel
 				} else if err := fullNameRegexp(rel); err != nil {
-					return nil, err
+					return err
 				}
 
 				if sendto, err := r.Rehearsal.Task(rel); err != nil {
-					return nil, err
+					return err
 				} else {
 					task.Task.AddRelation(entities.Reciever{
 						Reciever:        sendto,
@@ -140,7 +142,7 @@ func (p *Parser) Parse() (*entities.Rehearsal, error) {
 		}
 	}
 
-	return r.Rehearsal, nil
+	return nil
 }
 
 type phaseByIndex []Phase

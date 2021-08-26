@@ -22,6 +22,6 @@ type (
 
 	// Defines parse object.
 	Parser interface {
-		Parse() (*entities.Rehearsal, error)
+		Parse(*entities.Rehearsal) error
 	}
 )

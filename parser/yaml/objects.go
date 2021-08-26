@@ -1,4 +1,4 @@
-// task/impl/cui.entity/objects.go
+// parser/yaml/objects.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -14,48 +14,48 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package cui
+package yaml
 
 import (
-	"time"
+	"os"
 
+	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/parser/mapped"
-	"github.com/streamwest-1629/convertobject"
+	"gopkg.in/yaml.v3"
 )
 
 type (
-	Detail struct {
-		Path      string   `map-to:"cmd!"`
-		Args      []string `map-to:"args"`
-		Dir       string   `map-to:"dir"`
-		IsWait    bool     `map-to:"wait-stop"`
-		Timelimit time.Duration
+	Parser struct {
+		Path string
+		mapped.DetailMaker
 	}
 )
 
-func (d *Detail) CheckFormat() error {
-	return nil
-}
+func (p *Parser) Parse(dest *entities.Rehearsal) error {
 
-func GetDetail(def *entities.Rehearsal, mapping mapped.MappingType, dest *entities.Task) error {
-	// TODO: WRITE IT
+	var (
+		mapping = mapped.MappingType{}
+		file    *os.File
+	)
 
-	detail := &Detail{
-		IsWait: true,
-		Dir:    def.DefaultDir,
-		Args:   []string{},
-	}
-
-	if err := convertobject.DirectConvert(mapping, detail); err != nil {
-		return err
+	if f, err := os.Open(p.Path); err != nil {
+		return errors.WithMessage(err, "cannot open yaml config file")
 	} else {
-		dest.IsWait, dest.Detail = detail.IsWait, detail
+		file = f
 	}
 
-	return nil
-}
+	defer file.Close()
+	decoder := yaml.NewDecoder(file)
+	if err := decoder.Decode(&mapping); err != nil {
+		return errors.WithMessage(err, "cannot read yaml config file")
+	}
 
-func (d *Detail) String() string {
-	return ""
+	parser := mapped.Parser{
+		Mapped:      mapping,
+		DetailMaker: p.DetailMaker,
+	}
+
+	err := parser.Parse(dest)
+	return errors.WithMessage(err, "cannot load config data")
 }

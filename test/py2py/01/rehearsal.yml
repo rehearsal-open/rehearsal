@@ -1,0 +1,16 @@
+version: 0.202109
+phase:
+- name: phase_1
+  task:
+  - name: python_1
+    kind: cui
+    cmd: python
+    args:
+    - ./python2.py
+    sendto:
+    - phase_1::python_2
+  - name: python_2
+    kind: cui
+    cmd: python
+    args:
+    - ./python1.py

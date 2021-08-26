@@ -1,4 +1,4 @@
-// parser/mapped/objects.go
+// rehearsal-cli/help.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -14,32 +14,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package mapped
+package main
 
-import "github.com/rehearsal-open/rehearsal/entities"
+import "fmt"
 
-type (
-	MappingType = map[string]interface{}
-	Parser      struct {
-		DetailMaker
-		Mapped MappingType
-	}
-	Rehearsal struct {
-		*entities.Rehearsal `map-to:"<-"`
-		Phases              []Phase `map-to:"phase!"`
-	}
-	Phase struct {
-		Index int    `map-to:"at"`
-		Name  string `map-to:"name!"`
-		Tasks []Task `map-to:"task!"`
-	}
-	Task struct {
-		*entities.Task `map-to:"<-"`
-		Clone          MappingType `map-to:"<-"`
-		SendTo         []string    `map-to:"sendto"`
-	}
+const (
+	helpDefault = `
+    -- Usage 'rehearsal-cli' --
+rehearsal-cli [command] (args...)
 
-	DetailMaker interface {
-		MakeDetail(def *entities.Rehearsal, src MappingType, dest *entities.Task) error
-	}
+[command] REQUIRED
+  - run     : Execute tasks with config file. See also 'rehearsal-cli run help'
+  - version : Show rehearsal-cli version.
+`
+	helpRun = `
+    -- Usage 'rehearsal-cli run' --
+rehearsal-cli run [config-filepath]
+
+[config-filepath] REQUIRED
+   You need to required config file's path.
+  In rehearsal, '*.yaml' is supported config file's format type.
+	`
 )
+
+func PutHelpDefault() {
+	fmt.Println(helpDefault)
+}
