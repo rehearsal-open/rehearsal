@@ -24,6 +24,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/engine"
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/parser/yaml"
+	"github.com/rehearsal-open/rehearsal/rehearsal-cli/cli"
 	"github.com/rehearsal-open/rehearsal/task/impl/cui"
 	"github.com/rehearsal-open/rehearsal/task/maker"
 )
@@ -61,7 +62,7 @@ func Run(confFile string) error {
 	}
 
 	// TODO: FRONTEND ISN'T NIL
-	if err := en.Reset(&entity, SupportedTasks, nil); err != nil {
+	if err := en.Reset(&entity, SupportedTasks, &cli.Cli{Entity: &entity}); err != nil {
 		return errors.WithStack(err)
 	}
 

@@ -21,10 +21,6 @@ import (
 	"fmt"
 )
 
-var (
-	cmd string
-)
-
 func init() {
 	init_run()
 	flag.Usage = PutHelpDefault

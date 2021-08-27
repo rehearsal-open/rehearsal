@@ -16,4 +16,6 @@
 
 package main
 
-
+type (
+	Frontend struct{}
+)

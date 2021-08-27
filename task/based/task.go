@@ -134,6 +134,7 @@ func (basis *internalTask) BeginTask() error {
 // Stop main task
 func (basis *internalTask) StopTask() {
 	basis.impl.StopMain()
+	<-basis.closed
 }
 
 // Wait for main task closing.
@@ -262,6 +263,8 @@ func (basis *internalTask) Close(err error) {
 
 	for i, l := 0, task_element.Len; i < l; i++ {
 		if basis.elements[i].reciever != nil {
+			for len(basis.elements[i].reciever) > 0 {
+			}
 			close(basis.elements[i].reciever)
 		}
 		if basis.elements[i].sender != nil {

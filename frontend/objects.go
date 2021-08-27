@@ -22,7 +22,7 @@ type (
 	Frontend interface {
 
 		// Get task's output logging task, if returns nil, not supported log.
-		LoggerTask() *task.Task
+		LoggerTask() task.Task
 
 		// Put system log.
 		Log(flag int, msg string)

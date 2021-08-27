@@ -21,6 +21,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/frontend"
 	"github.com/rehearsal-open/rehearsal/task/maker"
 )
@@ -72,6 +73,33 @@ func (r *Rehearsal) Reset(entity *entities.Rehearsal, maker *maker.Maker, fronte
 
 	}); err != nil {
 		return errors.WithStack(err)
+	}
+
+	// frontend logger task
+	if logger := r.frontend.LoggerTask(); logger != nil {
+		appended := len(r.tasks)
+		entity := logger.Entity()
+
+		entity.Phasename, entity.Taskname = "__system", "__frontend_logger"
+
+		name := entity.Fullname()
+		nameList[name] = appended
+		r.tasks = append(r.tasks, Task{
+			Task:   logger,
+			entity: entity,
+		})
+
+		r.entity.Foreach(func(idx int, task *entities.Task) error {
+			task.AddRelation(entities.Reciever{
+				Reciever:        entity,
+				ElementSender:   task_element.StdOut,
+				ElementReciever: task_element.StdIn,
+			})
+			return nil
+		})
+
+		r.beginTasks[0] = append(r.beginTasks[0], appended)
+		r.closeTasks[nPhase-1] = append(r.closeTasks[nPhase-1], appended)
 	}
 
 	// TODO: ADD SYSTEM TASK BEGINING AND CLOSING
