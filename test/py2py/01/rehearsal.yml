@@ -8,13 +8,13 @@ phase:
     args:
     - ./python2.py
     sendto:
-    - phase_1::python_2
+    # - phase_1::python_2
     - phase_2::python_2
-  - name: python_2
-    kind: cui
-    cmd: python
-    args:
-    - ./python1.py
+  # - name: python_2
+  #   kind: cui
+  #   cmd: python
+  #   args:
+  #   - ./python1.py
 - name: phase_2
   task:
   - name: python_2

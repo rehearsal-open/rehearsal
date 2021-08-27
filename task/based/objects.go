@@ -93,6 +93,7 @@ type (
 
 	taskElement struct {
 		*internalTask
+		lock       sync.Mutex
 		element    task_element.Enum
 		state      task_state.Enum
 		sender     *buffer.Buffer

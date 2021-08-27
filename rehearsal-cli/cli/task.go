@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
@@ -32,9 +33,10 @@ import (
 type (
 	Task struct {
 		based.Task
-		Format map[string]string
-		close  chan error
-		closed chan error
+		Format   map[string]string
+		reciever chan string
+		close    chan error
+		closed   chan error
 	}
 )
 
@@ -45,9 +47,10 @@ func MakeTask(entity *entities.Rehearsal) (task.Task, error) {
 	taskConf := entities.Task{}
 
 	task := Task{
-		Format: map[string]string{},
-		close:  make(chan error),
-		closed: make(chan error),
+		Format:   map[string]string{},
+		reciever: make(chan string),
+		close:    make(chan error),
+		closed:   make(chan error),
 	}
 
 	task.Task = based.MakeBasis(&taskConf, &task)
@@ -92,19 +95,21 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 		str = strings.ReplaceAll(str, "\n", "\n"+format)
 
 		fmt.Print(str)
-
 	}
 
 	go func() {
 
 		args.ListenStart(callback)
-		defer args.Close(nil)
 		<-t.close
+		args.Close(nil)
+
 	}()
 
 	return nil
 }
 
 func (t *Task) StopMain() {
+	time.Sleep(50 * time.Millisecond)
 	close(t.close)
+	// <-t.closed
 }

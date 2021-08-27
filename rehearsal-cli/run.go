@@ -19,6 +19,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/engine"
@@ -69,6 +70,8 @@ func Run(confFile string) error {
 	if err := en.Execute(); err != nil {
 		return errors.WithStack(err)
 	}
+
+	time.Sleep(time.Second)
 
 	return nil
 }

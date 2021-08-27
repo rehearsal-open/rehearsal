@@ -232,16 +232,21 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]Reciever) {
 			go func(elem int) {
 				for {
 
-					for len(basis.elements[elem].packets) <= basis.elements[elem].packetPos {
+					for at, total := basis.elements[elem].packetPos, len(basis.elements[elem].packets); total <= at; at, total = basis.elements[elem].packetPos, len(basis.elements[elem].packets) {
 						time.Sleep(time.Millisecond)
+
 						if basis.elements[elem].packets == nil {
 							return
+						} else if total < at {
+							panic(basis)
 						}
 					}
 
 					basis.elements[elem].lock.Lock()
-					callback[elem](&basis.elements[elem].packets[basis.elements[elem].packetPos])
-					basis.elements[elem].packetPos++
+					func() {
+						defer func() { basis.elements[elem].packetPos++ }()
+						callback[elem](&basis.elements[elem].packets[basis.elements[elem].packetPos])
+					}()
 					basis.elements[elem].lock.Unlock()
 
 				}
@@ -263,9 +268,12 @@ func (basis *internalTask) Close(err error) {
 
 	for i, l := 0, task_element.Len; i < l; i++ {
 		if basis.elements[i].reciever != nil {
-			for len(basis.elements[i].reciever) > 0 {
+
+			// wait for finally read
+			for len(basis.elements[i].packets) > basis.elements[i].packetPos {
 			}
 			close(basis.elements[i].reciever)
+			basis.elements[i].packets = nil
 		}
 		if basis.elements[i].sender != nil {
 			basis.elements[i].sender.Close()
