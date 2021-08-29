@@ -27,6 +27,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/parser/yaml"
 	"github.com/rehearsal-open/rehearsal/rehearsal-cli/cli"
 	"github.com/rehearsal-open/rehearsal/task/impl/cui"
+	"github.com/rehearsal-open/rehearsal/task/impl/serial"
 	"github.com/rehearsal-open/rehearsal/task/maker"
 )
 
@@ -38,6 +39,7 @@ var (
 func init_run() {
 	SupportedTasks = &maker.Maker{}
 	SupportedTasks.RegisterMaker("cui", &cui.MakeCollection)
+	SupportedTasks.RegisterMaker("serial", &serial.MakeCollection)
 	Wd, _ = os.Getwd()
 }
 
