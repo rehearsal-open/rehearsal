@@ -36,6 +36,7 @@ type (
 		LaunchAt  int
 		CloseAt   int
 		IsWait    bool `map-to:"wait-stop"`
+		WriteLog  bool `map-to:"write-log"`
 		Detail    TaskDetail
 		sendto    []Reciever
 	}

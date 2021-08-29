@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/frontend"
 	"github.com/rehearsal-open/rehearsal/parser/mapped"
 	"github.com/streamwest-1629/convertobject"
 )
@@ -30,6 +31,7 @@ type (
 		Args      []string `map-to:"args"`
 		Dir       string   `map-to:"dir"`
 		IsWait    bool     `map-to:"wait-stop"`
+		WriteLog  bool     `map-to:"write-log"`
 		Timelimit time.Duration
 	}
 )
@@ -38,19 +40,20 @@ func (d *Detail) CheckFormat() error {
 	return nil
 }
 
-func GetDetail(def *entities.Rehearsal, mapping mapped.MappingType, dest *entities.Task) error {
+func GetDetail(_ frontend.Frontend, def *entities.Rehearsal, mapping mapped.MappingType, dest *entities.Task) error {
 	// TODO: WRITE IT
 
 	detail := &Detail{
-		IsWait: true,
-		Dir:    def.DefaultDir,
-		Args:   []string{},
+		IsWait:   true,
+		WriteLog: true,
+		Dir:      def.DefaultDir,
+		Args:     []string{},
 	}
 
 	if err := convertobject.DirectConvert(mapping, detail); err != nil {
 		return err
 	} else {
-		dest.IsWait, dest.Detail = detail.IsWait, detail
+		dest.WriteLog, dest.IsWait, dest.Detail = detail.WriteLog, detail.IsWait, detail
 	}
 
 	return nil

@@ -27,6 +27,10 @@ import (
 	"github.com/streamwest-1629/textfilter"
 )
 
+var (
+	ErrConfFileNotSupported = errors.New("configuration file's version is not supported, supported 0.202109.")
+)
+
 func (p *Parser) Parse(dest *entities.Rehearsal) error {
 
 	r := Rehearsal{
@@ -56,93 +60,104 @@ func (p *Parser) Parse(dest *entities.Rehearsal) error {
 
 	r.Rehearsal.NPhase = len(r.Phases)
 
-	// check phase name and set index
-	for iPhase := range r.Phases {
-		phase := &r.Phases[iPhase]
-		if err := textfilter.RegisterFiltering(phaseFilter, phase.Name, func() error {
+	Parse202109 := func() error {
 
-			if phase.Index < 1 {
-				phase.Index = math.MaxInt32
-			}
-			return nil
-		}); err != nil {
-			return errors.WithMessage(err, errMsg)
-		}
-	}
+		// check phase name and set index
+		for iPhase := range r.Phases {
+			phase := &r.Phases[iPhase]
+			if err := textfilter.RegisterFiltering(phaseFilter, phase.Name, func() error {
 
-	// sort phase
-	sort.Sort(phaseByIndex(r.Phases))
-
-	// assign sorted result to phase
-	for iPhase := range r.Phases {
-		phase := &r.Phases[iPhase]
-
-		phase.Index = iPhase
-
-		// register phase by name
-		phases[phase.Name] = phase
-	}
-
-	// assign task's details
-	for iPhase := range r.Phases {
-		phase := &r.Phases[iPhase]
-
-		for iTask := range phase.Tasks {
-			task := &phase.Tasks[iTask]
-			entity := task.Task
-
-			task.Phasename = phase.Name
-
-			if err := textfilter.RegisterFiltering(taskFilter, entity.Fullname(), func() error {
-
-				// set task's launch, wait, close default value
-				entity.LaunchAt, entity.CloseAt = iPhase, iPhase
-
-				// set task detail data
-				if err := p.DetailMaker.MakeDetail(r.Rehearsal, task.Clone, task.Task); err != nil {
-					return err
+				if phase.Index < 1 {
+					phase.Index = math.MaxInt32
 				}
-
-				r.Rehearsal.AddTask(task.Task)
-
 				return nil
-
 			}); err != nil {
 				return errors.WithMessage(err, errMsg)
 			}
 		}
-	}
 
-	// relation setting
-	for iPhase := range r.Phases {
-		phase := &r.Phases[iPhase]
+		// sort phase
+		sort.Sort(phaseByIndex(r.Phases))
 
-		for iTask := range phase.Tasks {
-			task := &phase.Tasks[iTask]
+		// assign sorted result to phase
+		for iPhase := range r.Phases {
+			phase := &r.Phases[iPhase]
 
-			for iRel := range task.SendTo {
-				rel := task.SendTo[iRel]
+			phase.Index = iPhase
 
-				if err := shortNameRegexp(rel); err == nil {
-					rel = task.Phasename + "::" + rel
-				} else if err := fullNameRegexp(rel); err != nil {
-					return err
-				}
+			// register phase by name
+			phases[phase.Name] = phase
+		}
 
-				if sendto, err := r.Rehearsal.Task(rel); err != nil {
-					return err
-				} else {
-					task.Task.AddRelation(entities.Reciever{
-						Reciever:        sendto,
-						ElementSender:   task_element.StdOut,
-						ElementReciever: task_element.StdIn,
-					})
+		// assign task's details
+		for iPhase := range r.Phases {
+			phase := &r.Phases[iPhase]
+
+			for iTask := range phase.Tasks {
+				task := &phase.Tasks[iTask]
+				entity := task.Task
+
+				task.Phasename = phase.Name
+
+				if err := textfilter.RegisterFiltering(taskFilter, entity.Fullname(), func() error {
+
+					// set task's launch, wait, close default value
+					entity.LaunchAt, entity.CloseAt = iPhase, iPhase
+
+					// set task detail data
+					if err := p.DetailMaker.MakeDetail(r.Rehearsal, task.Clone, task.Task); err != nil {
+						return err
+					}
+
+					r.Rehearsal.AddTask(task.Task)
+
+					return nil
+
+				}); err != nil {
+					return errors.WithMessage(err, errMsg)
 				}
 			}
 		}
+
+		// relation setting
+		for iPhase := range r.Phases {
+			phase := &r.Phases[iPhase]
+
+			for iTask := range phase.Tasks {
+				task := &phase.Tasks[iTask]
+
+				for iRel := range task.SendTo {
+					rel := task.SendTo[iRel]
+
+					if err := shortNameRegexp(rel); err == nil {
+						rel = task.Phasename + "::" + rel
+					} else if err := fullNameRegexp(rel); err != nil {
+						return err
+					}
+
+					if sendto, err := r.Rehearsal.Task(rel); err != nil {
+						return err
+					} else {
+						task.Task.AddRelation(entities.Reciever{
+							Reciever:        sendto,
+							ElementSender:   task_element.StdOut,
+							ElementReciever: task_element.StdIn,
+						})
+					}
+				}
+			}
+		}
+
+		return nil
 	}
 
-	return nil
+	// check version
+	switch r.Version {
+	case 0.202109:
+		return Parse202109()
+	default:
+		return ErrConfFileNotSupported
+	}
 }
 
 type phaseByIndex []Phase

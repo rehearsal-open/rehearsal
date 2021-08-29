@@ -45,6 +45,9 @@ func MakeTask(entity *entities.Rehearsal) (task.Task, error) {
 	maxNameLen := 0
 
 	taskConf := entities.Task{}
+	colorSet := [...]string{
+		ForeRed, ForeGreen, ForeYellow, ForeBlue, ForeMagenta, ForeSyan,
+	}
 
 	task := Task{
 		Format:   map[string]string{},
@@ -62,10 +65,16 @@ func MakeTask(entity *entities.Rehearsal) (task.Task, error) {
 		return nil
 	})
 
-	entity.Foreach(func(idx int, entity *entities.Task) error {
+	idx := 0
+
+	entity.Foreach(func(_ int, entity *entities.Task) error {
 
 		name := entity.Fullname()
-		task.Format[name] = name + strings.Repeat(" ", maxNameLen-len(name)) + " : "
+		if entity.WriteLog {
+			task.Format[name] = colorSet[idx%len(colorSet)] + BackReset + name + strings.Repeat(" ", maxNameLen-len(name)) + " : "
+			idx++
+		}
+
 		return nil
 	})
 
@@ -84,6 +93,7 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 	callback[task_element.StdIn] = func(recieved *buffer.Packet) {
 
 		sender, _ := recieved.Sender()
+		defer recieved.Close()
 		buffer := bytes.NewBuffer([]byte{})
 		io.Copy(buffer, recieved)
 
@@ -91,10 +101,12 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 		format := t.Format[name]
 		str := buffer.String()
 		str = strings.ReplaceAll(str, "\n\r", "\n")
+		str = strings.ReplaceAll(str, "\r\n", "\n")
 		str = strings.ReplaceAll(str, "\r", "\n")
 		str = strings.ReplaceAll(str, "\n", "\n"+format)
 
-		fmt.Print(str)
+		fmt.Println(format + str)
+
 	}
 
 	go func() {

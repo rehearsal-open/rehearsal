@@ -19,6 +19,7 @@ package maker
 import (
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/frontend"
 	"github.com/rehearsal-open/rehearsal/parser/mapped"
 	"github.com/rehearsal-open/rehearsal/task"
 )
@@ -26,14 +27,15 @@ import (
 type (
 	// task's instance maker
 	Maker struct {
+		frontend.Frontend
 		taskMakers map[string]TaskMaker
 	}
 	TaskMaker interface {
-		MakeDetail(def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error
+		MakeDetail(frontend frontend.Frontend, def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error
 		MakeTask(entity *entities.Task) (task.Task, error)
 	}
 	MakerCollection struct {
-		MakeDetailFunc func(def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error
+		MakeDetailFunc func(frontend frontend.Frontend, entity *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error
 		MakeTaskFunc   func(entity *entities.Task) (task.Task, error)
 	}
 )
@@ -53,7 +55,7 @@ func (m *Maker) MakeDetail(def *entities.Rehearsal, src mapped.MappingType, dest
 	if maker, support := m.taskMakers[dest.Kind]; !support {
 		return ErrCannotSupportKind
 	} else {
-		return errors.WithStack(maker.MakeDetail(def, src, dest))
+		return errors.WithStack(maker.MakeDetail(m.Frontend, def, src, dest))
 	}
 }
 
@@ -72,8 +74,8 @@ func (m *Maker) IsSupportedKind(kind string) bool {
 	return support
 }
 
-func (c *MakerCollection) MakeDetail(def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error {
-	return c.MakeDetailFunc(def, src, dest)
+func (c *MakerCollection) MakeDetail(frontend frontend.Frontend, def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error {
+	return c.MakeDetailFunc(frontend, def, src, dest)
 }
 
 func (c *MakerCollection) MakeTask(entity *entities.Task) (task.Task, error) {

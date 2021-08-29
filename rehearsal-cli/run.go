@@ -62,8 +62,13 @@ func Run(confFile string) error {
 		return errors.WithStack(err)
 	}
 
-	// TODO: FRONTEND ISN'T NIL
-	if err := en.Reset(&entity, SupportedTasks, &cli.Cli{Entity: &entity}); err != nil {
+	frontend := cli.Cli{
+		Entity: &entity,
+	}
+
+	SupportedTasks.Frontend = &frontend
+
+	if err := en.Reset(&entity, SupportedTasks, &frontend); err != nil {
 		return errors.WithStack(err)
 	}
 
