@@ -18,15 +18,24 @@ package cui
 
 import (
 	"os/exec"
+	"time"
 
 	"github.com/rehearsal-open/rehearsal/task/based"
-	"github.com/rehearsal-open/rehearsal/task/impl/cui.entity"
 )
 
 type (
 	__task struct {
 		based.Task
 		*exec.Cmd
-		*cui.Detail
+		*Detail
+	}
+
+	Detail struct {
+		Path      string   `map-to:"cmd!"`
+		Args      []string `map-to:"args"`
+		Dir       string   `map-to:"dir"`
+		IsWait    bool     `map-to:"wait-stop"`
+		WriteLog  bool     `map-to:"write-log"`
+		Timelimit time.Duration
 	}
 )

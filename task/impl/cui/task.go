@@ -26,12 +26,11 @@ import (
 	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/buffer"
-	"github.com/rehearsal-open/rehearsal/task/impl/cui.entity"
 	"github.com/rehearsal-open/rehearsal/task/maker"
 )
 
 var MakeCollection = maker.MakerCollection{
-	MakeDetailFunc: cui.GetDetail,
+	MakeDetailFunc: GetDetail,
 	MakeTaskFunc:   Make,
 }
 
@@ -39,7 +38,7 @@ func Make(entity *entities.Task) (t task.Task, err error) {
 
 	result := __task{}
 
-	if detail, ok := entity.Detail.(*cui.Detail); !ok {
+	if detail, ok := entity.Detail.(*Detail); !ok {
 		panic("invalid detail objects type")
 	} else {
 		result.Detail = detail

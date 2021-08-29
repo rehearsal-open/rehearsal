@@ -1,4 +1,4 @@
-// task/impl/cui.entity/objects.go
+// task/impl/cui/detail.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -17,23 +17,10 @@
 package cui
 
 import (
-	"time"
-
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/frontend"
 	"github.com/rehearsal-open/rehearsal/parser/mapped"
 	"github.com/streamwest-1629/convertobject"
-)
-
-type (
-	Detail struct {
-		Path      string   `map-to:"cmd!"`
-		Args      []string `map-to:"args"`
-		Dir       string   `map-to:"dir"`
-		IsWait    bool     `map-to:"wait-stop"`
-		WriteLog  bool     `map-to:"write-log"`
-		Timelimit time.Duration
-	}
 )
 
 func (d *Detail) CheckFormat() error {
