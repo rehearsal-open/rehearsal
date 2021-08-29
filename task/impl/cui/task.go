@@ -18,39 +18,12 @@ package cui
 
 import (
 	"io"
-	"os/exec"
 
 	"github.com/pkg/errors"
-	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
-	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/buffer"
-	"github.com/rehearsal-open/rehearsal/task/maker"
 )
-
-var MakeCollection = maker.MakerCollection{
-	MakeDetailFunc: GetDetail,
-	MakeTaskFunc:   Make,
-}
-
-func Make(entity *entities.Task) (t task.Task, err error) {
-
-	result := __task{}
-
-	if detail, ok := entity.Detail.(*Detail); !ok {
-		panic("invalid detail objects type")
-	} else {
-		result.Detail = detail
-	}
-
-	result.Task = based.MakeBasis(entity, &result)
-
-	result.Cmd = exec.Command(result.Detail.Path, result.Detail.Args...)
-	result.Cmd.Dir = result.Detail.Dir
-
-	return &result, nil
-}
 
 func (cui *__task) IsSupporting(elem task_element.Enum) bool {
 	return [task_element.Len]bool{

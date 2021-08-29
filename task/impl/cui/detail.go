@@ -16,33 +16,7 @@
 
 package cui
 
-import (
-	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/frontend"
-	"github.com/rehearsal-open/rehearsal/parser/mapped"
-	"github.com/streamwest-1629/convertobject"
-)
-
 func (d *Detail) CheckFormat() error {
-	return nil
-}
-
-func GetDetail(_ frontend.Frontend, def *entities.Rehearsal, mapping mapped.MappingType, dest *entities.Task) error {
-	// TODO: WRITE IT
-
-	detail := &Detail{
-		IsWait:   true,
-		WriteLog: true,
-		Dir:      def.DefaultDir,
-		Args:     []string{},
-	}
-
-	if err := convertobject.DirectConvert(mapping, detail); err != nil {
-		return err
-	} else {
-		dest.WriteLog, dest.IsWait, dest.Detail = detail.WriteLog, detail.IsWait, detail
-	}
-
 	return nil
 }
 
