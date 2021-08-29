@@ -105,7 +105,7 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 		str = strings.ReplaceAll(str, "\r", "\n")
 		str = strings.ReplaceAll(str, "\n", "\n"+format)
 
-		fmt.Println(format + str)
+		fmt.Println(format + str + ForeReset + BackReset)
 
 	}
 

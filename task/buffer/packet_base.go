@@ -22,9 +22,13 @@ import (
 )
 
 func (pb *packetBase) Close() error {
-	pb.nClosed++
-	if pb.nClosed >= pb.buffer.nSend {
-		pb.bytes = nil
+
+	if pb != nil {
+
+		pb.nClosed++
+		if pb.nClosed >= pb.buffer.nSend {
+			pb.bytes = nil
+		}
 	}
 	return nil
 }

@@ -90,11 +90,13 @@ func (r *Rehearsal) Reset(entity *entities.Rehearsal, maker *maker.Maker, fronte
 		})
 
 		r.entity.Foreach(func(idx int, task *entities.Task) error {
-			task.AddRelation(entities.Reciever{
-				Reciever:        entity,
-				ElementSender:   task_element.StdOut,
-				ElementReciever: task_element.StdIn,
-			})
+			if task.WriteLog {
+				task.AddRelation(entities.Reciever{
+					Reciever:        entity,
+					ElementSender:   task_element.StdOut,
+					ElementReciever: task_element.StdIn,
+				})
+			}
 			return nil
 		})
 

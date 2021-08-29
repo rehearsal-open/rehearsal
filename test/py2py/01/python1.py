@@ -4,8 +4,7 @@ w = open("in.txt", 'w')
 
 for i in range(10000):
     a = int(input())
-    print(a * 2, flush=True)
-    print(a * 2, file=w)
+    print(a * a, flush=True)
+    print(a * a, file=w)
     
     # sleep(1)
-

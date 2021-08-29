@@ -16,6 +16,8 @@
 
 package engine
 
+import "strconv"
+
 func (r *Rehearsal) Execute() error {
 
 	defer r.releaseResources()
@@ -23,11 +25,15 @@ func (r *Rehearsal) Execute() error {
 	for i := range r.beginTasks {
 		beginTasks, waitTasks, closeTasks := r.beginTasks[i], r.waitTasks[i], r.closeTasks[i]
 
+		r.frontend.Log(0, "start phase ("+strconv.Itoa(i)+" / "+strconv.Itoa(len(beginTasks))+")")
+
 		for _, val := range beginTasks {
 
 			if err := r.tasks[val].BeginTask(); err != nil {
 				return err
 			}
+
+			r.frontend.Log(0, "running start: "+r.tasks[val].entity.Taskname)
 		}
 
 		for _, val := range waitTasks {
@@ -36,6 +42,7 @@ func (r *Rehearsal) Execute() error {
 
 		for _, val := range closeTasks {
 			r.tasks[val].StopTask()
+			r.frontend.Log(0, "task closed ("+r.tasks[val].entity.Fullname()+")")
 		}
 	}
 	return nil
