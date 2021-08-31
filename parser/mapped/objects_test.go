@@ -20,11 +20,12 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/streamwest-1629/convertobject"
 )
 
 func TestParse(t *testing.T) {
-	val := MappingType{
+	val := parser.MappingType{
 		"version": 0.202109,
 		"phase": []interface{}{
 			map[string]interface{}{

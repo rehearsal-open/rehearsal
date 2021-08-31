@@ -17,150 +17,46 @@
 package mapped
 
 import (
-	"math"
-	"sort"
-
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
+	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/streamwest-1629/convertobject"
-	"github.com/streamwest-1629/textfilter"
 )
 
 var (
 	ErrConfFileNotSupported = errors.New("configuration file's version is not supported, supported 0.202109.")
 )
 
-func (p *Parser) Parse(dest *entities.Rehearsal) error {
+const errMsgBase = "cannot parse from map to object because of "
 
-	r := Rehearsal{
-		Rehearsal: dest,
-	}
-	const errMsg = "cannot parse from map to object"
+// Parse from map[string]interface{} to structures.
+func (p *Parser) Parse(init parser.EnvConfig, dest *entities.Rehearsal) error {
 
-	var (
-		phases = map[string]*Phase{}
-	)
+	// embed object to parse
+	r := Rehearsal{Rehearsal: dest}
 
+	// call to convert type
 	if err := convertobject.DirectConvert(p.Mapped, &r); err != nil {
-		return errors.WithMessage(err, errMsg)
+		return errors.WithMessage(err, errMsgBase+"invalid format")
 	}
 
-	shortNameRegexp := textfilter.RegexpMatches(`^[a-zA-Z][a-zA-Z0-9_]*$`)
-	fullNameRegexp := textfilter.RegexpMatches(`^[a-zA-Z][a-zA-Z0-9_]*::[a-zA-Z][a-zA-Z0-9_]*$`)
-
-	phaseFilter := textfilter.Multiple([]textfilter.Filter{
-		textfilter.Identifier(),
-		shortNameRegexp,
-	})
-	taskFilter := textfilter.Multiple{
-		textfilter.Identifier(),
-		fullNameRegexp,
+	// initialize device configuration
+	if err := init.InitConfig(p.Mapped, r.Rehearsal); err != nil {
+		return errors.WithMessage(err, errMsgBase+"device configuration")
 	}
 
-	r.Rehearsal.NPhase = len(r.Phases)
-
-	Parse202109 := func() error {
-
-		// check phase name and set index
-		for iPhase := range r.Phases {
-			phase := &r.Phases[iPhase]
-			if err := textfilter.RegisterFiltering(phaseFilter, phase.Name, func() error {
-
-				if phase.Index < 1 {
-					phase.Index = math.MaxInt32
-				}
-				return nil
-			}); err != nil {
-				return errors.WithMessage(err, errMsg)
-			}
-		}
-
-		// sort phase
-		sort.Sort(phaseByIndex(r.Phases))
-
-		// assign sorted result to phase
-		for iPhase := range r.Phases {
-			phase := &r.Phases[iPhase]
-
-			phase.Index = iPhase
-
-			// register phase by name
-			phases[phase.Name] = phase
-		}
-
-		// assign task's details
-		for iPhase := range r.Phases {
-			phase := &r.Phases[iPhase]
-
-			for iTask := range phase.Tasks {
-				task := &phase.Tasks[iTask]
-				entity := task.Task
-
-				task.Phasename = phase.Name
-
-				if err := textfilter.RegisterFiltering(taskFilter, entity.Fullname(), func() error {
-
-					// set task's launch, wait, close default value
-					entity.LaunchAt, entity.CloseAt = iPhase, iPhase
-
-					// set task detail data
-					if err := p.DetailMaker.MakeDetail(r.Rehearsal, task.Clone, task.Task); err != nil {
-						return err
-					}
-
-					r.Rehearsal.AddTask(task.Task)
-
-					return nil
-
-				}); err != nil {
-					return errors.WithMessage(err, errMsg)
-				}
-			}
-		}
-
-		// relation setting
-		for iPhase := range r.Phases {
-			phase := &r.Phases[iPhase]
-
-			for iTask := range phase.Tasks {
-				task := &phase.Tasks[iTask]
-
-				for iRel := range task.SendTo {
-					rel := task.SendTo[iRel]
-
-					if err := shortNameRegexp(rel); err == nil {
-						rel = task.Phasename + "::" + rel
-					} else if err := fullNameRegexp(rel); err != nil {
-						return err
-					}
-
-					if sendto, err := r.Rehearsal.Task(rel); err != nil {
-						return err
-					} else {
-						task.Task.AddRelation(entities.Reciever{
-							Reciever:        sendto,
-							ElementSender:   task_element.StdOut,
-							ElementReciever: task_element.StdIn,
-						})
-					}
-				}
-			}
-		}
-
-		return nil
-	}
-
+	// initialize shared configuration
 	// check version
 	switch r.Version {
-	case 0.202109:
-		return Parse202109()
+	case 1.202109: // current supported
+		return errors.WithStack(Parse202109(&r))
 	default:
 		return ErrConfFileNotSupported
 	}
+
 }
 
-type phaseByIndex []Phase
+type phaseByIndex []*Phase
 
 func (a phaseByIndex) Len() int           { return len(a) }
 func (a phaseByIndex) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }

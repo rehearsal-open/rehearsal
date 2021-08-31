@@ -69,9 +69,17 @@ func MakeTask(entity *entities.Rehearsal) (*Task, error) {
 	entity.Foreach(func(_ int, entity *entities.Task) error {
 
 		name := entity.Fullname()
-		if entity.WriteLog {
-			task.Format[name] = colorSet[idx%len(colorSet)] + BackReset + name + strings.Repeat(" ", maxNameLen-len(name)) + " : "
-			idx++
+		if stdOut := entity.Element[task_element.StdOut]; stdOut != nil {
+			if stdOut.WriteLog {
+				task.Format[name] = colorSet[idx%len(colorSet)] + BackReset + name + strings.Repeat(" ", maxNameLen-len(name)) + " : "
+				idx++
+			}
+		}
+		if stdErr := entity.Element[task_element.StdErr]; stdErr != nil {
+			if stdErr.WriteLog {
+				task.Format[name] = colorSet[idx%len(colorSet)] + BackReset + name + strings.Repeat(" ", maxNameLen-len(name)) + " : "
+				idx++
+			}
 		}
 
 		return nil

@@ -16,12 +16,28 @@
 
 package parser
 
-import "github.com/rehearsal-open/rehearsal/entities"
+import (
+	"github.com/rehearsal-open/rehearsal/entities"
+)
 
 type (
 
+	// Using mapping type
+	MappingType = map[string]interface{}
+
 	// Defines parse object.
 	Parser interface {
-		Parse(*entities.Rehearsal) error
+		Parse(EnvConfig, *entities.Rehearsal) error
+	}
+
+	// The interface to initialize environment configurations.
+	// It is useful for supporting task's default value.
+	EnvConfig interface {
+		InitConfig(src MappingType, entity *entities.Rehearsal) error
+	}
+
+	// The interface to set task's detail configurations.
+	DetailMaker interface {
+		MakeDetail(def *entities.Rehearsal, src MappingType, dest *entities.Task) error
 	}
 )

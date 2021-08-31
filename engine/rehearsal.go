@@ -91,7 +91,7 @@ func (r *Rehearsal) Reset(entity *entities.Rehearsal, maker *maker.Maker, fronte
 
 		r.entity.Foreach(func(idx int, task *entities.Task) error {
 			if task.WriteLog {
-				task.AddRelation(entities.Reciever{
+				task.AddRelation(entities.Relation{
 					Reciever:        entity,
 					ElementSender:   task_element.StdOut,
 					ElementReciever: task_element.StdIn,
@@ -111,7 +111,7 @@ func (r *Rehearsal) Reset(entity *entities.Rehearsal, maker *maker.Maker, fronte
 		task := r.tasks[i]
 
 		// relation foreach-loop
-		if err := task.Entity().RelationForeach(func(idx int, relation *entities.Reciever) error {
+		if err := task.Entity().RelationForeach(func(idx int, relation *entities.Relation) error {
 
 			// TODO: SYSTEM RELATION BITWEEN TASK AND TASK
 			recieverTask := r.tasks[nameList[relation.Reciever.Fullname()]]

@@ -16,17 +16,19 @@
 
 package mapped
 
-import "github.com/rehearsal-open/rehearsal/entities"
+import (
+	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/parser"
+)
 
 type (
-	MappingType = map[string]interface{}
-	Parser      struct {
-		DetailMaker
-		Mapped MappingType
+	Parser struct {
+		parser.DetailMaker
+		Mapped parser.MappingType
 	}
 	Rehearsal struct {
 		*entities.Rehearsal `map-to:"<-"`
-		Phases              []Phase `map-to:"phase!"`
+		Phases              []*Phase `map-to:"phase!"`
 	}
 	Phase struct {
 		Index int    `map-to:"at"`
@@ -35,11 +37,8 @@ type (
 	}
 	Task struct {
 		*entities.Task `map-to:"<-"`
-		Clone          MappingType `map-to:"<-"`
-		SendTo         []string    `map-to:"sendto"`
-	}
-
-	DetailMaker interface {
-		MakeDetail(def *entities.Rehearsal, src MappingType, dest *entities.Task) error
+		UntilPhase     *string            `map-to:"until"`
+		Clone          parser.MappingType `map-to:"<-"`
+		SendTo         []string           `map-to:"sendto"`
 	}
 )
