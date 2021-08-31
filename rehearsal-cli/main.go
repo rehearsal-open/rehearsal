@@ -27,6 +27,9 @@ func init() {
 }
 
 func main() {
+
+	fmt.Println(Abstruct)
+
 	flag.Parse()
 
 	if flag.NArg() < 1 {
@@ -47,5 +50,8 @@ func main() {
 			fmt.Println(err.Error())
 			return
 		}
+	case "version":
+		Version()
+		return
 	}
 }
