@@ -76,6 +76,7 @@ rehearsal-cli --> engine
 rehearsal-cli --> entities
 rehearsal-cli --> parser/yaml
 rehearsal-cli --> rehearsal-cli/cli
+rehearsal-cli --> task
 rehearsal-cli --> task/impl/cui
 rehearsal-cli --> task/impl/serial
 rehearsal-cli --> task/maker
