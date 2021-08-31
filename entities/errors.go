@@ -18,6 +18,7 @@ package entities
 
 import "errors"
 
+// Error when taskname is unmatched with registered task.
 func ErrCannotFoundProperty(kind string, name string) error {
 	return errors.New("unknown " + kind + " name: " + name)
 }

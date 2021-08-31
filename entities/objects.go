@@ -16,29 +16,51 @@
 
 package entities
 
-import "github.com/rehearsal-open/rehearsal/entities/enum/task_element"
+import (
+	"regexp"
+
+	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
+	"github.com/streamwest-1629/textfilter"
+)
 
 type (
 	// Defines configuration of rehearsal excuting and each task  default configuration's value.
 	Rehearsal struct {
-		Version    float64 `map-to:"version!"`
-		DefaultDir string  `map-to:"dir"`
-		tasks      []*Task
-		nameList   map[string]int
-		NPhase     int
+		Version    float64        `map-to:"version!"` // Supported 1.202109 only.
+		DefaultDir string         `map-to:"dir"`      // Using cui task as default execute directory.
+		tasks      []*Task        // Tasks.
+		nameList   map[string]int // Pair each task's index and its name in tasks.
+		NPhase     int            // The number of phase without system initialize/finalize phase.
 	}
 
 	// Defines configuration of rehearsal task, its lifespan.
 	Task struct {
-		Phasename string
-		Taskname  string `map-to:"name!"`
-		Kind      string `map-to:"kind!"`
-		LaunchAt  int
-		CloseAt   int
-		IsWait    bool `map-to:"wait-stop"`
-		WriteLog  bool `map-to:"write-log"`
-		Detail    TaskDetail
-		sendto    []Reciever
+		Phasename string // Name of task's began phase.
+		Taskname  string `map-to:"name!"` // Name of task.
+		// Kind name of task. Supported name is defined by /task/maker's structure.
+		Kind string `map-to:"kind!"`
+		// Task's launching phase number. Defined by /engine's structure.
+		LaunchAt int
+		// Task's closing phase number. Defined by /engine's structure.
+		CloseAt int
+		// Whether task's natural closing.
+		// When it is true, engine closes task after task's natural closing.
+		// If not, engine closes without waiting for task's natural closing.
+		//
+		// Default is true.
+		IsWait bool `map-to:"wait-stop"`
+		// Task's detail interface.
+		// Instance's type is differented by task's kind.
+		Detail TaskDetail
+		// Configurations task's element.
+		Element [task_element.Len]Element
+	}
+
+	// Defines configuration of rehearsal task's element.
+	Element struct {
+		// Whether send task's
+		WriteLog bool `map-to:"write-log"`
+		Sendto   []Relation
 	}
 
 	// Defines functions whose task's detail structure must be statisfied as task's detail structure.
@@ -51,9 +73,21 @@ type (
 	}
 
 	// Defines relation bitween task and task.
-	Reciever struct {
+	Relation struct {
+		Sender          *Task
 		Reciever        *Task
 		ElementSender   task_element.Enum
 		ElementReciever task_element.Enum
+	}
+)
+
+var (
+	UserShortNameRegexp  = textfilter.RegexpMatches(`^[a-zA-Z][a-zA-Z0-9_]*$`)
+	UserFullNameRegexp   = textfilter.RegexpMatches(`^[a-zA-Z][a-zA-Z0-9_]*::[a-zA-Z][a-zA-Z0-9_]*$`)
+	fullNameParserRegexp = [...]*regexp.Regexp{
+		regexp.MustCompile(`^(?P<phase>((__)?[a-zA-Z][a-zA-Z0-9_]*))::(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))#(?P<element>(stdin|stdout|stderr))$`),
+		regexp.MustCompile(`^(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))#(?P<element>(stdin|stdout|stderr))$`),
+		regexp.MustCompile(`^(?P<phase>((__)?[a-zA-Z][a-zA-Z0-9_]*))::(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))$`),
+		regexp.MustCompile(`^(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))$`),
 	}
 )

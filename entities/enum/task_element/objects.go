@@ -16,12 +16,16 @@
 
 package task_element
 
+import "errors"
+
 // Definates kind of task's elements.
 // An element works for managing task's monitoring.
 // TaskElement is without main task.
 type Enum int
 
 const (
+	// Unknown value.
+	Unknown Enum = -1
 	// Standard input element. This is reciever task's element.
 	StdIn Enum = iota
 	// Standard output element. This is sender task's element.
@@ -41,3 +45,20 @@ func (t Enum) String() string {
 		"standard error output",
 	}[t]
 }
+
+func Parse(str string) Enum {
+	switch str {
+	case "stdin":
+		return StdIn
+	case "stdout":
+		return StdOut
+	case "stderr":
+		return StdErr
+	default:
+		return Unknown
+	}
+}
+
+var (
+	ErrUnknownElement = errors.New("this is unknown element")
+)

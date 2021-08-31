@@ -16,24 +16,51 @@
 
 package entities
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
+)
 
+// Show task's fullname, including task's phasename and taskname.
 func (t *Task) Fullname() string {
 	return t.Phasename + "::" + t.Taskname
 }
 
-func (t *Task) AddRelation(r Reciever) {
-	t.sendto = append(t.sendto, r)
+// Show task's fullname and element.
+func (t *Task) FullnameWithElem(elem task_element.Enum) string {
+	return t.Fullname() + "(" + elem.String() + ")"
+}
+
+func (t *Task) AddRelation(output task_element.Enum, recieverTask *Task, recieverElem task_element.Enum) {
+	t.Element[output].Sendto = append(t.Element[output].Sendto, Relation{
+		Sender:          t,
+		Reciever:        recieverTask,
+		ElementSender:   output,
+		ElementReciever: recieverElem,
+	})
 }
 
 // Return number of including relation.
-func (t *Task) LenRelation() int { return len(t.sendto) }
+func (t *Task) LenRelation() int {
+	ans := 0
+	for i := range t.Element {
+		ans += len(t.Element[i].Sendto)
+	}
+	return ans
+}
 
-func (t *Task) RelationForeach(action func(idx int, relation *Reciever) error) error {
+// Foreach-loop in relation which send from this task.
+func (t *Task) RelationForeach(action func(idx int, output task_element.Enum, relation *Relation) error) error {
 
-	for i, reciever := range t.sendto {
-		if err := action(i, &reciever); err != nil {
-			return errors.WithStack(err)
+	idx := 0
+
+	for i := range t.Element {
+		for j := range t.Element[i].Sendto {
+			if err := action(idx, task_element.Enum(i), &t.Element[i].Sendto[j]); err != nil {
+				return errors.WithStack(err)
+			} else {
+				idx++
+			}
 		}
 	}
 	return nil
