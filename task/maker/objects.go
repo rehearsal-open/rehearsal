@@ -20,7 +20,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/frontend"
-	"github.com/rehearsal-open/rehearsal/parser/mapped"
+	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/rehearsal-open/rehearsal/task"
 )
 
@@ -31,11 +31,11 @@ type (
 		taskMakers map[string]TaskMaker
 	}
 	TaskMaker interface {
-		MakeDetail(frontend frontend.Frontend, def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error
+		MakeDetail(frontend frontend.Frontend, def *entities.Rehearsal, src parser.MappingType, dest *entities.Task) error
 		MakeTask(entity *entities.Task) (task.Task, error)
 	}
 	MakerCollection struct {
-		MakeDetailFunc func(frontend frontend.Frontend, entity *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error
+		MakeDetailFunc func(frontend frontend.Frontend, entity *entities.Rehearsal, src parser.MappingType, dest *entities.Task) error
 		MakeTaskFunc   func(entity *entities.Task) (task.Task, error)
 	}
 )
@@ -51,7 +51,7 @@ func (m *Maker) RegisterMaker(kind string, maker TaskMaker) {
 	m.taskMakers[kind] = maker
 }
 
-func (m *Maker) MakeDetail(def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error {
+func (m *Maker) MakeDetail(def *entities.Rehearsal, src parser.MappingType, dest *entities.Task) error {
 	if maker, support := m.taskMakers[dest.Kind]; !support {
 		return ErrCannotSupportKind
 	} else {
@@ -74,7 +74,7 @@ func (m *Maker) IsSupportedKind(kind string) bool {
 	return support
 }
 
-func (c *MakerCollection) MakeDetail(frontend frontend.Frontend, def *entities.Rehearsal, src mapped.MappingType, dest *entities.Task) error {
+func (c *MakerCollection) MakeDetail(frontend frontend.Frontend, def *entities.Rehearsal, src parser.MappingType, dest *entities.Task) error {
 	return c.MakeDetailFunc(frontend, def, src, dest)
 }
 

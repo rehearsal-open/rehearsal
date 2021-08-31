@@ -20,7 +20,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/frontend"
-	"github.com/rehearsal-open/rehearsal/parser/mapped"
+	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/maker"
@@ -33,7 +33,7 @@ var MakeCollection = maker.MakerCollection{
 	MakeTaskFunc:   Make,
 }
 
-func GetDetail(front frontend.Frontend, def *entities.Rehearsal, mapping mapped.MappingType, dest *entities.Task) error {
+func GetDetail(front frontend.Frontend, def *entities.Rehearsal, mapping parser.MappingType, dest *entities.Task) error {
 
 	const Unknown = ""
 
