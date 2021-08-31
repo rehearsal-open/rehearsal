@@ -1,0 +1,9 @@
+version: 0.202109
+phase:
+- name: tasks
+  task:
+  - name: uart_test
+    kind: serial
+    baudrate: 57600 # connection speed
+    wait-stop: true
+    write-log: true
