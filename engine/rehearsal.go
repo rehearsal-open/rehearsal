@@ -23,107 +23,122 @@ import (
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/frontend"
+	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/rehearsal-open/rehearsal/task/maker"
 )
 
-func (r *Rehearsal) Reset(entity *entities.Rehearsal, maker *maker.Maker, frontend frontend.Frontend) error {
+// Initialize rehearsal engine.
+func (r *Rehearsal) Init(parser parser.Parser, envConfig parser.EnvConfig, maker *maker.Maker, frontend frontend.Frontend) error {
 
+	// initialize instance
 	(*r) = Rehearsal{
 		frontend: frontend,
 		lock:     &sync.Mutex{},
-		entity:   entity,
+		entity:   &entities.Rehearsal{},
 	}
 
-	nPhase := r.entity.NPhase + 2
+	// parse entity
+	if err := parser.Parse(envConfig, r.entity); err != nil {
+		return errors.WithMessage(err, "rehearsal cannot parse")
+	}
+
+	// initialize task schedule array[1]
+	r.tasks = []Task{}
+	r.beginTasks = make([][]int, r.entity.NPhase)
+	r.closeTasks = make([][]int, r.entity.NPhase)
+	r.waitTasks = make([][]int, r.entity.NPhase)
+
+	// Use to relation registering
 	nameList := map[string]int{}
 
-	r.tasks = make([]Task, 0, r.entity.LenTask()*2)
-	r.beginTasks = make([][]int, nPhase)
-	r.closeTasks = make([][]int, nPhase)
-	r.waitTasks = make([][]int, nPhase)
-
+	// initialize task schedule array[2]
 	for i := range r.beginTasks {
 		r.beginTasks[i], r.closeTasks[i], r.waitTasks[i] = []int{}, []int{}, []int{}
 	}
 
-	// register task
-	if err := r.entity.Foreach(func(idx int, entity *entities.Task) error {
+	// register entities.Task to engine.tasks
+	if err := r.entity.ForeachTask(func(idx int, entity *entities.Task) error {
 
-		// build task
+		// build task's executable instance
 		if task, err := maker.MakeTask(entity); err != nil {
-			return errors.WithStack(err)
+			return errors.WithMessage(err, "cannot make executable task instance")
 		} else {
 
+			// register task
 			appended := len(r.tasks)
-			nameList[entity.Fullname()] = appended
+			nameList[task.Entity().Fullname()] = appended
 			r.tasks = append(r.tasks, Task{
 				Task:   task,
 				entity: entity,
 			})
 
 			// append running schedules
-			r.beginTasks[entity.LaunchAt+1] = append(r.beginTasks[entity.LaunchAt+1], appended)
-			r.closeTasks[entity.CloseAt+1] = append(r.closeTasks[entity.CloseAt+1], appended)
+			r.beginTasks[entity.LaunchAt] = append(r.beginTasks[entity.LaunchAt+1], appended)
+			r.closeTasks[entity.CloseAt] = append(r.closeTasks[entity.CloseAt+1], appended)
 			if entity.IsWait {
-				r.waitTasks[entity.CloseAt+1] = append(r.waitTasks[entity.CloseAt+1], appended)
+				r.waitTasks[entity.CloseAt] = append(r.waitTasks[entity.CloseAt+1], appended)
 			}
 
 			return nil
 		}
 
 	}); err != nil {
-		return errors.WithStack(err)
+		return errors.WithMessage(err, "cannot register executable task instance")
 	}
 
-	// frontend logger task
+	// make frontend logger task
 	if logger := r.frontend.LoggerTask(); logger != nil {
 		appended := len(r.tasks)
 		entity := logger.Entity()
 
-		entity.Phasename, entity.Taskname = "__system", "__frontend_logger"
+		// set entity
+		entity.Phasename, entity.Taskname = entities.SystemInitializePhase, "__frontend_logger"
 
-		name := entity.Fullname()
-		nameList[name] = appended
+		// register logger task
+		nameList[entity.Fullname()] = appended
 		r.tasks = append(r.tasks, Task{
 			Task:   logger,
 			entity: entity,
 		})
 
-		r.entity.Foreach(func(idx int, task *entities.Task) error {
-			if task.WriteLog {
-				task.AddRelation(entities.Relation{
-					Reciever:        entity,
-					ElementSender:   task_element.StdOut,
-					ElementReciever: task_element.StdIn,
-				})
+		// register relation to logger task
+		r.entity.ForeachTask(func(idx int, task *entities.Task) error {
+			if task.Element[task_element.StdOut].WriteLog {
+				task.AddRelation(task_element.StdOut, entity, task_element.StdIn)
+			}
+			if task.Element[task_element.StdErr].WriteLog {
+				task.AddRelation(task_element.StdErr, entity, task_element.StdIn)
 			}
 			return nil
 		})
 
-		r.beginTasks[0] = append(r.beginTasks[0], appended)
-		r.closeTasks[nPhase-1] = append(r.closeTasks[nPhase-1], appended)
+		// append logger task's running schedule
+		beginAt, _ := r.entity.Phase(entities.SystemInitializePhase)
+		endAt, _ := r.entity.Phase(entities.SystemFinalizePhase)
+		r.beginTasks[beginAt] = append(r.beginTasks[beginAt], appended)
+		r.closeTasks[endAt] = append(r.closeTasks[endAt], appended)
 	}
 
 	// TODO: ADD SYSTEM TASK BEGINING AND CLOSING
 
 	// append relation
-	for i := range r.tasks {
-		task := r.tasks[i]
+	if err := r.entity.ForeachRelation(func(_ int, relation *entities.Relation) error {
+		// get name
+		senderName := relation.Sender.Fullname()
+		recieverName := relation.Reciever.Fullname()
 
-		// relation foreach-loop
-		if err := task.Entity().RelationForeach(func(idx int, relation *entities.Relation) error {
+		// get task
+		senderTask := r.tasks[nameList[senderName]].Task
+		recieverTask := r.tasks[nameList[recieverName]].Task
 
-			// TODO: SYSTEM RELATION BITWEEN TASK AND TASK
-			recieverTask := r.tasks[nameList[relation.Reciever.Fullname()]]
-			if reciever, err := recieverTask.Reciever(relation.ElementReciever); err != nil {
-				return errors.WithStack(err)
-			} else if err := task.AppendReciever(relation.ElementSender, reciever); err != nil {
-				return errors.WithStack(err)
-			}
-			return nil
-		}); err != nil {
-			return errors.WithStack(err)
+		if reciever, err := recieverTask.Reciever(relation.ElementReciever); err != nil {
+			return errors.WithMessage(err, "Cannot make relation from "+senderName+"'s "+relation.ElementSender.String()+" to "+recieverName+"'s "+relation.ElementReciever.String())
+		} else if err := senderTask.AppendReciever(relation.ElementSender, reciever); err != nil {
+			return errors.WithMessage(err, "Cannot make relation from "+senderName+"'s "+relation.ElementSender.String()+" to "+recieverName+"'s "+relation.ElementReciever.String())
 		}
+		return nil
+	}); err != nil {
+		return errors.WithStack(err)
 	}
 
 	return nil

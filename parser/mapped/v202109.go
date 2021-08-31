@@ -32,14 +32,14 @@ func (p *Parser) Parse202109(r *Rehearsal) error {
 	// insert initialize and finalize phases to counter.
 	phases := map[string]*Phase{}
 	initPhases := []*Phase{
-		&Phase{
-			Name:  "__init",
+		{
+			Name:  entities.SystemInitializePhase,
 			Tasks: []Task{},
 		},
 	}
 	finalPhases := []*Phase{
-		&Phase{
-			Name:  "__finl",
+		{
+			Name:  entities.SystemFinalizePhase,
 			Tasks: []Task{},
 		},
 	}

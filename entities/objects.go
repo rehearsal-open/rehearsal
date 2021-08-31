@@ -26,11 +26,12 @@ import (
 type (
 	// Defines configuration of rehearsal excuting and each task  default configuration's value.
 	Rehearsal struct {
-		Version    float64        `map-to:"version!"` // Supported 1.202109 only.
-		DefaultDir string         `map-to:"dir"`      // Using cui task as default execute directory.
-		tasks      []*Task        // Tasks.
-		nameList   map[string]int // Pair each task's index and its name in tasks.
-		NPhase     int            // The number of phase without system initialize/finalize phase.
+		Version       float64        `map-to:"version!"` // Supported 1.202109 only.
+		DefaultDir    string         `map-to:"dir"`      // Using cui task as default execute directory.
+		tasks         []*Task        // Tasks.
+		tasknameList  map[string]int // Pair each task's index and its name in tasks.
+		phasenameList map[string]int // Pair each phase's index and its name in tasks.
+		NPhase        int            // The number of phase without system initialize/finalize phase.
 	}
 
 	// Defines configuration of rehearsal task, its lifespan.
@@ -90,4 +91,9 @@ var (
 		regexp.MustCompile(`^(?P<phase>((__)?[a-zA-Z][a-zA-Z0-9_]*))::(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))$`),
 		regexp.MustCompile(`^(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))$`),
 	}
+)
+
+const (
+	SystemInitializePhase = "__init"
+	SystemFinalizePhase   = "__finl"
 )

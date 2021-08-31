@@ -25,20 +25,39 @@ import (
 // If duplicated name, it occers error.
 func (r *Rehearsal) AddTask(task *Task) error {
 	at, name := len(r.tasks), task.Fullname()
-	if r.nameList == nil {
-		r.nameList = make(map[string]int)
-	} else if _, exist := r.nameList[name]; exist {
+	if r.tasknameList == nil {
+		r.tasknameList = make(map[string]int)
+	} else if _, exist := r.tasknameList[name]; exist {
 		return errors.New("duplicated task's name in same phase: " + name)
 	}
 	r.tasks = append(r.tasks, task)
-	r.nameList[name] = at
+	r.tasknameList[name] = at
 	return nil
+}
+
+// Set phase.
+func (r *Rehearsal) SetPhase(name string, order int) error {
+	if _, exist := r.phasenameList[name]; exist {
+		return errors.New("duplicated phase's name: " + name)
+	} else {
+		r.phasenameList[name] = order
+		return nil
+	}
+}
+
+// Get phase's order
+func (r *Rehearsal) Phase(name string) (int, error) {
+	if idx, exist := r.phasenameList[name]; exist {
+		return -1, ErrCannotFoundProperty("phase", name)
+	} else {
+		return idx, nil
+	}
 }
 
 // Find task.
 // If not registered, it occers error.
 func (r *Rehearsal) Task(fullname string) (*Task, error) {
-	if idx, exist := r.nameList[fullname]; !exist {
+	if idx, exist := r.tasknameList[fullname]; !exist {
 		return nil, ErrCannotFoundProperty("task", fullname)
 	} else {
 		return r.tasks[idx], nil
