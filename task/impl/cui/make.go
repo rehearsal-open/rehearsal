@@ -21,7 +21,7 @@ import (
 
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/frontend"
-	"github.com/rehearsal-open/rehearsal/parser/mapped"
+	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/maker"
@@ -33,19 +33,18 @@ var MakeCollection = maker.MakerCollection{
 	MakeTaskFunc:   Make,
 }
 
-func GetDetail(_ frontend.Frontend, def *entities.Rehearsal, mapping mapped.MappingType, dest *entities.Task) error {
+func GetDetail(_ frontend.Frontend, def *entities.Rehearsal, mapping parser.MappingType, dest *entities.Task) error {
 
 	detail := &Detail{
-		IsWait:   true,
-		WriteLog: true,
-		Dir:      def.DefaultDir,
-		Args:     []string{},
+		IsWait: true,
+		Dir:    def.DefaultDir,
+		Args:   []string{},
 	}
 
 	if err := convertobject.DirectConvert(mapping, detail); err != nil {
 		return err
 	} else {
-		dest.WriteLog, dest.IsWait, dest.Detail = detail.WriteLog, detail.IsWait, detail
+		dest.IsWait, dest.Detail = detail.IsWait, detail
 	}
 
 	return nil

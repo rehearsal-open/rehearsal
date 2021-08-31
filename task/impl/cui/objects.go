@@ -35,7 +35,6 @@ type (
 		Args      []string `map-to:"args"`
 		Dir       string   `map-to:"dir"`
 		IsWait    bool     `map-to:"wait-stop"`
-		WriteLog  bool     `map-to:"write-log"`
 		Timelimit time.Duration
 	}
 )
