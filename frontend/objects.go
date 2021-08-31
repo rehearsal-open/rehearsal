@@ -26,5 +26,8 @@ type (
 
 		// Put system log.
 		Log(flag int, msg string)
+
+		// Select one.
+		Select(msg string, options []string) int
 	}
 )

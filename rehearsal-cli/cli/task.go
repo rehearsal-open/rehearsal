@@ -25,7 +25,6 @@ import (
 
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
-	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/buffer"
 )
@@ -40,7 +39,7 @@ type (
 	}
 )
 
-func MakeTask(entity *entities.Rehearsal) (task.Task, error) {
+func MakeTask(entity *entities.Rehearsal) (*Task, error) {
 
 	maxNameLen := 0
 

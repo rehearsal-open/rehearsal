@@ -46,7 +46,15 @@ func GetDetail(front frontend.Frontend, def *entities.Rehearsal, mapping mapped.
 		return err
 	} else {
 
-		// todo: portname check
+		if detail.PortName == Unknown {
+			if ports, err := serial.GetPortsList(); err != nil {
+				return errors.WithStack(err)
+			} else if len(ports) < 1 {
+				return errors.New("cannot found serial connection port")
+			} else {
+				detail.PortName = ports[front.Select("select connection port: ", ports)]
+			}
+		}
 
 		dest.Detail = detail
 	}

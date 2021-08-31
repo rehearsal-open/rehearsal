@@ -16,6 +16,40 @@
 
 package main
 
-type (
-	Frontend struct{}
+import (
+	"fmt"
+
+	"github.com/rehearsal-open/rehearsal/rehearsal-cli/cli"
+	"github.com/rehearsal-open/rehearsal/task"
 )
+
+type (
+	Frontend struct {
+		logger *cli.Task
+	}
+)
+
+func (f *Frontend) LoggerTask() task.Task {
+	return f.logger
+}
+
+func (f *Frontend) Log(flag int, msg string) {
+	fmt.Println("[INFO]: ", msg)
+}
+
+func (f *Frontend) Select(msg string, options []string) int {
+	fmt.Println("[SELECT]: " + msg + "(type number).")
+	for i, op := range options {
+		fmt.Println("  [", i+1, "]: ", op)
+	}
+	selected := 0
+	for {
+		fmt.Scanf("%d", &selected)
+		if selected > 0 && selected <= len(options) {
+			f.Log(0, fmt.Sprint("OK, you selected '", options[selected-1], "'."))
+			return selected - 1
+		} else {
+			f.Log(0, "you selected invalid number, try again.")
+		}
+	}
+}

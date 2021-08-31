@@ -62,16 +62,18 @@ func Run(confFile string) error {
 
 	if err := parser.Parse(&entity); err != nil {
 		return errors.WithStack(err)
-	}
-
-	frontend := cli.Cli{
-		Entity: &entity,
-	}
-
-	SupportedTasks.Frontend = &frontend
-
-	if err := en.Reset(&entity, SupportedTasks, &frontend); err != nil {
+	} else if logger, err := cli.MakeTask(&entity); err != nil {
 		return errors.WithStack(err)
+	} else {
+		frontend := Frontend{
+			logger: logger,
+		}
+
+		SupportedTasks.Frontend = &frontend
+
+		if err := en.Reset(&entity, SupportedTasks, &frontend); err != nil {
+			return errors.WithStack(err)
+		}
 	}
 
 	if err := en.Execute(); err != nil {
