@@ -35,6 +35,16 @@ func (r *Rehearsal) AddTask(task *Task) error {
 	return nil
 }
 
+// Find task.
+// If not registered, it occers error.
+func (r *Rehearsal) Task(fullname string) (*Task, error) {
+	if idx, exist := r.nameList[fullname]; !exist {
+		return nil, ErrCannotFoundProperty("task", fullname)
+	} else {
+		return r.tasks[idx], nil
+	}
+}
+
 // For-each loop appended task's entity.
 func (r *Rehearsal) ForeachTask(action func(idx int, task *Task) error) error {
 
@@ -123,4 +133,8 @@ func ParseTaskElem(fullname string, defaultPhase string, defaultElem task_elemen
 	}
 
 	return "", "", task_element.Unknown, errors.New("cannot parse expression because it is invalid format: " + fullname)
+}
+
+func TaskFullname(phase string, task string) string {
+	return phase + "::" + task
 }

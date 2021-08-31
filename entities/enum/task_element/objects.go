@@ -27,7 +27,7 @@ const (
 	// Unknown value.
 	Unknown Enum = -1
 	// Standard input element. This is reciever task's element.
-	StdIn Enum = iota
+	StdIn Enum = iota - 1
 	// Standard output element. This is sender task's element.
 	StdOut
 	// Standard Error output element. This is sender task's element.

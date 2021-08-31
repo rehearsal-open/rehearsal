@@ -39,6 +39,13 @@ type (
 		*entities.Task `map-to:"<-"`
 		UntilPhase     *string            `map-to:"until"`
 		Clone          parser.MappingType `map-to:"<-"`
-		SendTo         []string           `map-to:"sendto"`
+		StdIn          *Element           `map-to:"stdin"`
+		StdOut         *Element           `map-to:"stdout"`
+		StdErr         *Element           `map-to:"stderr"`
+	}
+
+	Element struct {
+		*entities.Element `map-to:"<-"`
+		SendTo            []string `map-to:"sendto"`
 	}
 )

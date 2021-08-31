@@ -21,6 +21,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/rehearsal-open/rehearsal/parser/mapped"
 	"gopkg.in/yaml.v3"
 )
@@ -28,14 +29,14 @@ import (
 type (
 	Parser struct {
 		Path string
-		mapped.DetailMaker
+		parser.DetailMaker
 	}
 )
 
-func (p *Parser) Parse(dest *entities.Rehearsal) error {
+func (p *Parser) Parse(init parser.EnvConfig, dest *entities.Rehearsal) error {
 
 	var (
-		mapping = mapped.MappingType{}
+		mapping = parser.MappingType{}
 		file    *os.File
 	)
 
@@ -56,6 +57,6 @@ func (p *Parser) Parse(dest *entities.Rehearsal) error {
 		DetailMaker: p.DetailMaker,
 	}
 
-	err := parser.Parse(dest)
+	err := parser.Parse(init, dest)
 	return errors.WithMessage(err, "cannot load config data")
 }

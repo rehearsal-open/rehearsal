@@ -49,7 +49,7 @@ func (p *Parser) Parse(init parser.EnvConfig, dest *entities.Rehearsal) error {
 	// check version
 	switch r.Version {
 	case 1.202109: // current supported
-		return errors.WithStack(Parse202109(&r))
+		return errors.WithStack(p.Parse202109(&r))
 	default:
 		return ErrConfFileNotSupported
 	}
