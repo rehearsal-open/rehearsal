@@ -45,7 +45,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 const Abstruct = `
 rehearsal v1.0 Copyright (C) 2021  Kasai Koji
 
-This program comes with ABSOLUTELY NO WARRANTY; for details type 'rehearsal version'.
+This program comes with ABSOLUTELY NO WARRANTY; for details type 'rehearsal-cli version'.
 This is free software, and you are welcome to redistribute it
 under certain conditions; type 'rehearsal-cli version' for details.
 `
