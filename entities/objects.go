@@ -96,4 +96,5 @@ var (
 const (
 	SystemInitializePhase = "__init"
 	SystemFinalizePhase   = "__finl"
+	UserFinalizePhase     = "__endless"
 )

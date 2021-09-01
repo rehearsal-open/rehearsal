@@ -39,6 +39,10 @@ func (p *Parser) Parse202109(r *Rehearsal) error {
 	}
 	finalPhases := []*Phase{
 		{
+			Name: entities.UserFinalizePhase,
+			Tasks: []Task{},
+		}
+		{
 			Name:  entities.SystemFinalizePhase,
 			Tasks: []Task{},
 		},
@@ -115,6 +119,17 @@ func (p *Parser) Parse202109(r *Rehearsal) error {
 				}
 
 				r.Rehearsal.AddTask(task.Task)
+
+				// validate until's property(phase name)
+				if task.UntilPhase != nil {
+					if until, err := r.Rehearsal.Phase(*task.UntilPhase); err != nil {
+						return errors.WithMessage(err, errMsgBase+task.Fullname()+"'s until property's name(it is phase name)")
+					} else if entity.LaunchAt > until {
+						return errors.WithMessage(err, errMsgBase+task.Fullname()+"'s until property is before launching phase")
+					} else {
+						entity.CloseAt = until
+					}
+				}
 
 				return nil
 
