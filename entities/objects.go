@@ -45,9 +45,8 @@ type (
 
 	// Defines configuration of rehearsal task, its lifespan.
 	Task struct {
-		phase string
-		name  string
-		Kind  string
+		name string
+		Kind string
 		// detail configuration indivisually defined by task's kind
 		detail TaskDetail
 		// I/O synchronization interval.
