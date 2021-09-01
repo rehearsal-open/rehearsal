@@ -9,8 +9,46 @@ phase:
     - ./python2.py
     stdout:  
       sendto:
-      - phase_1::python_2
+      - python_2
+      - phase_2::python_2
       write-log: true
+  - name: python_2
+    kind: cui
+    cmd: python
+    args:
+    - ./python1.py
+    stdout:
+      write-log: true
+- name: phase_2
+  task:
+  - name: python_2
+    kind: cui
+    cmd: python
+    args:
+    - ./python1.py
+    stdout:
+      write-log: true
+- name: phase_3
+  task:
+  - name: python_3
+    kind: cui
+    cmd: python
+    args:
+    - ./python3.py
+    stdout:
+      write-log: true
+      sendto:
+      - python_2
+      - phase_4::python_2
+  - name: python_2
+    kind: cui
+    cmd: python
+    args:
+    - ./python1.py
+    stdout:
+      write-log: true
+- name: phase_4
+  task:
   - name: python_2
     kind: cui
     cmd: python
