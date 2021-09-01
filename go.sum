@@ -1,2 +1,4 @@
-github.com/streamwest-1629/textfilter v0.0.0-20210815030443-cbe89bd4db9c h1:j+pF9fgBL9vao28To3uXfoWC6Uy1+1W7LdGac0e5840=
-github.com/streamwest-1629/textfilter v0.0.0-20210815030443-cbe89bd4db9c/go.mod h1:Q6/64TDWYaVw4m/zl8QP36rvh4SEGWG09/ezIO0PANI=
+github.com/streamwest-1629/guarantee v0.0.0-20210814050127-9ed89127188e h1:Dw4PXZeAE0i21DCHYMXaR9dpjaNanUfwv1GtgEHMcKo=
+github.com/streamwest-1629/guarantee v0.0.0-20210814050127-9ed89127188e/go.mod h1:qLB//x7TOhqfE3IP5+FtJWH4rXggaN6okNGlD24rHVM=
+github.com/streamwest-1629/guarantee_str v0.0.0-20210813070503-2636351578a9 h1:GqJ+dZUVAKfakDMIN44OrYUD2PiANVygQIEtiSu0HPY=
+github.com/streamwest-1629/guarantee_str v0.0.0-20210813070503-2636351578a9/go.mod h1:hsTjOUUhDDlqAdGct5pVTxeKtWg71KH+AbgROzj8pHY=
