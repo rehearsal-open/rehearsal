@@ -1,4 +1,4 @@
-// tasks/infrastructure.gateways/cui/task.go
+// tasks/gateways/cui/task.go
 // Copyright (C) 2021 Kasai Koji
 
 // This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/tasks/basis.gateways"
 	"github.com/rehearsal-open/rehearsal/tasks/buffer"
 	"github.com/rehearsal-open/rehearsal/tasks/gateways"
-	"github.com/rehearsal-open/rehearsal/tasks/infrastructure.gateways/cui.entity"
+	"github.com/rehearsal-open/rehearsal/tasks/gateways/cui.entity"
 )
 
 func Make(entity *entities.Task) (cuiTask gateways.Task, err error) {
