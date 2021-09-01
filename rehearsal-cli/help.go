@@ -20,12 +20,12 @@ import "fmt"
 
 const (
 	helpDefault = `
-    -- Usage 'rehearsal-cli' --
+    -- Usage 'rehearsal' --
 rehearsal-cli [command] (args...)
 
 [command] REQUIRED
-  - run     : Execute tasks with config file. See also 'rehearsal-cli run help'
-  - version : Show rehearsal-cli version.
+  - run     : Execute tasks with config file. See also 'rehearsal run help'
+  - version : Show rehearsal version.
 `
 	helpRun = `
     -- Usage 'rehearsal-cli run' --

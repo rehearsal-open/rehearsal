@@ -27,7 +27,7 @@ const InfomationPlane = `
 _/\  /\_\_\ \__\ \____/  \\ \_/ \_____//_/    \_\\_\ \__\\____//_/    \_\\_____/ 
 
 
-rehearsal v1.0 / process-conecting test tool
+rehearsal v1.202109 / process-conecting test tool
 Copyright (C) 2021  Kasai Koji
 
 This program is free software: you can redistribute it and/or modify
@@ -43,11 +43,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 `
 
 const Abstruct = `
-rehearsal v1.0 Copyright (C) 2021  Kasai Koji
+rehearsal v1.202109 Copyright (C) 2021  Kasai Koji
 
 This program comes with ABSOLUTELY NO WARRANTY; for details type 'rehearsal-cli version'.
 This is free software, and you are welcome to redistribute it
-under certain conditions; type 'rehearsal-cli version' for details.
+under certain conditions; type 'rehearsal version' for details.
 `
 
 func Version() {
