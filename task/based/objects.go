@@ -72,9 +72,9 @@ type (
 		// Release memory and any handler.
 		ReleaseResource()
 		// Append reciever to selected sender element.
-		AppendReciever(sender task_element.Enum, reciever buffer.SendToBased) error
+		AppendReciever(sender task_element.Enum, reciever buffer.SendToRecieverBased) error
 		// Get reciever selected by task element.
-		Reciever(element task_element.Enum) (buffer.SendToBased, error)
+		Reciever(element task_element.Enum) (buffer.SendToRecieverBased, error)
 	}
 
 	// Defines functions which implemented tasks are satisfied.
@@ -101,14 +101,15 @@ type (
 
 	taskElement struct {
 		*internalTask
-		lock       sync.Mutex
-		element    task_element.Enum
-		state      task_state.Enum
-		sender     *buffer.Buffer
-		reciever   chan buffer.Packet
-		packets    []buffer.Packet
-		packetPos  int
-		packetLock *sync.Mutex
+		lock        sync.Mutex
+		element     task_element.Enum
+		state       task_state.Enum
+		sender      *buffer.Buffer
+		reciever    chan buffer.Packet
+		numSendFrom int
+		packets     []buffer.Packet
+		packetPos   int
+		packetLock  *sync.Mutex
 	}
 )
 

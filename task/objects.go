@@ -51,8 +51,8 @@ type (
 		// Release memory and any handler.
 		ReleaseResource() // delete buffer and so on
 		// Append reciever to selected sender element.
-		AppendReciever(sender task_element.Enum, reciever buffer.SendToBased) error
+		AppendReciever(sender task_element.Enum, reciever buffer.SendToRecieverBased) error
 		// Get reciever selected by task element.
-		Reciever(element task_element.Enum) (buffer.SendToBased, error)
+		Reciever(element task_element.Enum) (buffer.SendToRecieverBased, error)
 	}
 )

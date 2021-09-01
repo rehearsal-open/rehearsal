@@ -19,6 +19,9 @@ package buffer
 import "io"
 
 func (p *Packet) Read(buffer []byte) (read int, err error) {
+	if p.Closed {
+		panic("sender task is closed")
+	}
 	if p.offset == len(p.bytes) {
 		return 0, io.EOF
 	} else {

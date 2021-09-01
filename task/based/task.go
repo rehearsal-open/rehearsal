@@ -50,6 +50,7 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 			state:        task_state.Waiting,
 			sender:       nil,
 			reciever:     nil,
+			numSendFrom:  0,
 		}
 		support[i] = impl.IsSupporting(task_element.Enum(i))
 	}
@@ -169,7 +170,7 @@ func (basis *internalTask) ReleaseResource() {
 }
 
 // Append reciever to selected sender element.
-func (basis *internalTask) AppendReciever(sender task_element.Enum, reciever buffer.SendToBased) error {
+func (basis *internalTask) AppendReciever(sender task_element.Enum, reciever buffer.SendToRecieverBased) error {
 
 	basis.lock.Lock()
 	defer basis.lock.Unlock()
@@ -184,13 +185,14 @@ func (basis *internalTask) AppendReciever(sender task_element.Enum, reciever buf
 		return ErrAlreadyRun
 	} else {
 		basis.elements[sender].sender.AppendReciever(reciever)
+		reciever.Registered()
 		return nil
 	}
 
 }
 
 // Get reciever selected by task element.
-func (basis *internalTask) Reciever(reciever task_element.Enum) (buffer.SendToBased, error) {
+func (basis *internalTask) Reciever(reciever task_element.Enum) (buffer.SendToRecieverBased, error) {
 
 	basis.lock.Lock()
 	defer basis.lock.Unlock()
@@ -230,6 +232,7 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) 
 
 			// begin to listen element goroutine
 			go func(elem int) {
+				iClosed := 0
 				for {
 
 					for at, total := basis.elements[elem].packetPos, len(basis.elements[elem].packets); total <= at; at, total = basis.elements[elem].packetPos, len(basis.elements[elem].packets) {
@@ -242,12 +245,24 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) 
 						}
 					}
 
-					basis.elements[elem].lock.Lock()
 					func() {
-						defer func() { basis.elements[elem].packetPos++ }()
-						callback[elem].Recieve(&basis.elements[elem].packets[basis.elements[elem].packetPos])
+						basis.elements[elem].lock.Lock()
+						defer func() {
+							basis.elements[elem].packetPos++
+							basis.elements[elem].lock.Unlock()
+						}()
+
+						packet := &basis.elements[elem].packets[basis.elements[elem].packetPos]
+
+						if packet.Closed {
+							if iClosed++; iClosed >= basis.elements[elem].numSendFrom { // TODO: number of registered sender task
+								callback[elem].OnFinal()
+							}
+
+						} else {
+							callback[elem].Recieve(packet)
+						}
 					}()
-					basis.elements[elem].lock.Unlock()
 
 				}
 			}(i)

@@ -16,9 +16,15 @@
 
 package based
 
-import "github.com/rehearsal-open/rehearsal/task/buffer"
+import (
+	"github.com/rehearsal-open/rehearsal/task/buffer"
+)
 
 // Send packet to this reciever instance.
 func (elem *taskElement) SendPacket(p buffer.Packet) {
 	elem.reciever <- p
+}
+
+func (elem *taskElement) Registered() {
+	elem.numSendFrom++
 }

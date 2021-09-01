@@ -30,7 +30,7 @@ func MakeBuffer(entity *entities.Task, element task_element.Enum) *Buffer {
 		task:     entity,
 		element:  element,
 		packets:  make([]*packetBase, 128),
-		reciever: make([]SendToBased, 0),
+		reciever: make([]SendToRecieverBased, 0),
 		ch:       make(chan []byte),
 		running:  false,
 	}
@@ -70,6 +70,7 @@ func (b *Buffer) Begin() {
 
 				for _, rec := range b.reciever {
 					rec.SendPacket(Packet{
+						Closed:     false,
 						packetBase: &base,
 						offset:     0,
 					})
@@ -85,9 +86,16 @@ func (b *Buffer) Close() {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 	close(b.ch)
+	for i := range b.reciever {
+		b.reciever[i].SendPacket(Packet{
+			Closed:     true,
+			packetBase: nil,
+			offset:     0,
+		})
+	}
 	b.running = false
 }
 
-func (b *Buffer) AppendReciever(r SendToBased) {
+func (b *Buffer) AppendReciever(r SendToRecieverBased) {
 	b.reciever = append(b.reciever, r)
 }
