@@ -21,14 +21,12 @@ import (
 	"github.com/rehearsal-open/rehearsal/tasks/buffer"
 )
 
-type (
-	Task interface {
-		IsSupporting(element entities.TaskElement) bool
-		ElementState(element entities.TaskElement) entities.RunningState
-		BeginTask() error // begin main task
-		StopTask()        // stop reciever and main task
-		ReleaseResource() // delete buffer and so on
-		AppendReciever(sender entities.TaskElement, reciever buffer.Reciever) error
-		Reciever(element entities.TaskElement) buffer.Reciever
-	}
-)
+type Task interface {
+	IsSupporting(element entities.TaskElement) bool
+	ElementState(element entities.TaskElement) entities.RunningState
+	BeginTask() error // begin main task
+	StopTask()        // stop reciever and main task
+	ReleaseResource() // delete buffer and so on
+	AppendReciever(sender entities.TaskElement, reciever buffer.Reciever) error
+	Reciever(element entities.TaskElement) buffer.Reciever
+}
