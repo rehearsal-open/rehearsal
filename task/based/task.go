@@ -169,7 +169,7 @@ func (basis *internalTask) ReleaseResource() {
 }
 
 // Append reciever to selected sender element.
-func (basis *internalTask) AppendReciever(sender task_element.Enum, reciever buffer.Reciever) error {
+func (basis *internalTask) AppendReciever(sender task_element.Enum, reciever buffer.SendToBased) error {
 
 	basis.lock.Lock()
 	defer basis.lock.Unlock()
@@ -190,7 +190,7 @@ func (basis *internalTask) AppendReciever(sender task_element.Enum, reciever buf
 }
 
 // Get reciever selected by task element.
-func (basis *internalTask) Reciever(reciever task_element.Enum) (buffer.Reciever, error) {
+func (basis *internalTask) Reciever(reciever task_element.Enum) (buffer.SendToBased, error) {
 
 	basis.lock.Lock()
 	defer basis.lock.Unlock()

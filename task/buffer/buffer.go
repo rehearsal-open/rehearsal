@@ -30,7 +30,7 @@ func MakeBuffer(entity *entities.Task, element task_element.Enum) *Buffer {
 		task:     entity,
 		element:  element,
 		packets:  make([]*packetBase, 128),
-		reciever: make([]Reciever, 0),
+		reciever: make([]SendToBased, 0),
 		ch:       make(chan []byte),
 		running:  false,
 	}
@@ -88,6 +88,6 @@ func (b *Buffer) Close() {
 	b.running = false
 }
 
-func (b *Buffer) AppendReciever(r Reciever) {
+func (b *Buffer) AppendReciever(r SendToBased) {
 	b.reciever = append(b.reciever, r)
 }

@@ -30,7 +30,7 @@ type (
 		task     *entities.Task
 		element  task_element.Enum
 		packets  []*packetBase
-		reciever []Reciever
+		reciever []SendToBased
 		ch       chan []byte
 		running  bool
 		nSend    int
@@ -50,7 +50,7 @@ type (
 	}
 
 	// Recieves packet.
-	Reciever interface {
+	SendToBased interface {
 		SendPacket(p Packet)
 	}
 )
