@@ -90,12 +90,7 @@ func (basis *internalTask) StopTask() {
 }
 
 func (basis *internalTask) WaitClosing() {
-	for {
-		_, exist := <-basis.closed
-		if !exist {
-			return
-		}
-	}
+	<-basis.closed
 }
 
 func (basis *internalTask) ReleaseResource() {
@@ -137,18 +132,18 @@ func (basis *internalTask) Writer(element element.TaskElement) (io.Writer, error
 	}
 }
 
-func (basis *internalTask) ListenStart(callback [element.NumTaskElement]RecieveCallback) {
+func (basis *internalTask) ListenStart() error {
 
 	// begin reciever element
 	if basis.reciever[element.StdIn] != nil {
-		if callback[element.StdIn] == nil {
-			panic("unknown callback")
+		if callback, err := basis.impl.RecieverCallback(element.StdIn); err != nil {
+			return err
 		} else {
 			go func() {
 				for {
 					packet, exist := <-basis.reciever[element.StdIn]
 					if exist {
-						callback[element.StdIn](packet)
+						callback(packet)
 					} else {
 						return
 					}
@@ -168,6 +163,8 @@ func (basis *internalTask) ListenStart(callback [element.NumTaskElement]RecieveC
 		basis.sender[element.StdErr].Begin()
 		basis.state[element.StdErr] = run_state.Running
 	}
+
+	return nil
 }
 
 func (basis *internalTask) Close(err error) {

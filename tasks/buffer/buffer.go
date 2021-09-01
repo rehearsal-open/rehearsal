@@ -40,10 +40,11 @@ func (b *Buffer) Write(bytes []byte) (written int, err error) {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
-	clone := make([]byte, len(bytes))
-	written = copy(clone, bytes)
-	b.ch <- clone // if error here, check routine lifespan.
-	// b.ch <- bytes
+	if b.running {
+		clone := make([]byte, len(bytes))
+		written = copy(clone, bytes)
+		b.ch <- clone // if error here, check routine lifespan.
+	}
 	return
 }
 
@@ -51,8 +52,6 @@ func (b *Buffer) Begin() {
 
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
-
-	b.running = true
 
 	go func() {
 		for {

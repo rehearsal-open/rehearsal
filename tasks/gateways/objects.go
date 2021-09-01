@@ -31,7 +31,6 @@ type (
 		ElementState(element element.TaskElement) run_state.RunningState
 		BeginTask() error // begin main task
 		StopTask()        // stop reciever and main task
-		WaitClosing()
 		ReleaseResource() // delete buffer and so on
 		AppendReciever(sender element.TaskElement, reciever buffer.Reciever) error
 		Reciever(element element.TaskElement) (buffer.Reciever, error)
