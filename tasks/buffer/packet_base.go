@@ -16,10 +16,7 @@
 
 package buffer
 
-import (
-	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/entities/element"
-)
+import "github.com/rehearsal-open/rehearsal/entities"
 
 func (pb *packetBase) Close() error {
 	pb.nClosed++
@@ -29,6 +26,6 @@ func (pb *packetBase) Close() error {
 	return nil
 }
 
-func (p *packetBase) Sender() (*entities.Task, element.TaskElement) {
+func (p *packetBase) Sender() (*entities.Task, entities.TaskElement) {
 	return p.buffer.task, p.buffer.element
 }
