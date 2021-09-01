@@ -16,25 +16,6 @@
 
 package buffer
 
-import (
-	"sync"
-
-	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/entities/element"
-)
-
-func MakeBuffer(entity *entities.Task, element element.TaskElement) *Buffer {
-	return &Buffer{
-		mutex:    &sync.RWMutex{},
-		task:     entity,
-		element:  element,
-		packets:  make([]*packetBase, 128),
-		reciever: make([]Reciever, 0),
-		ch:       make(chan []byte),
-		running:  false,
-	}
-}
-
 func (b *Buffer) Write(bytes []byte) (written int, err error) {
 
 	b.mutex.Lock()
@@ -53,6 +34,7 @@ func (b *Buffer) Begin() {
 	b.mutex.Lock()
 	defer b.mutex.Unlock()
 
+	b.running = true
 	go func() {
 		for {
 			clone, exist := <-b.ch
@@ -64,7 +46,7 @@ func (b *Buffer) Begin() {
 					nSend:   len(b.reciever),
 				}
 
-				b.packets = append(b.packets, &base)
+				b.packets = append(b.packets, base)
 				for _, rec := range b.reciever {
 					rec.SendPacket(Packet{
 						packetBase: &base,
@@ -83,8 +65,4 @@ func (b *Buffer) Close() {
 	defer b.mutex.Unlock()
 	close(b.ch)
 	b.running = false
-}
-
-func (b *Buffer) AppendReciever(r Reciever) {
-	b.reciever = append(b.reciever, r)
 }

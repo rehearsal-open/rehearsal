@@ -29,7 +29,7 @@ type (
 		mutex    *sync.RWMutex
 		task     *entities.Task
 		element  element.TaskElement
-		packets  []*packetBase
+		packets  []packetBase
 		reciever []Reciever
 		ch       chan []byte
 		running  bool
