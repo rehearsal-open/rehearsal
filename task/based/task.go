@@ -235,13 +235,24 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) 
 				iClosed := 0
 				for {
 
+					// packet, exist := <-basis.elements[elem].reciever
+					// if exist {
+					// 	if packet.Closed {
+					// 		if iClosed++; iClosed >= basis.elements[elem].numSendFrom {
+					// 			callback[elem].OnFinal()
+					// 		}
+					// 	} else {
+					// 		callback[elem].Recieve(&packet)
+					// 	}
+					// } else {
+					// 	return
+					// }
+
 					for at, total := basis.elements[elem].packetPos, len(basis.elements[elem].packets); total <= at; at, total = basis.elements[elem].packetPos, len(basis.elements[elem].packets) {
 						time.Sleep(time.Millisecond)
 
 						if basis.elements[elem].packets == nil {
 							return
-						} else if total < at {
-							panic(basis)
 						}
 					}
 
@@ -288,6 +299,7 @@ func (basis *internalTask) Close(err error) {
 			for len(basis.elements[i].packets) > basis.elements[i].packetPos {
 			}
 			close(basis.elements[i].reciever)
+			basis.elements[i].reciever = nil
 			basis.elements[i].packets = nil
 		}
 		if basis.elements[i].sender != nil {
