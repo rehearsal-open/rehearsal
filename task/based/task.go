@@ -59,7 +59,7 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 	if support[task_element.StdIn] {
 		basis.elements[task_element.StdIn].reciever = make(chan buffer.Packet)
 		basis.elements[task_element.StdIn].packets = []buffer.Packet{}
-		basis.elements[task_element.StdIn].packetPos = 0
+		basis.elements[task_element.StdIn].packetPos = [...]int{0, 0}
 		basis.elements[task_element.StdIn].packetLock = &sync.Mutex{}
 
 		go func() {
@@ -69,7 +69,20 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 				if exist {
 
 					basis.elements[task_element.StdIn].packetLock.Lock()
-					basis.elements[task_element.StdIn].packets = append(basis.elements[task_element.StdIn].packets, packet)
+					if l := len(basis.elements[task_element.StdIn].packets); basis.elements[task_element.StdIn].packetPos[1] >= l {
+						if (l-basis.elements[task_element.StdIn].packetPos[0])*2 < l {
+							copied := copy(basis.elements[task_element.StdIn].packets, basis.elements[task_element.StdIn].packets[basis.elements[task_element.StdIn].packetPos[0]:])
+							basis.elements[task_element.StdIn].packetPos = [...]int{0, copied}
+						} else {
+							buf := make([]buffer.Packet, (l+1)*2)
+							copied := copy(buf, basis.elements[task_element.StdIn].packets[basis.elements[task_element.StdIn].packetPos[0]:])
+							basis.elements[task_element.StdIn].packetPos = [...]int{0, copied}
+							basis.elements[task_element.StdIn].packets = buf
+						}
+					}
+
+					basis.elements[task_element.StdIn].packets[basis.elements[task_element.StdIn].packetPos[1]] = packet
+					basis.elements[task_element.StdIn].packetPos[1]++
 					basis.elements[task_element.StdIn].packetLock.Unlock()
 
 				} else {
@@ -248,7 +261,7 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) 
 					// 	return
 					// }
 
-					for at, total := basis.elements[elem].packetPos, len(basis.elements[elem].packets); total <= at; at, total = basis.elements[elem].packetPos, len(basis.elements[elem].packets) {
+					for at, total := basis.elements[elem].packetPos[0], basis.elements[elem].packetPos[1]; total <= at; at, total = basis.elements[elem].packetPos[0], basis.elements[elem].packetPos[1] {
 						time.Sleep(time.Millisecond)
 
 						if basis.elements[elem].packets == nil {
@@ -259,20 +272,25 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) 
 					func() {
 						basis.elements[elem].lock.Lock()
 						defer func() {
-							basis.elements[elem].packetPos++
+							if basis.elements[elem].packetPos[1] > basis.elements[elem].packetPos[0] {
+								basis.elements[elem].packetPos[0]++
+							}
 							basis.elements[elem].lock.Unlock()
 						}()
 
-						packet := &basis.elements[elem].packets[basis.elements[elem].packetPos]
+						if basis.elements[elem].packetPos[1] > basis.elements[elem].packetPos[0] {
+							packet := &basis.elements[elem].packets[basis.elements[elem].packetPos[0]]
 
-						if packet.Closed {
-							if iClosed++; iClosed >= basis.elements[elem].numSendFrom { // TODO: number of registered sender task
-								callback[elem].OnFinal()
+							if packet.Closed {
+								if iClosed++; iClosed >= basis.elements[elem].numSendFrom { // TODO: number of registered sender task
+									callback[elem].OnFinal()
+								}
+
+							} else {
+								callback[elem].Recieve(packet)
 							}
-
-						} else {
-							callback[elem].Recieve(packet)
 						}
+
 					}()
 
 				}
@@ -296,7 +314,8 @@ func (basis *internalTask) Close(err error) {
 		if basis.elements[i].reciever != nil {
 
 			// wait for finally read
-			for len(basis.elements[i].packets) > basis.elements[i].packetPos {
+			for basis.elements[i].packetPos[1] > basis.elements[i].packetPos[0] {
+				time.Sleep(time.Millisecond)
 			}
 			close(basis.elements[i].reciever)
 			basis.elements[i].reciever = nil

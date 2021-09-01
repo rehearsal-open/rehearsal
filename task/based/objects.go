@@ -108,7 +108,7 @@ type (
 		reciever    chan buffer.Packet
 		numSendFrom int
 		packets     []buffer.Packet
-		packetPos   int
+		packetPos   [2]int // read pos, write pos
 		packetLock  *sync.Mutex
 	}
 )
