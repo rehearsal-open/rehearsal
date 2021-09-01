@@ -314,8 +314,18 @@ func (basis *internalTask) Close(err error) {
 		if basis.elements[i].reciever != nil {
 
 			// wait for finally read
-			for basis.elements[i].packetPos[1] > basis.elements[i].packetPos[0] {
-				time.Sleep(time.Millisecond)
+			for isContinue := true; isContinue; {
+				func(i int) {
+					basis.elements[i].lock.Lock()
+					defer basis.elements[i].lock.Unlock()
+					if basis.elements[i].packetPos[1] > basis.elements[i].packetPos[0] {
+						isContinue = false
+					}
+
+				}(i)
+				if isContinue {
+					time.Sleep(time.Millisecond)
+				}
 			}
 			close(basis.elements[i].reciever)
 			basis.elements[i].reciever = nil
