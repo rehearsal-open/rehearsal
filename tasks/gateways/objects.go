@@ -17,8 +17,6 @@
 package gateways
 
 import (
-	"errors"
-
 	"github.com/rehearsal-open/rehearsal/entities/element"
 	"github.com/rehearsal-open/rehearsal/entities/run_state"
 	"github.com/rehearsal-open/rehearsal/tasks/buffer"
@@ -35,8 +33,4 @@ type (
 		AppendReciever(sender element.TaskElement, reciever buffer.Reciever) error
 		Reciever(element element.TaskElement) (buffer.Reciever, error)
 	}
-)
-
-var (
-	ErrInvalidTaskDetail = errors.New("entity of task's detail is invalid")
 )
