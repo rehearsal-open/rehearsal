@@ -42,12 +42,12 @@ func (serial *__task) ExecuteMain(args based.MainFuncArguments) error {
 		stdOut = stdout
 	}
 
-	callback := [task_element.Len]based.Reciever{nil}
-	callback[task_element.StdIn] = func(recieved *buffer.Packet) {
+	callback := [task_element.Len]based.ImplCallback{nil}
+	callback[task_element.StdIn] = based.MakeImplCallback(func(recieved *buffer.Packet) {
 
 		io.Copy(serial.Port, recieved)
 
-	}
+	}, based.DefaultOnFinal)
 
 	if err := serial.ResetInputBuffer(); err != nil {
 		return errors.WithStack(err)

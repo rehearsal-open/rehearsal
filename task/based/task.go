@@ -218,7 +218,7 @@ func (basis *internalTask) Writer(elem task_element.Enum) (io.Writer, error) {
 }
 
 // Listen reciever element and begin to manage packet.
-func (basis *internalTask) ListenStart(callback [task_element.Len]Reciever) {
+func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) {
 
 	for i, l := 0, task_element.Len; i < l; i++ {
 		if basis.elements[i].reciever != nil {
@@ -245,7 +245,7 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]Reciever) {
 					basis.elements[elem].lock.Lock()
 					func() {
 						defer func() { basis.elements[elem].packetPos++ }()
-						callback[elem](&basis.elements[elem].packets[basis.elements[elem].packetPos])
+						callback[elem].Recieve(&basis.elements[elem].packets[basis.elements[elem].packetPos])
 					}()
 					basis.elements[elem].lock.Unlock()
 

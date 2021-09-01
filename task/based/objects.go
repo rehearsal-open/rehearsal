@@ -28,8 +28,16 @@ import (
 )
 
 type (
+	implCallback struct {
+		reciever func(recieved *buffer.Packet)
+		onfinal  func()
+	}
+
 	// Callback functions called when task recieves packet.
-	Reciever func(recieved *buffer.Packet)
+	ImplCallback interface {
+		Recieve(recieved *buffer.Packet)
+		OnFinal()
+	}
 
 	// Defines main task's argumetns to call basis functions.
 	// These functions must to be called.
@@ -40,7 +48,7 @@ type (
 		Close(err error)
 		// Listen reciever element and begin to manage packet.
 		// Main task must call when main just after task's begining.
-		ListenStart(callback [task_element.Len]Reciever)
+		ListenStart(callback [task_element.Len]ImplCallback)
 	}
 
 	// Defines functions basis task including.

@@ -54,8 +54,8 @@ func (cui *__task) ExecuteMain(args based.MainFuncArguments) error {
 		cui.Cmd.Stderr = out
 	}
 
-	callback := [task_element.Len]based.Reciever{nil}
-	callback[task_element.StdIn] = func(recieved *buffer.Packet) {
+	callback := [task_element.Len]based.ImplCallback{nil}
+	callback[task_element.StdIn] = based.MakeImplCallback(func(recieved *buffer.Packet) {
 		if stdin != nil {
 			defer recieved.Close()
 			if _, err := io.Copy(stdin, recieved); err != nil {
@@ -64,7 +64,7 @@ func (cui *__task) ExecuteMain(args based.MainFuncArguments) error {
 		} else {
 			panic("stdin finalized")
 		}
-	}
+	}, based.DefaultOnFinal)
 
 	if err := cui.Start(); err != nil {
 		return errors.WithStack(err)

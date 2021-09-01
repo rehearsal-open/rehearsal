@@ -89,8 +89,8 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 	t.reciever = make(chan string)
 	t.close = make(chan error)
 
-	callback := [task_element.Len]based.Reciever{nil}
-	callback[task_element.StdIn] = func(recieved *buffer.Packet) {
+	callback := [task_element.Len]based.ImplCallback{nil}
+	callback[task_element.StdIn] = based.MakeImplCallback(func(recieved *buffer.Packet) {
 
 		sender, _ := recieved.Sender()
 		defer recieved.Close()
@@ -107,7 +107,7 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 
 		fmt.Println(format + str + ForeReset + BackReset)
 
-	}
+	}, based.DefaultOnFinal)
 
 	go func() {
 
