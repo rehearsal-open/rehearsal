@@ -34,7 +34,7 @@ phase:
     kind: cui
     cmd: python
     args:
-    - ./python3.py
+    - ./python4.py
     stdout:
       write-log: true
       sendto:
@@ -44,7 +44,7 @@ phase:
     kind: cui
     cmd: python
     args:
-    - ./python1.py
+    - ./python3.py
     stdout:
       write-log: true
 - name: phase_4
@@ -53,6 +53,6 @@ phase:
     kind: cui
     cmd: python
     args:
-    - ./python1.py
+    - ./python3.py
     stdout:
       write-log: true
