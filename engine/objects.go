@@ -27,7 +27,7 @@ import (
 type (
 	Rehearsal struct {
 		frontend   frontend.Frontend
-		entity     *entities.Rehearsal
+		Entity     *entities.Rehearsal
 		tasks      []Task
 		beginTasks [][]int
 		waitTasks  [][]int

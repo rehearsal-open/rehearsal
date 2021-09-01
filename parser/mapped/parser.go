@@ -32,17 +32,17 @@ const errMsgBase = "cannot parse from map to object because of "
 // Parse from map[string]interface{} to structures.
 func (p *Parser) Parse(init parser.EnvConfig, dest *entities.Rehearsal) error {
 
+	// initialize device configuration
+	if err := init.InitConfig(p.Mapped); err != nil {
+		return errors.WithMessage(err, errMsgBase+"device configuration")
+	}
+
 	// embed object to parse
 	r := Rehearsal{Rehearsal: dest}
 
 	// call to convert type
 	if err := convertobject.DirectConvert(p.Mapped, &r); err != nil {
 		return errors.WithMessage(err, errMsgBase+"invalid format")
-	}
-
-	// initialize device configuration
-	if err := init.InitConfig(p.Mapped, r.Rehearsal); err != nil {
-		return errors.WithMessage(err, errMsgBase+"device configuration")
 	}
 
 	// initialize shared configuration

@@ -37,17 +37,18 @@ func (r *Rehearsal) AddTask(task *Task) error {
 
 // Set phase.
 func (r *Rehearsal) SetPhase(name string, order int) error {
-	if _, exist := r.phasenameList[name]; exist {
+	if r.phasenameList == nil {
+		r.phasenameList = make(map[string]int)
+	} else if _, exist := r.phasenameList[name]; exist {
 		return errors.New("duplicated phase's name: " + name)
-	} else {
-		r.phasenameList[name] = order
-		return nil
 	}
+	r.phasenameList[name] = order
+	return nil
 }
 
 // Get phase's order
 func (r *Rehearsal) Phase(name string) (int, error) {
-	if idx, exist := r.phasenameList[name]; exist {
+	if idx, exist := r.phasenameList[name]; !exist {
 		return -1, ErrCannotFoundProperty("phase", name)
 	} else {
 		return idx, nil

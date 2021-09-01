@@ -33,7 +33,7 @@ type (
 	// The interface to initialize environment configurations.
 	// It is useful for supporting task's default value.
 	EnvConfig interface {
-		InitConfig(src MappingType, entity *entities.Rehearsal) error
+		InitConfig(src MappingType) error
 	}
 
 	// The interface to set task's detail configurations.

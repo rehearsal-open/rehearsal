@@ -89,6 +89,8 @@ func (p *Parser) Parse202109(r *Rehearsal) error {
 
 		// register phase by name
 		phases[phase.Name] = phase
+
+		r.SetPhase(phase.Name, iPhase)
 	}
 
 	// assign task's details
@@ -135,47 +137,59 @@ func (p *Parser) Parse202109(r *Rehearsal) error {
 			task.Task.Element[task_element.StdErr].Sendto = make([]entities.Relation, 0)
 
 			// standard output sender task's sendto property
-			for iRel := range task.StdOut.SendTo {
-				rel := task.StdOut.SendTo[iRel]
+			if task.StdOut != nil {
 
-				// validate task's name
-				if phaseName, taskName, taskElem, err := entities.ParseTaskElem(rel, task.Phasename, task_element.StdIn); err != nil {
-					errors.WithMessage(err, errMsgBase+task.Fullname()+"'s sendto property: "+rel)
+				task.Element[task_element.StdOut] = *task.StdOut.Element
 
-					// check reciever task is exist or not
-				} else if reciever, err := r.Rehearsal.Task(entities.TaskFullname(phaseName, taskName)); err != nil {
-					errors.WithMessage(err, errMsgBase+task.Fullname()+"'s sendto property: "+rel)
-				} else {
+				// when stdout property is existed
+				for iRel := range task.StdOut.SendTo {
+					rel := task.StdOut.SendTo[iRel]
 
-					// check reciever task's element
-					switch taskElem {
-					case task_element.StdIn:
-						task.Task.AddRelation(task_element.StdOut, reciever, taskElem)
-					default:
-						errors.New(errMsgBase + task.Fullname() + "' sendto property: sendto task's element is invalid as reciever one")
+					// validate task's name
+					if phaseName, taskName, taskElem, err := entities.ParseTaskElem(rel, task.Phasename, task_element.StdIn); err != nil {
+						return errors.WithMessage(err, errMsgBase+task.Fullname()+"'s sendto property: "+rel)
+
+						// check reciever task is exist or not
+					} else if reciever, err := r.Rehearsal.Task(entities.TaskFullname(phaseName, taskName)); err != nil {
+						return errors.WithMessage(err, errMsgBase+task.Fullname()+"'s sendto property: "+rel)
+					} else {
+
+						// check reciever task's element
+						switch taskElem {
+						case task_element.StdIn:
+							task.Task.AddRelation(task_element.StdOut, reciever, taskElem)
+						default:
+							errors.New(errMsgBase + task.Fullname() + "' sendto property: sendto task's element is invalid as reciever one")
+						}
 					}
 				}
 			}
 
 			// standerd error output sender task's sendto property
-			for iRel := range task.StdErr.SendTo {
-				rel := task.StdErr.SendTo[iRel]
+			if task.StdErr != nil {
 
-				// validate task's name
-				if phaseName, taskName, taskElem, err := entities.ParseTaskElem(rel, task.Phasename, task_element.StdIn); err != nil {
-					errors.WithMessage(err, errMsgBase+task.Fullname()+"'s sendto property: "+rel)
+				task.Element[task_element.StdErr] = *task.StdErr.Element
 
-					// check reciever task is exist or not
-				} else if reciever, err := r.Rehearsal.Task(entities.TaskFullname(phaseName, taskName)); err != nil {
-					errors.WithMessage(err, errMsgBase+task.Fullname()+"'s sendto property: "+rel)
-				} else {
+				// when stderr property is existed
+				for iRel := range task.StdErr.SendTo {
+					rel := task.StdErr.SendTo[iRel]
 
-					// check reciever task's element
-					switch taskElem {
-					case task_element.StdIn:
-						task.Task.AddRelation(task_element.StdErr, reciever, taskElem)
-					default:
-						errors.New(errMsgBase + task.Fullname() + "' sendto property: sendto task's element is invalid as reciever one")
+					// validate task's name
+					if phaseName, taskName, taskElem, err := entities.ParseTaskElem(rel, task.Phasename, task_element.StdIn); err != nil {
+						return errors.WithMessage(err, errMsgBase+task.Fullname()+"'s sendto property: "+rel)
+
+						// check reciever task is exist or not
+					} else if reciever, err := r.Rehearsal.Task(entities.TaskFullname(phaseName, taskName)); err != nil {
+						return errors.WithMessage(err, errMsgBase+task.Fullname()+"'s sendto property: "+rel)
+					} else {
+
+						// check reciever task's element
+						switch taskElem {
+						case task_element.StdIn:
+							task.Task.AddRelation(task_element.StdErr, reciever, taskElem)
+						default:
+							errors.New(errMsgBase + task.Fullname() + "' sendto property: sendto task's element is invalid as reciever one")
+						}
 					}
 				}
 			}

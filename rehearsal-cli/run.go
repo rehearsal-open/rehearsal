@@ -23,9 +23,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/engine"
-	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/parser/yaml"
-	"github.com/rehearsal-open/rehearsal/rehearsal-cli/cli"
 	"github.com/rehearsal-open/rehearsal/task/impl/cui"
 	"github.com/rehearsal-open/rehearsal/task/impl/serial"
 	"github.com/rehearsal-open/rehearsal/task/maker"
@@ -45,38 +43,33 @@ func init_run() {
 
 func Run(confFile string) error {
 
-	if abs, err := filepath.Abs(confFile); err != nil {
-		return errors.WithMessage(err, "config file path is invalid")
-	} else {
-		confFile = abs
+	frontend := Frontend{
+		config: &Config{},
 	}
+	SupportedTasks.Frontend = &frontend
 
 	parser := yaml.Parser{
 		Path:        confFile,
 		DetailMaker: SupportedTasks,
 	}
 
-	entity, en := entities.Rehearsal{
-		DefaultDir: filepath.Dir(parser.Path),
-	}, engine.Rehearsal{}
+	en := engine.Rehearsal{}
 
-	if err := parser.Parse(&entity); err != nil {
-		return errors.WithStack(err)
-	} else if logger, err := cli.MakeTask(&entity); err != nil {
-		return errors.WithStack(err)
+	// get config file directory path
+	if abs, err := filepath.Abs(confFile); err != nil {
+		return errors.WithMessage(err, "config file path is invalid")
 	} else {
-		frontend := Frontend{
-			logger: logger,
-		}
-
-		SupportedTasks.Frontend = &frontend
-
-		if err := en.Reset(&entity, SupportedTasks, &frontend); err != nil {
-			return errors.WithStack(err)
-		}
+		frontend.config.BaseDir = filepath.Dir(abs)
 	}
 
-	if err := en.Execute(); err != nil {
+	// TODO: Set EnvConfig, initialize logger task and so on
+	if err := en.Init(&parser, &frontend, SupportedTasks, &frontend); err != nil {
+		return errors.WithStack(err)
+
+		// initialize logger configuration with entities
+	} else if err := frontend.logger.SetTaskEntities(en.Entity); err != nil {
+		return errors.WithStack(err)
+	} else if err := en.Execute(); err != nil {
 		return errors.WithStack(err)
 	}
 

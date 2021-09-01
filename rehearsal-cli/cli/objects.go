@@ -20,7 +20,6 @@ import (
 	"fmt"
 
 	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/task"
 )
 
 const (
@@ -45,11 +44,6 @@ type (
 		Entity *entities.Rehearsal
 	}
 )
-
-func (c *Cli) LoggerTask() task.Task {
-	task, _ := MakeTask(c.Entity)
-	return task
-}
 
 func (c *Cli) Log(flag int, msg string) {
 	fmt.Println(msg)

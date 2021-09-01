@@ -18,14 +18,26 @@ package main
 
 import (
 	"fmt"
+	"path/filepath"
 
+	"github.com/pkg/errors"
+	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/rehearsal-open/rehearsal/rehearsal-cli/cli"
 	"github.com/rehearsal-open/rehearsal/task"
+	"github.com/rehearsal-open/rehearsal/task/based"
+	"github.com/rehearsal-open/rehearsal/task/impl/cui"
+	"github.com/streamwest-1629/convertobject"
 )
 
 type (
 	Frontend struct {
 		logger *cli.Task
+		config *Config
+	}
+
+	Config struct {
+		BaseDir string `map-to:"dir"`
 	}
 )
 
@@ -52,4 +64,32 @@ func (f *Frontend) Select(msg string, options []string) int {
 			f.Log(0, "you selected invalid number, try again.")
 		}
 	}
+}
+
+// Set default value
+func (f *Frontend) InitConfig(src parser.MappingType) error {
+
+	parseRes := Config{}
+
+	if err := convertobject.DirectConvert(src, &parseRes); err != nil {
+		return errors.WithStack(err)
+	}
+
+	// initialize filepath
+	if parseRes.BaseDir != "" {
+		if filepath.IsAbs(parseRes.BaseDir) {
+			f.config.BaseDir = parseRes.BaseDir
+		} else {
+			f.config.BaseDir = filepath.Join(parseRes.BaseDir)
+		}
+	}
+
+	// set default execute directory
+	cui.DefaultDir = f.config.BaseDir
+
+	f.logger = &cli.Task{}
+	f.logger.Task = based.MakeBasis(&entities.Task{}, f.logger)
+
+	return nil
+
 }

@@ -33,11 +33,15 @@ var MakeCollection = maker.MakerCollection{
 	MakeTaskFunc:   Make,
 }
 
+var (
+	DefaultDir string
+)
+
 func GetDetail(_ frontend.Frontend, def *entities.Rehearsal, mapping parser.MappingType, dest *entities.Task) error {
 
 	detail := &Detail{
 		IsWait: true,
-		Dir:    def.DefaultDir,
+		Dir:    DefaultDir,
 		Args:   []string{},
 	}
 

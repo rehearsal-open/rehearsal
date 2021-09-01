@@ -16,7 +16,10 @@
 
 package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 // func BenchmarkWholeAlgorithm(t *testing.B) {
 
@@ -107,5 +110,8 @@ import "testing"
 // }
 
 func TestRun(t *testing.T) {
-	Run("../test/py2py/01/rehearsal.yml")
+	if err := Run("../test/py2py/01/rehearsal.yml"); err != nil {
+		fmt.Println(err.Error())
+		panic(err.Error())
+	}
 }

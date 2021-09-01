@@ -87,8 +87,8 @@ var (
 	UserFullNameRegexp   = textfilter.RegexpMatches(`^[a-zA-Z][a-zA-Z0-9_]*::[a-zA-Z][a-zA-Z0-9_]*$`)
 	fullNameParserRegexp = [...]*regexp.Regexp{
 		regexp.MustCompile(`^(?P<phase>((__)?[a-zA-Z][a-zA-Z0-9_]*))::(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))#(?P<element>(stdin|stdout|stderr))$`),
-		regexp.MustCompile(`^(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))#(?P<element>(stdin|stdout|stderr))$`),
 		regexp.MustCompile(`^(?P<phase>((__)?[a-zA-Z][a-zA-Z0-9_]*))::(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))$`),
+		regexp.MustCompile(`^(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))#(?P<element>(stdin|stdout|stderr))$`),
 		regexp.MustCompile(`^(?P<task>((__)?[a-zA-Z][a-zA-Z0-9_]*))$`),
 	}
 )

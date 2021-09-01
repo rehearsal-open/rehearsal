@@ -1,4 +1,4 @@
-version: 0.202109
+version: 1.202109
 phase:
 - name: phase_1
   task:
@@ -7,11 +7,14 @@ phase:
     cmd: python
     args:
     - ./python2.py
-    sendto:
-    - phase_1::python_2
-    write-log: false
+    stdout:  
+      sendto:
+      - phase_1::python_2
+      write-log: true
   - name: python_2
     kind: cui
     cmd: python
     args:
     - ./python1.py
+    stdout:
+      write-log: true

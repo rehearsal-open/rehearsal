@@ -35,29 +35,19 @@ type (
 		Format   map[string]string
 		reciever chan string
 		close    chan error
-		closed   chan error
 	}
 )
 
-func MakeTask(entity *entities.Rehearsal) (*Task, error) {
+func (task *Task) SetTaskEntities(entity *entities.Rehearsal) error {
 
 	maxNameLen := 0
+	task.Format = map[string]string{}
 
-	taskConf := entities.Task{}
 	colorSet := [...]string{
 		ForeRed, ForeGreen, ForeYellow, ForeBlue, ForeMagenta, ForeSyan,
 	}
 
-	task := Task{
-		Format:   map[string]string{},
-		reciever: make(chan string),
-		close:    make(chan error),
-		closed:   make(chan error),
-	}
-
-	task.Task = based.MakeBasis(&taskConf, &task)
-
-	entity.Foreach(func(idx int, entity *entities.Task) error {
+	entity.ForeachTask(func(idx int, entity *entities.Task) error {
 		if nameSize := len(entity.Fullname()); nameSize > maxNameLen {
 			maxNameLen = nameSize
 		}
@@ -66,18 +56,18 @@ func MakeTask(entity *entities.Rehearsal) (*Task, error) {
 
 	idx := 0
 
-	entity.Foreach(func(_ int, entity *entities.Task) error {
+	entity.ForeachTask(func(_ int, entity *entities.Task) error {
 
 		name := entity.Fullname()
-		if stdOut := entity.Element[task_element.StdOut]; stdOut != nil {
+		if stdOut := entity.Element[task_element.StdOut]; stdOut.WriteLog {
 			if stdOut.WriteLog {
-				task.Format[name] = colorSet[idx%len(colorSet)] + BackReset + name + strings.Repeat(" ", maxNameLen-len(name)) + " : "
+				task.Format[name] = colorSet[idx%len(colorSet)] + BackReset + name + " (Std Out)" + strings.Repeat(" ", maxNameLen-len(name)) + " : "
 				idx++
 			}
 		}
-		if stdErr := entity.Element[task_element.StdErr]; stdErr != nil {
+		if stdErr := entity.Element[task_element.StdErr]; stdErr.WriteLog {
 			if stdErr.WriteLog {
-				task.Format[name] = colorSet[idx%len(colorSet)] + BackReset + name + strings.Repeat(" ", maxNameLen-len(name)) + " : "
+				task.Format[name] = colorSet[idx%len(colorSet)] + BackReset + name + " (Std Err)" + strings.Repeat(" ", maxNameLen-len(name)) + " : "
 				idx++
 			}
 		}
@@ -85,7 +75,7 @@ func MakeTask(entity *entities.Rehearsal) (*Task, error) {
 		return nil
 	})
 
-	return &task, nil
+	return nil
 }
 
 func (t *Task) IsSupporting(elem task_element.Enum) bool {
@@ -95,6 +85,9 @@ func (t *Task) IsSupporting(elem task_element.Enum) bool {
 }
 
 func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
+
+	t.reciever = make(chan string)
+	t.close = make(chan error)
 
 	callback := [task_element.Len]based.Reciever{nil}
 	callback[task_element.StdIn] = func(recieved *buffer.Packet) {
@@ -130,5 +123,4 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 func (t *Task) StopMain() {
 	time.Sleep(50 * time.Millisecond)
 	close(t.close)
-	// <-t.closed
 }
