@@ -318,7 +318,7 @@ func (basis *internalTask) Close(err error) {
 				func(i int) {
 					basis.elements[i].lock.Lock()
 					defer basis.elements[i].lock.Unlock()
-					if basis.elements[i].packetPos[1] > basis.elements[i].packetPos[0] {
+					if basis.elements[i].packetPos[1] >= basis.elements[i].packetPos[0] {
 						isContinue = false
 					}
 

@@ -40,15 +40,14 @@ var (
 func GetDetail(_ frontend.Frontend, def *entities.Rehearsal, mapping parser.MappingType, dest *entities.Task) error {
 
 	detail := &Detail{
-		IsWait: true,
-		Dir:    DefaultDir,
-		Args:   []string{},
+		Dir:  DefaultDir,
+		Args: []string{},
 	}
 
 	if err := convertobject.DirectConvert(mapping, detail); err != nil {
 		return err
 	} else {
-		dest.IsWait, dest.Detail = detail.IsWait, detail
+		dest.Detail = detail
 	}
 
 	return nil

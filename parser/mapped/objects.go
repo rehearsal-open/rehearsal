@@ -37,7 +37,8 @@ type (
 	}
 	Task struct {
 		*entities.Task `map-to:"<-"`
-		UntilPhase     *string            `map-to:"until"`
+		UntilPhase     *string            `map-to:"until"` // default is launching phase
+		IsWait         *bool              `map-to:"wait"`  // default is true
 		Clone          parser.MappingType `map-to:"<-"`
 		StdIn          *Element           `map-to:"stdin"`
 		StdOut         *Element           `map-to:"stdout"`

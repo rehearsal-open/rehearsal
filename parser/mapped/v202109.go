@@ -39,9 +39,9 @@ func (p *Parser) Parse202109(r *Rehearsal) error {
 	}
 	finalPhases := []*Phase{
 		{
-			Name: entities.UserFinalizePhase,
+			Name:  entities.UserFinalizePhase,
 			Tasks: []Task{},
-		}
+		},
 		{
 			Name:  entities.SystemFinalizePhase,
 			Tasks: []Task{},
@@ -129,6 +129,13 @@ func (p *Parser) Parse202109(r *Rehearsal) error {
 					} else {
 						entity.CloseAt = until
 					}
+				}
+
+				// assign until property
+				if task.IsWait != nil {
+					entity.IsWait = *task.IsWait
+				} else {
+					entity.IsWait = true // default
 				}
 
 				return nil

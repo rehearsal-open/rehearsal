@@ -49,7 +49,7 @@ type (
 		// If not, engine closes without waiting for task's natural closing.
 		//
 		// Default is true.
-		IsWait bool `map-to:"wait-stop"`
+		IsWait bool
 		// Task's detail interface.
 		// Instance's type is differented by task's kind.
 		Detail TaskDetail

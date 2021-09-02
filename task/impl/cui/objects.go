@@ -34,7 +34,6 @@ type (
 		Path      string   `map-to:"cmd!"`
 		Args      []string `map-to:"args"`
 		Dir       string   `map-to:"dir"`
-		IsWait    bool     `map-to:"wait-stop"`
 		Timelimit time.Duration
 	}
 )
