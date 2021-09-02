@@ -94,6 +94,14 @@ task/impl/cui --> task
 task/impl/cui --> task/based
 task/impl/cui --> task/buffer
 task/impl/cui --> task/maker
+task/impl/regexp --> entities
+task/impl/regexp --> entities/enum/task_element
+task/impl/regexp --> frontend
+task/impl/regexp --> parser
+task/impl/regexp --> task
+task/impl/regexp --> task/based
+task/impl/regexp --> task/buffer
+task/impl/regexp --> task/maker
 task/impl/serial --> entities
 task/impl/serial --> frontend
 task/impl/serial --> parser
