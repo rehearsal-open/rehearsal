@@ -2,6 +2,13 @@ version: 1.202109
 phase:
 - name: phase_1
   task:
+  - name: python_save
+    kind: cui
+    cmd: python
+    args:
+    - ./python_save.py
+    wait: false
+    until: __endless
   - name: python_1
     kind: cui
     cmd: python
@@ -11,6 +18,7 @@ phase:
       sendto:
       - python_2
       - phase_2::python_2
+      - python_save
       write-log: true
   - name: python_2
     kind: cui
@@ -19,6 +27,8 @@ phase:
     - ./python1.py
     stdout:
       write-log: true
+      sendto:
+      - phase_1::python_save
 - name: phase_2
   task:
   - name: python_2
@@ -28,6 +38,8 @@ phase:
     - ./python1.py
     stdout:
       write-log: true
+      sendto:
+      - phase_1::python_save
 - name: phase_3
   task:
   - name: python_3
@@ -40,6 +52,7 @@ phase:
       sendto:
       - python_2
       - phase_4::python_2
+      - phase_1::python_save
   - name: python_2
     kind: cui
     cmd: python
@@ -47,6 +60,8 @@ phase:
     - ./python3.py
     stdout:
       write-log: true
+      sendto:
+      - phase_1::python_save
 - name: phase_4
   task:
   - name: python_2
@@ -56,3 +71,5 @@ phase:
     - ./python3.py
     stdout:
       write-log: true
+      sendto:
+      - phase_1::python_save
