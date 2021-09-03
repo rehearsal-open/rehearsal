@@ -21,5 +21,5 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           project_path: ./rehearsal-cli
-          binary_name: rehearsal
+          binary_name: rehearsal-cli
           extra_files: LICENSE

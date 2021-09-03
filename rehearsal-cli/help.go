@@ -24,7 +24,7 @@ const (
 rehearsal-cli [command] (args...)
 
 [command] REQUIRED
-  - run     : Execute tasks with config file. See also 'rehearsal run help'
+  - run     : Execute tasks with config file. See also 'rehearsal-cli run help'
   - version : Show rehearsal version.
 `
 	helpRun = `
