@@ -59,6 +59,8 @@ type (
 
 	// Defines configuration of rehearsal task's element.
 	Element struct {
+		// The task configuration containing this instance.
+		Parent *Task
 		// Whether send task's
 		WriteLog bool `map-to:"write-log"`
 		Sendto   []Relation
