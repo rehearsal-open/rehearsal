@@ -1,0 +1,155 @@
+// task/queue/reader.go
+// Copyright (C) 2021 Kasai Koji
+
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+package queue
+
+import (
+	"sync"
+
+	"github.com/rehearsal-open/rehearsal/entities"
+)
+
+// Make Reader instance.
+func MakeReader() *Reader {
+	return &Reader{
+		pool:          make([]*__Packet, 1024),
+		nContain:      0,
+		numRPacket:    0,
+		numWPacket:    0,
+		readPacketPos: 0,
+		lock:          sync.Mutex{},
+		onRecieve:     make(chan error),
+		isWaiting:     false,
+		isClosed:      false,
+	}
+}
+
+// Read next data set, if entities.
+// Element argument in callback is nil, read function will not append bytes.
+func (reader *Reader) Read(callback func(*entities.Element, []byte)) {
+
+	// when totally closed
+	if reader.isClosed || reader.onRecieve == nil {
+		callback(nil, []byte{})
+	}
+
+	for {
+		packet := reader.__read()
+		if packet == nil {
+
+			// wait access
+			_, exist := <-reader.onRecieve
+
+			if exist {
+				func() {
+					// on appended to this instance
+					reader.lock.Lock()
+					defer reader.lock.Unlock()
+
+					reader.isWaiting = false
+				}()
+
+			} else {
+				// on reader is closed, empty bytes.
+				reader.lock.Lock()
+				defer reader.lock.Unlock()
+
+				// finalize
+				reader.isWaiting = false
+				reader.pool, reader.isClosed = nil, true
+
+				// call ended
+				callback(nil, []byte{})
+				return
+			}
+		} else {
+
+			func() {
+				reader.lock.Lock()
+				defer reader.lock.Unlock()
+
+				// increment read index
+				reader.numRPacket++
+				reader.readPacketPos++
+				reader.readPacketPos %= len(reader.pool)
+				reader.nContain--
+
+			}()
+
+			callback(packet.element, packet.bytes)
+			return
+		}
+	}
+	// check
+
+}
+
+func (reader *Reader) __read() *__Packet {
+
+	reader.lock.Lock()
+	defer reader.lock.Unlock()
+
+	if reader.numRPacket < reader.numWPacket {
+		// successfully
+		return reader.pool[(int(reader.numWPacket-reader.numRPacket-1)+reader.readPacketPos)%len(reader.pool)]
+	} else {
+		// this doesn't have unread packets,
+		// make isWaiting true.
+		reader.isWaiting = true
+		return nil
+	}
+}
+
+func (reader *Reader) Close() {
+	reader.lock.Lock()
+	defer reader.lock.Unlock()
+
+	// close
+	close(reader.onRecieve)
+	reader.isClosed = true
+}
+
+func (reader *Reader) __append(packet *__Packet) {
+
+	reader.lock.Lock()
+	defer reader.lock.Unlock()
+
+	if reader.isClosed {
+
+	} else {
+		if reader.nContain >= len(reader.pool) {
+			// no capacity to append packet
+
+			buffer := make([]*__Packet, len(reader.pool)*2)
+			if prehalf := copy(buffer, reader.pool[reader.readPacketPos:]); prehalf != len(reader.pool)-reader.readPacketPos {
+				panic("copied size is unexpected")
+			} else if sufhalf := copy(buffer[prehalf:], reader.pool[:reader.readPacketPos]); sufhalf != reader.readPacketPos {
+				panic("copied size is unexpected")
+			}
+
+			reader.readPacketPos = 0
+		}
+
+		// append packet
+		reader.pool[(reader.readPacketPos+reader.nContain)%len(reader.pool)] = packet
+	}
+	reader.nContain++
+	reader.numWPacket++
+
+	if reader.isWaiting {
+		reader.onRecieve <- nil
+	}
+}
