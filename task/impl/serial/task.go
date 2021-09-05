@@ -17,13 +17,14 @@
 package serial
 
 import (
+	"bytes"
 	"io"
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
-	"github.com/rehearsal-open/rehearsal/task/buffer"
 )
 
 func (serial *__task) IsSupporting(elem task_element.Enum) bool {
@@ -43,9 +44,9 @@ func (serial *__task) ExecuteMain(args based.MainFuncArguments) error {
 	}
 
 	callback := [task_element.Len]based.ImplCallback{nil}
-	callback[task_element.StdIn] = based.MakeImplCallback(func(recieved *buffer.Packet) {
+	callback[task_element.StdIn] = based.MakeImplCallback(func(elem *entities.Element, b []byte) {
 
-		io.Copy(serial.Port, recieved)
+		io.Copy(serial.Port, bytes.NewBuffer(b))
 
 	}, based.DefaultOnFinal)
 

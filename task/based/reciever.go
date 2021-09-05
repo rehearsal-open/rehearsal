@@ -16,20 +16,23 @@
 
 package based
 
-import "github.com/rehearsal-open/rehearsal/task/buffer"
+import (
+	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/task/buffer"
+)
 
 var DefaultOnRecieve = func(_ *buffer.Packet) {}
 var DefaultOnFinal = func() {}
 
-func MakeImplCallback(onRecieve func(recieved *buffer.Packet), onFinal func()) ImplCallback {
+func MakeImplCallback(onRecieve func(elem *entities.Element, bytes []byte), onFinal func()) ImplCallback {
 	return &implCallback{
 		reciever: onRecieve,
 		onfinal:  onFinal,
 	}
 }
 
-func (r *implCallback) Recieve(recieved *buffer.Packet) {
-	r.reciever(recieved)
+func (r *implCallback) Recieve(elem *entities.Element, bytes []byte) {
+	r.reciever(elem, bytes)
 }
 
 func (r *implCallback) OnFinal() {

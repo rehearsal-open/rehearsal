@@ -35,13 +35,13 @@ type (
 	}
 
 	implCallback struct {
-		reciever func(recieved *buffer.Packet)
+		reciever func(elem *entities.Element, bytes []byte)
 		onfinal  func()
 	}
 
 	// Callback functions called when task recieves packet.
 	ImplCallback interface {
-		Recieve(recieved *buffer.Packet)
+		Recieve(elem *entities.Element, bytes []byte)
 		OnFinal()
 	}
 

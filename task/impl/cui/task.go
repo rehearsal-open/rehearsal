@@ -17,12 +17,13 @@
 package cui
 
 import (
+	"bytes"
 	"io"
 
 	"github.com/pkg/errors"
+	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
-	"github.com/rehearsal-open/rehearsal/task/buffer"
 )
 
 func (cui *__task) IsSupporting(elem task_element.Enum) bool {
@@ -55,10 +56,9 @@ func (cui *__task) ExecuteMain(args based.MainFuncArguments) error {
 	}
 
 	callback := [task_element.Len]based.ImplCallback{nil}
-	callback[task_element.StdIn] = based.MakeImplCallback(func(recieved *buffer.Packet) {
+	callback[task_element.StdIn] = based.MakeImplCallback(func(_ *entities.Element, b []byte) {
 		if stdin != nil {
-			defer recieved.Close()
-			if _, err := io.Copy(stdin, recieved); err != nil {
+			if _, err := io.Copy(stdin, bytes.NewBuffer(b)); err != nil {
 				// todo: error manage
 			}
 		} else {

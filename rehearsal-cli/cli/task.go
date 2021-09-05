@@ -17,16 +17,13 @@
 package cli
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"strings"
 	"time"
 
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
-	"github.com/rehearsal-open/rehearsal/task/buffer"
 )
 
 type (
@@ -47,9 +44,24 @@ func (task *Task) SetTaskEntities(entity *entities.Rehearsal) error {
 		ForeRed, ForeGreen, ForeYellow, ForeBlue, ForeMagenta, ForeSyan,
 	}
 
+	// get max length of logging task's names
 	entity.ForeachTask(func(idx int, entity *entities.Task) error {
-		if nameSize := len(entity.Fullname()); nameSize > maxNameLen {
-			maxNameLen = nameSize
+
+		if stdOut := entity.Element[task_element.StdOut]; stdOut.WriteLog {
+			name := stdOut.Fullname()
+			if stdOut.WriteLog {
+				if nameSize := len(name); nameSize > maxNameLen {
+					maxNameLen = nameSize
+				}
+			}
+		}
+		if stdErr := entity.Element[task_element.StdErr]; stdErr.WriteLog {
+			name := stdErr.Fullname()
+			if stdErr.WriteLog {
+				if nameSize := len(name); nameSize > maxNameLen {
+					maxNameLen = nameSize
+				}
+			}
 		}
 		return nil
 	})
@@ -58,14 +70,15 @@ func (task *Task) SetTaskEntities(entity *entities.Rehearsal) error {
 
 	entity.ForeachTask(func(_ int, entity *entities.Task) error {
 
-		name := entity.Fullname()
 		if stdOut := entity.Element[task_element.StdOut]; stdOut.WriteLog {
+			name := stdOut.Fullname()
 			if stdOut.WriteLog {
 				task.Format[name] = colorSet[idx%len(colorSet)] + BackReset + name + " (Std Out)" + strings.Repeat(" ", maxNameLen-len(name)) + " : "
 				idx++
 			}
 		}
 		if stdErr := entity.Element[task_element.StdErr]; stdErr.WriteLog {
+			name := stdErr.Fullname()
 			if stdErr.WriteLog {
 				task.Format[name] = colorSet[idx%len(colorSet)] + BackReset + name + " (Std Err)" + strings.Repeat(" ", maxNameLen-len(name)) + " : "
 				idx++
@@ -90,16 +103,11 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 	t.close = make(chan error)
 
 	callback := [task_element.Len]based.ImplCallback{nil}
-	callback[task_element.StdIn] = based.MakeImplCallback(func(recieved *buffer.Packet) {
+	callback[task_element.StdIn] = based.MakeImplCallback(func(elem *entities.Element, buffer []byte) {
 
-		sender := recieved.Sender()
-		defer recieved.Close()
-		buffer := bytes.NewBuffer([]byte{})
-		io.Copy(buffer, recieved)
-
-		name := sender.Fullname()
+		name := elem.Fullname()
 		format := t.Format[name]
-		str := buffer.String()
+		str := string(buffer)
 		str = strings.ReplaceAll(str, "\n\r", "\n")
 		str = strings.ReplaceAll(str, "\r\n", "\n")
 		str = strings.ReplaceAll(str, "\r", "\n")

@@ -17,6 +17,7 @@
 package based
 
 import (
+	"bytes"
 	"io"
 	"sync"
 	"time"
@@ -283,7 +284,9 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) 
 								}
 
 							} else {
-								callback[elem].Recieve(packet)
+								bytes := bytes.NewBuffer([]byte{})
+								io.Copy(bytes, packet)
+								callback[elem].Recieve(packet.Sender(), bytes.Bytes())
 							}
 						}
 

@@ -21,9 +21,9 @@ import (
 	"io"
 
 	"github.com/pkg/errors"
+	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
-	"github.com/rehearsal-open/rehearsal/task/buffer"
 )
 
 func (matching *__task) IsSupporting(elem task_element.Enum) bool {
@@ -45,10 +45,9 @@ func (matching *__task) ExecuteMain(args based.MainFuncArguments) error {
 	cache := bytes.NewBufferString("")
 
 	callback := [task_element.Len]based.ImplCallback{nil}
-	callback[task_element.StdIn] = based.MakeImplCallback(func(recieved *buffer.Packet) {
-		defer recieved.Close()
+	callback[task_element.StdIn] = based.MakeImplCallback(func(elem *entities.Element, b []byte) {
 
-		io.Copy(cache, recieved)
+		io.Copy(cache, bytes.NewBuffer(b))
 		buffer := cache.String()
 
 		matches := matching.Regexp.FindAllStringSubmatchIndex(buffer, -1)
