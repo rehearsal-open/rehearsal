@@ -106,8 +106,8 @@ type (
 
 	taskElement struct {
 		*internalTask
+		element     *entities.Element
 		lock        sync.Mutex
-		element     task_element.Enum
 		state       task_state.Enum
 		sender      *buffer.Buffer
 		reciever    chan buffer.Packet

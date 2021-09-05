@@ -48,7 +48,7 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 	for i, l := 0, task_element.Len; i < l; i++ {
 		basis.elements[i] = taskElement{
 			internalTask: basis,
-			element:      task_element.Enum(i),
+			element:      &entity.Element[i],
 			state:        task_state.Waiting,
 			sender:       nil,
 			reciever:     nil,
