@@ -25,6 +25,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_state"
+	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/rehearsal-open/rehearsal/task/buffer"
 )
 
@@ -183,13 +184,24 @@ func (basis *internalTask) ReleaseResource() {
 }
 
 // Append reciever to selected sender element.
-func (basis *internalTask) AppendReciever(sender task_element.Enum, reciever buffer.SendToRecieverBased) error {
+func (basis *internalTask) Connect(senderElem task_element.Enum, recieverElem task_element.Enum, reciever task.Task) error {
 
 	basis.lock.Lock()
 	defer basis.lock.Unlock()
 
+	var recieverBased *internalTask
+
+	// check whether reciever is support based system
+	if rec, ok := reciever.(frontTask); !ok {
+		panic("reciever task is unsupported")
+	} else {
+		recieverBased = rec.based()
+	}
+
 	// check whether element is supported or not
-	if basis.elements[sender].sender == nil {
+	if basis.elements[senderElem].sender == nil {
+		return ErrNotSupportingElement
+	} else if recieverBased.elements[recieverElem].reciever == nil {
 		return ErrNotSupportingElement
 	}
 
@@ -197,8 +209,8 @@ func (basis *internalTask) AppendReciever(sender task_element.Enum, reciever buf
 	if basis.mainstate != task_state.Waiting {
 		return ErrAlreadyRun
 	} else {
-		basis.elements[sender].sender.AppendReciever(reciever)
-		reciever.Registered()
+		basis.elements[senderElem].sender.AppendReciever(&recieverBased.elements[recieverElem])
+		recieverBased.elements[recieverElem].Registered()
 		return nil
 	}
 
@@ -221,6 +233,10 @@ func (basis *internalTask) Reciever(reciever task_element.Enum) (buffer.SendToRe
 	} else {
 		return &basis.elements[reciever], nil
 	}
+}
+
+func (basis *internalTask) based() *internalTask {
+	return basis
 }
 
 // Gets io.Writer using sender object.

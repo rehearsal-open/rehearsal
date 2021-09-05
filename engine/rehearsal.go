@@ -129,11 +129,10 @@ func (r *Rehearsal) Init(parser parser.Parser, envConfig parser.EnvConfig, maker
 		senderTask := r.tasks[nameList[senderName]].Task
 		recieverTask := r.tasks[nameList[recieverName]].Task
 
-		if reciever, err := recieverTask.Reciever(relation.ElementReciever); err != nil {
-			return errors.WithMessage(err, "Cannot make relation from "+senderName+"'s "+relation.ElementSender.String()+" to "+recieverName+"'s "+relation.ElementReciever.String())
-		} else if err := senderTask.AppendReciever(relation.ElementSender, reciever); err != nil {
+		if err := senderTask.Connect(relation.ElementSender, relation.ElementReciever, recieverTask); err != nil {
 			return errors.WithMessage(err, "Cannot make relation from "+senderName+"'s "+relation.ElementSender.String()+" to "+recieverName+"'s "+relation.ElementReciever.String())
 		}
+
 		return nil
 	}); err != nil {
 		return errors.WithStack(err)

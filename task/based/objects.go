@@ -24,10 +24,16 @@ import (
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_state"
+	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/rehearsal-open/rehearsal/task/buffer"
 )
 
 type (
+	frontTask interface {
+		task.Task
+		based() *internalTask
+	}
+
 	implCallback struct {
 		reciever func(recieved *buffer.Packet)
 		onfinal  func()
@@ -72,9 +78,10 @@ type (
 		// Release memory and any handler.
 		ReleaseResource()
 		// Append reciever to selected sender element.
-		AppendReciever(sender task_element.Enum, reciever buffer.SendToRecieverBased) error
+		Connect(senderElem task_element.Enum, recieverElem task_element.Enum, reciever task.Task) error
 		// Get reciever selected by task element.
 		Reciever(element task_element.Enum) (buffer.SendToRecieverBased, error)
+		based() *internalTask
 	}
 
 	// Defines functions which implemented tasks are satisfied.
