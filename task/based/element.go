@@ -17,19 +17,16 @@
 package based
 
 import (
-	"github.com/rehearsal-open/rehearsal/entities/enum/task_state"
 	"github.com/rehearsal-open/rehearsal/task/buffer"
 )
 
 // Send packet to this reciever instance.
-func (elem *taskElement) SendPacket(p buffer.Packet) {
+func (elem *inputElem) SendPacket(p buffer.Packet) {
 	elem.lock.Lock()
 	defer elem.lock.Unlock()
-	if elem.state == task_state.Waiting || elem.state == task_state.Running {
-		elem.reciever <- p
-	}
+	elem.reciever <- p
 }
 
-func (elem *taskElement) Registered() {
+func (elem *inputElem) Registered() {
 	elem.numSendFrom++
 }

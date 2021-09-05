@@ -97,23 +97,30 @@ type (
 		impl      TaskImpl
 		entity    *entities.Task
 		mainstate task_state.Enum
-		outputs   [task_element.Len]*taskElement
-		inputs    [task_element.Len]*taskElement
+		outputs   [task_element.Len]*outputElem
+		inputs    [task_element.Len]*inputElem
 		lock      sync.Mutex
 		closed    chan error
 	}
 
 	taskElement struct {
 		*internalTask
-		element     *entities.Element
-		lock        sync.Mutex
-		state       task_state.Enum
-		sender      *buffer.Buffer
+		element *entities.Element
+		lock    sync.Mutex
+	}
+
+	inputElem struct {
+		*taskElement
 		reciever    chan buffer.Packet
 		numSendFrom int
 		packets     []buffer.Packet
 		packetPos   [2]int // read pos, write pos
 		packetLock  *sync.Mutex
+	}
+
+	outputElem struct {
+		*taskElement
+		sender *buffer.Buffer
 	}
 )
 

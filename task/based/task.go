@@ -51,22 +51,21 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 		if impl.IsSupporting(elem) {
 			switch elem {
 			case task_element.StdIn:
-				basis.inputs[i] = &taskElement{
-					internalTask: basis,
-					element:      &entity.Element[i],
-					state:        task_state.Waiting,
-					sender:       nil,
-					reciever:     nil,
-					numSendFrom:  0,
+				basis.inputs[i] = &inputElem{
+					taskElement: &taskElement{
+						internalTask: basis,
+						element:      &entity.Element[i],
+					},
+					reciever:    nil,
+					numSendFrom: 0,
 				}
 			case task_element.StdOut, task_element.StdErr:
-				basis.outputs[i] = &taskElement{
-					internalTask: basis,
-					element:      &entity.Element[i],
-					state:        task_state.Waiting,
-					sender:       nil,
-					reciever:     nil,
-					numSendFrom:  0,
+				basis.outputs[i] = &outputElem{
+					taskElement: &taskElement{
+						internalTask: basis,
+						element:      &entity.Element[i],
+					},
+					sender: nil,
 				}
 			}
 		}
@@ -300,12 +299,10 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) 
 
 				}
 			}(i)
-			basis.inputs[i].state = task_state.Running
 		}
 
 		if basis.outputs[i] != nil {
 			basis.outputs[i].sender.Begin()
-			basis.outputs[i].state = task_state.Running
 		}
 	}
 }
