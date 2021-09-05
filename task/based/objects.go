@@ -79,8 +79,6 @@ type (
 		ReleaseResource()
 		// Append reciever to selected sender element.
 		Connect(senderElem task_element.Enum, recieverElem task_element.Enum, reciever task.Task) error
-		// Get reciever selected by task element.
-		Reciever(element task_element.Enum) (buffer.SendToRecieverBased, error)
 		based() *internalTask
 	}
 

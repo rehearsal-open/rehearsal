@@ -213,26 +213,6 @@ func (basis *internalTask) Connect(senderElem task_element.Enum, recieverElem ta
 		recieverBased.elements[recieverElem].Registered()
 		return nil
 	}
-
-}
-
-// Get reciever selected by task element.
-func (basis *internalTask) Reciever(reciever task_element.Enum) (buffer.SendToRecieverBased, error) {
-
-	basis.lock.Lock()
-	defer basis.lock.Unlock()
-
-	// check whether element is supported or not
-	if basis.elements[reciever].reciever == nil {
-		return nil, ErrNotSupportingElement
-	}
-
-	// check whether task has already run or not
-	if basis.mainstate != task_state.Waiting {
-		return nil, ErrAlreadyRun
-	} else {
-		return &basis.elements[reciever], nil
-	}
 }
 
 func (basis *internalTask) based() *internalTask {
