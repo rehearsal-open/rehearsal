@@ -96,10 +96,10 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 
 	// initialize sender element
 	if support[task_element.StdOut] {
-		basis.elements[task_element.StdOut].sender = buffer.MakeBuffer(basis.entity, task_element.StdOut)
+		basis.elements[task_element.StdOut].sender = buffer.MakeBuffer(&basis.entity.Element[task_element.StdOut])
 	}
 	if support[task_element.StdErr] {
-		basis.elements[task_element.StdErr].sender = buffer.MakeBuffer(basis.entity, task_element.StdErr)
+		basis.elements[task_element.StdErr].sender = buffer.MakeBuffer(&basis.entity.Element[task_element.StdOut])
 	}
 
 	return basis

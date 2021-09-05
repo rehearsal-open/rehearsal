@@ -138,11 +138,6 @@ func (p *Parser) Parse202109(r *Rehearsal) error {
 					entity.IsWait = true // default
 				}
 
-				// initialize element's parent(task configuration)
-				for i, l := 0, task_element.Len; i < l; i++ {
-					task.Element[i].Parent = task.Task
-				}
-
 				return nil
 
 			}); err != nil {

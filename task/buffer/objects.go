@@ -20,15 +20,13 @@ import (
 	"sync"
 
 	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 )
 
 type (
 	// Defines written buffer.
 	Buffer struct {
 		mutex    *sync.Mutex
-		task     *entities.Task
-		element  task_element.Enum
+		task     *entities.Element
 		packets  []*packetBase
 		reciever []SendToRecieverBased
 		ch       chan []byte

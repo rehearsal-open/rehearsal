@@ -61,6 +61,8 @@ type (
 	Element struct {
 		// The task configuration containing this instance.
 		Parent *Task
+		// The kind of element
+		Kind task_element.Enum
 		// Whether send task's
 		WriteLog bool `map-to:"write-log"`
 		Sendto   []Relation

@@ -20,15 +20,13 @@ import (
 	"sync"
 
 	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 )
 
 // Make byte buffer manages in task.
-func MakeBuffer(entity *entities.Task, element task_element.Enum) *Buffer {
+func MakeBuffer(entity *entities.Element) *Buffer {
 	return &Buffer{
 		mutex:    &sync.Mutex{},
 		task:     entity,
-		element:  element,
 		packets:  make([]*packetBase, 128),
 		reciever: make([]SendToRecieverBased, 0),
 		ch:       make(chan []byte),

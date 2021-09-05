@@ -70,6 +70,13 @@ func (r *Rehearsal) Init(parser parser.Parser, envConfig parser.EnvConfig, maker
 		if entity.IsWait {
 			r.waitTasks[entity.CloseAt] = append(r.waitTasks[entity.CloseAt], appended)
 		}
+
+		// initialize element's parent(task configuration)
+		for i, l := 0, task_element.Len; i < l; i++ {
+			entity.Element[i].Parent = entity
+			entity.Element[i].Kind = task_element.Enum(i)
+		}
+
 	}
 
 	// initialize task schedule array[2]
@@ -102,6 +109,12 @@ func (r *Rehearsal) Init(parser parser.Parser, envConfig parser.EnvConfig, maker
 		entity.Phasename, entity.Taskname = entities.SystemInitializePhase, "__frontend_logger"
 		entity.LaunchAt, _ = r.Entity.Phase(entities.SystemInitializePhase)
 		entity.CloseAt, _ = r.Entity.Phase(entities.SystemFinalizePhase)
+
+		// initialize element's parent(task configuration)
+		for i, l := 0, task_element.Len; i < l; i++ {
+			entity.Element[i].Parent = entity
+			entity.Element[i].Kind = task_element.Enum(i)
+		}
 
 		// register relation to logger task
 		r.Entity.ForeachTask(func(idx int, task *entities.Task) error {

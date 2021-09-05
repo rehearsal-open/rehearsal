@@ -92,7 +92,7 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 	callback := [task_element.Len]based.ImplCallback{nil}
 	callback[task_element.StdIn] = based.MakeImplCallback(func(recieved *buffer.Packet) {
 
-		sender, _ := recieved.Sender()
+		sender := recieved.Sender()
 		defer recieved.Close()
 		buffer := bytes.NewBuffer([]byte{})
 		io.Copy(buffer, recieved)
