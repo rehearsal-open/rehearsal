@@ -67,8 +67,6 @@ type (
 		Entity() *entities.Task
 		// Gets main task's running state.
 		MainState() task_state.Enum
-		// Gets selected element's running state.
-		ElementState(element task_element.Enum) task_state.Enum
 		// Begin main task.
 		BeginTask() error
 		// Stop main task.
@@ -99,7 +97,8 @@ type (
 		impl      TaskImpl
 		entity    *entities.Task
 		mainstate task_state.Enum
-		elements  [task_element.Len]taskElement
+		outputs   [task_element.Len]*taskElement
+		inputs    [task_element.Len]*taskElement
 		lock      sync.Mutex
 		closed    chan error
 	}

@@ -43,49 +43,64 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 		lock:      sync.Mutex{},
 	}
 
-	support := [task_element.Len]bool{false}
-
+	// initialize task's element
 	for i, l := 0, task_element.Len; i < l; i++ {
-		basis.elements[i] = taskElement{
-			internalTask: basis,
-			element:      &entity.Element[i],
-			state:        task_state.Waiting,
-			sender:       nil,
-			reciever:     nil,
-			numSendFrom:  0,
+
+		elem := task_element.Enum(i)
+
+		if impl.IsSupporting(elem) {
+			switch elem {
+			case task_element.StdIn:
+				basis.inputs[i] = &taskElement{
+					internalTask: basis,
+					element:      &entity.Element[i],
+					state:        task_state.Waiting,
+					sender:       nil,
+					reciever:     nil,
+					numSendFrom:  0,
+				}
+			case task_element.StdOut, task_element.StdErr:
+				basis.outputs[i] = &taskElement{
+					internalTask: basis,
+					element:      &entity.Element[i],
+					state:        task_state.Waiting,
+					sender:       nil,
+					reciever:     nil,
+					numSendFrom:  0,
+				}
+			}
 		}
-		support[i] = impl.IsSupporting(task_element.Enum(i))
 	}
 
 	// initialize reciever element
-	if support[task_element.StdIn] {
-		basis.elements[task_element.StdIn].reciever = make(chan buffer.Packet)
-		basis.elements[task_element.StdIn].packets = []buffer.Packet{}
-		basis.elements[task_element.StdIn].packetPos = [...]int{0, 0}
-		basis.elements[task_element.StdIn].packetLock = &sync.Mutex{}
+	if basis.inputs[task_element.StdIn] != nil {
+		basis.inputs[task_element.StdIn].reciever = make(chan buffer.Packet)
+		basis.inputs[task_element.StdIn].packets = []buffer.Packet{}
+		basis.inputs[task_element.StdIn].packetPos = [...]int{0, 0}
+		basis.inputs[task_element.StdIn].packetLock = &sync.Mutex{}
 
 		go func() {
 			for {
-				packet, exist := <-basis.elements[task_element.StdIn].reciever
+				packet, exist := <-basis.inputs[task_element.StdIn].reciever
 
 				if exist {
 
-					basis.elements[task_element.StdIn].packetLock.Lock()
-					if l := len(basis.elements[task_element.StdIn].packets); basis.elements[task_element.StdIn].packetPos[1] >= l {
-						if (l-basis.elements[task_element.StdIn].packetPos[0])*2 < l {
-							copied := copy(basis.elements[task_element.StdIn].packets, basis.elements[task_element.StdIn].packets[basis.elements[task_element.StdIn].packetPos[0]:])
-							basis.elements[task_element.StdIn].packetPos = [...]int{0, copied}
+					basis.inputs[task_element.StdIn].packetLock.Lock()
+					if l := len(basis.inputs[task_element.StdIn].packets); basis.inputs[task_element.StdIn].packetPos[1] >= l {
+						if (l-basis.inputs[task_element.StdIn].packetPos[0])*2 < l {
+							copied := copy(basis.inputs[task_element.StdIn].packets, basis.inputs[task_element.StdIn].packets[basis.inputs[task_element.StdIn].packetPos[0]:])
+							basis.inputs[task_element.StdIn].packetPos = [...]int{0, copied}
 						} else {
 							buf := make([]buffer.Packet, (l+1)*2)
-							copied := copy(buf, basis.elements[task_element.StdIn].packets[basis.elements[task_element.StdIn].packetPos[0]:])
-							basis.elements[task_element.StdIn].packetPos = [...]int{0, copied}
-							basis.elements[task_element.StdIn].packets = buf
+							copied := copy(buf, basis.inputs[task_element.StdIn].packets[basis.inputs[task_element.StdIn].packetPos[0]:])
+							basis.inputs[task_element.StdIn].packetPos = [...]int{0, copied}
+							basis.inputs[task_element.StdIn].packets = buf
 						}
 					}
 
-					basis.elements[task_element.StdIn].packets[basis.elements[task_element.StdIn].packetPos[1]] = packet
-					basis.elements[task_element.StdIn].packetPos[1]++
-					basis.elements[task_element.StdIn].packetLock.Unlock()
+					basis.inputs[task_element.StdIn].packets[basis.inputs[task_element.StdIn].packetPos[1]] = packet
+					basis.inputs[task_element.StdIn].packetPos[1]++
+					basis.inputs[task_element.StdIn].packetLock.Unlock()
 
 				} else {
 					return
@@ -96,11 +111,11 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 	}
 
 	// initialize sender element
-	if support[task_element.StdOut] {
-		basis.elements[task_element.StdOut].sender = buffer.MakeBuffer(&basis.entity.Element[task_element.StdOut])
+	if basis.outputs[task_element.StdOut] != nil {
+		basis.outputs[task_element.StdOut].sender = buffer.MakeBuffer(&basis.entity.Element[task_element.StdOut])
 	}
-	if support[task_element.StdErr] {
-		basis.elements[task_element.StdErr].sender = buffer.MakeBuffer(&basis.entity.Element[task_element.StdOut])
+	if basis.outputs[task_element.StdErr] != nil {
+		basis.outputs[task_element.StdErr].sender = buffer.MakeBuffer(&basis.entity.Element[task_element.StdOut])
 	}
 
 	return basis
@@ -116,13 +131,6 @@ func (basis *internalTask) MainState() task_state.Enum {
 	basis.lock.Lock()
 	defer basis.lock.Unlock()
 	return basis.mainstate
-}
-
-// Gets selected element's running state.
-func (basis *internalTask) ElementState(elem task_element.Enum) task_state.Enum {
-	basis.lock.Lock()
-	defer basis.lock.Unlock()
-	return basis.elements[elem].state
 }
 
 // Begin main task.
@@ -176,9 +184,7 @@ func (basis *internalTask) ReleaseResource() {
 
 	// release resource
 	for i, l := 0, task_element.Len; i < l; i++ {
-		basis.elements[i].sender = nil
-		basis.elements[i].reciever = nil
-		basis.elements[i].state = task_state.Finalized
+		basis.outputs[i], basis.inputs[i] = nil, nil
 	}
 
 	basis.mainstate = task_state.Finalized
@@ -200,9 +206,9 @@ func (basis *internalTask) Connect(senderElem task_element.Enum, recieverElem ta
 	}
 
 	// check whether element is supported or not
-	if basis.elements[senderElem].sender == nil {
+	if basis.outputs[senderElem] == nil {
 		return ErrNotSupportingElement
-	} else if recieverBased.elements[recieverElem].reciever == nil {
+	} else if recieverBased.inputs[recieverElem] == nil {
 		return ErrNotSupportingElement
 	}
 
@@ -210,8 +216,8 @@ func (basis *internalTask) Connect(senderElem task_element.Enum, recieverElem ta
 	if basis.mainstate != task_state.Waiting {
 		return ErrAlreadyRun
 	} else {
-		basis.elements[senderElem].sender.AppendReciever(&recieverBased.elements[recieverElem])
-		recieverBased.elements[recieverElem].Registered()
+		basis.outputs[senderElem].sender.AppendReciever(recieverBased.inputs[recieverElem])
+		recieverBased.inputs[recieverElem].Registered()
 		return nil
 	}
 }
@@ -222,10 +228,10 @@ func (basis *internalTask) based() *internalTask {
 
 // Gets io.Writer using sender object.
 func (basis *internalTask) Writer(elem task_element.Enum) (io.Writer, error) {
-	if basis.elements[elem].sender == nil {
+	if basis.outputs[elem] == nil {
 		return nil, ErrNotSupportingElement
 	} else {
-		return basis.elements[elem].sender, nil
+		return basis.outputs[elem].sender, nil
 	}
 }
 
@@ -233,7 +239,7 @@ func (basis *internalTask) Writer(elem task_element.Enum) (io.Writer, error) {
 func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) {
 
 	for i, l := 0, task_element.Len; i < l; i++ {
-		if basis.elements[i].reciever != nil {
+		if basis.inputs[i] != nil {
 
 			// check whether callback isn't empty or not
 			if callback[i] == nil {
@@ -258,28 +264,28 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) 
 					// 	return
 					// }
 
-					for at, total := basis.elements[elem].packetPos[0], basis.elements[elem].packetPos[1]; total <= at; at, total = basis.elements[elem].packetPos[0], basis.elements[elem].packetPos[1] {
+					for at, total := basis.inputs[elem].packetPos[0], basis.inputs[elem].packetPos[1]; total <= at; at, total = basis.inputs[elem].packetPos[0], basis.inputs[elem].packetPos[1] {
 						time.Sleep(time.Millisecond)
 
-						if basis.elements[elem].packets == nil {
+						if basis.inputs[elem].packets == nil {
 							return
 						}
 					}
 
 					func() {
-						basis.elements[elem].lock.Lock()
+						basis.inputs[elem].lock.Lock()
 						defer func() {
-							if basis.elements[elem].packetPos[1] > basis.elements[elem].packetPos[0] {
-								basis.elements[elem].packetPos[0]++
+							if basis.inputs[elem].packetPos[1] > basis.inputs[elem].packetPos[0] {
+								basis.inputs[elem].packetPos[0]++
 							}
-							basis.elements[elem].lock.Unlock()
+							basis.inputs[elem].lock.Unlock()
 						}()
 
-						if basis.elements[elem].packetPos[1] > basis.elements[elem].packetPos[0] {
-							packet := &basis.elements[elem].packets[basis.elements[elem].packetPos[0]]
+						if basis.inputs[elem].packetPos[1] > basis.inputs[elem].packetPos[0] {
+							packet := &basis.inputs[elem].packets[basis.inputs[elem].packetPos[0]]
 
 							if packet.Closed {
-								if iClosed++; iClosed >= basis.elements[elem].numSendFrom { // TODO: number of registered sender task
+								if iClosed++; iClosed >= basis.inputs[elem].numSendFrom { // TODO: number of registered sender task
 									callback[elem].OnFinal()
 								}
 
@@ -294,12 +300,12 @@ func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) 
 
 				}
 			}(i)
-			basis.elements[i].state = task_state.Running
+			basis.inputs[i].state = task_state.Running
 		}
 
-		if basis.elements[i].sender != nil {
-			basis.elements[i].sender.Begin()
-			basis.elements[i].state = task_state.Running
+		if basis.outputs[i] != nil {
+			basis.outputs[i].sender.Begin()
+			basis.outputs[i].state = task_state.Running
 		}
 	}
 }
@@ -310,14 +316,14 @@ func (basis *internalTask) Close(err error) {
 	defer basis.lock.Unlock()
 
 	for i, l := 0, task_element.Len; i < l; i++ {
-		if basis.elements[i].reciever != nil {
+		if basis.inputs[i] != nil {
 
 			// wait for finally read
 			for isContinue := true; isContinue; {
 				func(i int) {
-					basis.elements[i].lock.Lock()
-					defer basis.elements[i].lock.Unlock()
-					if basis.elements[i].packetPos[1] >= basis.elements[i].packetPos[0] {
+					basis.inputs[i].lock.Lock()
+					defer basis.inputs[i].lock.Unlock()
+					if basis.inputs[i].packetPos[1] >= basis.inputs[i].packetPos[0] {
 						isContinue = false
 					}
 
@@ -326,14 +332,13 @@ func (basis *internalTask) Close(err error) {
 					time.Sleep(time.Millisecond)
 				}
 			}
-			close(basis.elements[i].reciever)
-			basis.elements[i].reciever = nil
-			basis.elements[i].packets = nil
+			close(basis.inputs[i].reciever)
+			basis.inputs[i].reciever = nil
+			basis.inputs[i].packets = nil
 		}
-		if basis.elements[i].sender != nil {
-			basis.elements[i].sender.Close()
+		if basis.outputs[i] != nil {
+			basis.outputs[i].sender.Close()
 		}
-		basis.elements[i].state = task_state.Closed
 	}
 
 	basis.mainstate = task_state.Closed

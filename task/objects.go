@@ -36,11 +36,6 @@ type (
 		//
 		// See each element's details also: github.com/rehearsal-open/rehearsal/entities/enum/task_state
 		MainState() task_state.Enum
-		// Gets selected element's running state.
-		// When try to get unsupported elements, return value is undefined.
-		//
-		// See each element's details also: github.com/rehearsal-open/rehearsal/entities/enum/task_state
-		ElementState(element task_element.Enum) task_state.Enum
 		// Begin task. Internal functions, execute goroutine main task and some supporting elements.
 		BeginTask() error // begin main task
 		// Force to stop task.
