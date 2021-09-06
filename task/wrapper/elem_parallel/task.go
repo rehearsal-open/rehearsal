@@ -17,10 +17,28 @@
 package elem_parallel
 
 import (
+	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
+	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/rehearsal-open/rehearsal/task/based"
+	"github.com/rehearsal-open/rehearsal/task/queue"
+	"github.com/rehearsal-open/rehearsal/task/wrapper"
 )
+
+func (parallel *__task) AppendElem(fromElem entities.Element, insert task.Task, inElem task_element.Enum, outElem task_element.Enum) error {
+	name := fromElem.Fullname()
+	if _, exist := parallel.parallelWriter[name]; exist {
+		panic("already registered element")
+	} else {
+		if insertIn := wrapper.GetQueueAccess(insert).GetInput(inElem); insertIn == nil {
+			return errors.WithStack(task.ErrNotSupportingElement)
+		} else {
+			parallel.parallelWriter[name] = queue.MakeWriter(insertIn)
+		}
+		return errors.WithStack(queue.Connect(insert, outElem, parallel.finallyTask, task_element.StdIn /* TODO?: SHOULD BE TO MEMBER */))
+	}
+}
 
 func (parallel *__task) IsSupporting(elem task_element.Enum) bool {
 	return [task_element.Len]bool{
@@ -37,6 +55,21 @@ func (parallel *__task) ExecuteMain(args based.MainFuncArguments) error {
 			writer.Write(elem, b)
 		}
 	}, func() {
-		// TODO: WRITER.CLOSE()
+		for key := range parallel.parallelWriter {
+			parallel.parallelWriter[key].Close()
+		}
 	})
+
+	args.ListenStart(callback)
+
+	go func() {
+		<-parallel.close
+		args.Close(nil)
+	}()
+
+	return nil
+}
+
+func (parallel *__task) StopMain() {
+	close(parallel.close)
 }
