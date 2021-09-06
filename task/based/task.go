@@ -219,11 +219,11 @@ func (basis *internalTask) Close(err error) {
 
 	for i, l := 0, task_element.Len; i < l; i++ {
 		if basis.inputs[i] != nil {
-			// basis.inputs[i].queue.Close()
+			basis.inputs[i].queue.Close()
 		}
 		if basis.outputs[i] != nil {
 			// time.Sleep(50 * time.Millisecond)
-			// basis.outputs[i].writer.Release()
+			basis.outputs[i].writer.Release()
 		}
 	}
 
