@@ -30,7 +30,7 @@ func MakeReader() *Reader {
 		nContain:      0,
 		readPacketPos: 0,
 		lock:          sync.Mutex{},
-		onRecieve:     make(chan error),
+		onRecieve:     make(chan __Packet),
 		isWaiting:     false,
 		isClosed:      false,
 	}
@@ -45,61 +45,49 @@ func (reader *Reader) Read(callback func(*entities.Element, []byte)) {
 		callback(nil, []byte{})
 	}
 
-	for {
-		packet, C := reader.__read()
-		if packet == nil {
+	// get cached buffers
+	packet, C := reader.__read()
+	if packet == nil {
 
-			// wait access
-			packet, exist := <-C
-			func() {
-				// on appended to this instance
-				reader.lock.Lock()
-				defer reader.lock.Unlock()
+		// wait access
+		packet, exist := <-C
+		if !exist {
+			// on reader is closed, empty bytes.
+			reader.lock.Lock()
+			defer reader.lock.Unlock()
 
-				reader.isWaiting = false
+			// finalize
+			reader.isWaiting = false
+			reader.isClosed = true
 
-				for i, l := 0, len(reader.onRecieve); i < l; i++ {
-					_, ext := <-reader.onRecieve
-					exist = exist && ext
-				}
-			}()
-
-			if !exist {
-				// on reader is closed, empty bytes.
-				reader.lock.Lock()
-				defer reader.lock.Unlock()
-
-				// finalize
-				reader.isWaiting = false
-				reader.isClosed = true
-
-				// call ended
-				callback(nil, []byte{})
-				return
-			}
+			// call ended
+			callback(nil, []byte{})
+			return
 		} else {
-
-			func() {
-				reader.lock.Lock()
-				defer reader.lock.Unlock()
-
-				callback(packet.element, packet.bytes)
-
-				// increment read index
-				reader.readPacketPos++
-				reader.readPacketPos %= len(reader.pool)
-				reader.nContain--
-
-			}()
-
+			callback(packet.element, packet.bytes)
 			return
 		}
 	}
-	// check
+
+	func() {
+		reader.lock.Lock()
+		defer reader.lock.Unlock()
+
+		callback(packet.element, packet.bytes)
+
+		// increment read index
+		reader.readPacketPos++
+		reader.readPacketPos %= len(reader.pool)
+		reader.nContain--
+		if reader.nContain < 0 {
+			panic("reader.nContain is lower than 0")
+		}
+
+	}()
 
 }
 
-func (reader *Reader) __read() (*__Packet, chan *__Packet) {
+func (reader *Reader) __read() (*__Packet, chan __Packet) {
 
 	reader.lock.Lock()
 	defer reader.lock.Unlock()
@@ -151,13 +139,16 @@ func (reader *Reader) __append(packet *__Packet) {
 			reader.readPacketPos = 0
 		}
 
-		// append packet
-		reader.pool[(reader.readPacketPos+reader.nContain)%len(reader.pool)] = packet
-
-		reader.nContain++
-
 		if reader.isWaiting {
-			reader.onRecieve <- nil
+			reader.onRecieve <- *packet
+			reader.isWaiting = false
+		} else {
+			// append packet
+			reader.pool[(reader.readPacketPos+reader.nContain)%len(reader.pool)] = packet
+
+			reader.nContain++
+
 		}
+
 	}
 }
