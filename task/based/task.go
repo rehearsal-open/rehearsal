@@ -144,6 +144,22 @@ func (basis *internalTask) ReleaseResource() {
 	basis.mainstate = task_state.Finalized
 }
 
+func (basis *internalTask) GetInput(elem task_element.Enum) *queue.Reader {
+	if basis.inputs[elem] == nil {
+		return nil
+	} else {
+		return basis.inputs[elem].queue
+	}
+}
+
+func (basis *internalTask) GetOutput(elem task_element.Enum) *queue.Senders {
+	if basis.outputs[elem] == nil {
+		return nil
+	} else {
+		return basis.outputs[elem].writer
+	}
+}
+
 // Append reciever to selected sender element.
 func (basis *internalTask) Connect(senderElem task_element.Enum, recieverElem task_element.Enum, reciever task.Task) error {
 

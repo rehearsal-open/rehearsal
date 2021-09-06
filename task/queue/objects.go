@@ -20,6 +20,8 @@ import (
 	"sync"
 
 	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
+	"github.com/rehearsal-open/rehearsal/task"
 )
 
 type (
@@ -70,5 +72,11 @@ type (
 		parent *Senders
 		*Writer
 		conn chan []byte
+	}
+
+	Task interface {
+		task.Task
+		GetInput(elem task_element.Enum) *Reader
+		GetOutput(elem task_element.Enum) *Senders
 	}
 )

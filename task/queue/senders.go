@@ -87,6 +87,10 @@ func (senders *Senders) AppendWriter(writer *Writer) {
 	go senders.sendto[appended].__routine()
 }
 
+func (senders *Senders) AppendWriteTo(writeTo *Reader) {
+	senders.AppendWriter(MakeWriter(writeTo))
+}
+
 func (sender *__Sender) __routine() {
 	for {
 		bytes, exist := <-sender.conn
