@@ -23,6 +23,9 @@ func MakeWriter(writeTo *Reader) *Writer {
 	writeTo.lock.Lock()
 	defer writeTo.lock.Unlock()
 
+	// increment registered writer's count
+	writeTo.nWriter++
+
 	return &Writer{
 		parent: writeTo,
 	}
@@ -38,4 +41,12 @@ func (writer *Writer) Write(elem *entities.Element, bytes []byte) {
 		element: elem,
 		bytes:   cache,
 	})
+}
+
+func (writer *Writer) Close() {
+	writer.parent.lock.Lock()
+	defer writer.parent.lock.Unlock()
+
+	// decrement registered writer's count
+	writer.parent.nWriter--
 }

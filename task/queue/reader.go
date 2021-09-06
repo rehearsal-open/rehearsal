@@ -28,6 +28,7 @@ func MakeReader() *Reader {
 	return &Reader{
 		pool:          make([]*__Packet, 1024),
 		nContain:      0,
+		nWriter:       0,
 		readPacketPos: 0,
 		lock:          sync.Mutex{},
 		onRecieve:     make(chan __Packet),
@@ -49,24 +50,34 @@ func (reader *Reader) Read(callback func(*entities.Element, []byte)) {
 	packet, C := reader.__read()
 	if packet == nil {
 
-		// wait access
-		packet, exist := <-C
-		if !exist {
-			// on reader is closed, empty bytes.
-			reader.lock.Lock()
-			defer reader.lock.Unlock()
+		if reader.nWriter > 0 {
 
-			// finalize
-			reader.isWaiting = false
-			reader.isClosed = true
+			// wait access
+			packet, exist := <-C
+			if !exist {
+				// on reader is closed, empty bytes.
+				reader.lock.Lock()
+				defer reader.lock.Unlock()
+
+				// finalize
+				reader.isWaiting = false
+				reader.isClosed = true
+
+				// call ended
+				callback(nil, []byte{})
+				return
+			} else {
+				callback(packet.element, packet.bytes)
+				return
+			}
+		} else {
+			// when registered running writer is nothing
 
 			// call ended
 			callback(nil, []byte{})
 			return
-		} else {
-			callback(packet.element, packet.bytes)
-			return
 		}
+
 	}
 
 	func() {
