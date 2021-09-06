@@ -18,10 +18,8 @@ package based
 
 import (
 	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/task/buffer"
 )
 
-var DefaultOnRecieve = func(_ *buffer.Packet) {}
 var DefaultOnFinal = func() {}
 
 func MakeImplCallback(onRecieve func(elem *entities.Element, bytes []byte), onFinal func()) ImplCallback {

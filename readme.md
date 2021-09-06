@@ -70,9 +70,9 @@ parser --> entities
 rehearsal-cli/cli --> entities
 rehearsal-cli/cli --> entities/enum/task_element
 rehearsal-cli/cli --> task/based
-rehearsal-cli/cli --> task/buffer
 rehearsal-cli --> engine
 rehearsal-cli --> entities
+rehearsal-cli --> parser
 rehearsal-cli --> parser/yaml
 rehearsal-cli --> rehearsal-cli/cli
 rehearsal-cli --> task
@@ -83,16 +83,14 @@ rehearsal-cli --> task/maker
 task/based --> entities
 task/based --> entities/enum/task_element
 task/based --> entities/enum/task_state
-task/based --> task/buffer
-task/buffer --> entities
-task/buffer --> entities/enum/task_element
+task/based --> task
+task/based --> task/queue
 task/impl/cui --> entities
 task/impl/cui --> entities/enum/task_element
 task/impl/cui --> frontend
 task/impl/cui --> parser
 task/impl/cui --> task
 task/impl/cui --> task/based
-task/impl/cui --> task/buffer
 task/impl/cui --> task/maker
 task/impl/regexp --> entities
 task/impl/regexp --> entities/enum/task_element
@@ -100,23 +98,21 @@ task/impl/regexp --> frontend
 task/impl/regexp --> parser
 task/impl/regexp --> task
 task/impl/regexp --> task/based
-task/impl/regexp --> task/buffer
 task/impl/regexp --> task/maker
 task/impl/serial --> entities
 task/impl/serial --> frontend
 task/impl/serial --> parser
 task/impl/serial --> task
 task/impl/serial --> task/based
-task/impl/serial --> task/buffer
 task/impl/serial --> task/maker
 task/maker --> entities
 task/maker --> frontend
 task/maker --> parser
 task/maker --> task
+task/queue --> entities
 task --> entities
 task --> entities/enum/task_element
 task --> entities/enum/task_state
-task --> task/buffer
 
 ```
 
