@@ -34,16 +34,12 @@ type (
 		pool []*__Packet
 		// The number of packets containing now.
 		nContain int
-		// The position of the reader in total index.
-		numRPacket int64
-		// The position of the writer in total index.
-		numWPacket int64
 		// The position of numRPacket's index in pools.
 		readPacketPos int
 		// access mutex
 		lock sync.Mutex
 		// Use when wait for new appending. When isWaiting is false, writer  doesn't need to use this.
-		onRecieve chan error
+		onRecieve chan __Packet
 		// Whether reader is waiting or not.
 		isWaiting bool
 		// Whether reader is closed.
@@ -66,6 +62,8 @@ type (
 		parallelLock sync.WaitGroup
 		// Access lock, Ban to multiple call function.
 		accessLock sync.Mutex
+		// Cache chan
+		cacheChan chan []byte
 	}
 
 	__Sender struct {

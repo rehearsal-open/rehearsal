@@ -18,6 +18,7 @@ package queue
 
 import (
 	"sync"
+	"time"
 
 	"github.com/rehearsal-open/rehearsal/entities"
 )
@@ -27,8 +28,6 @@ func MakeReader() *Reader {
 	return &Reader{
 		pool:          make([]*__Packet, 1024),
 		nContain:      0,
-		numRPacket:    0,
-		numWPacket:    0,
 		readPacketPos: 0,
 		lock:          sync.Mutex{},
 		onRecieve:     make(chan error),
@@ -47,29 +46,32 @@ func (reader *Reader) Read(callback func(*entities.Element, []byte)) {
 	}
 
 	for {
-		packet := reader.__read()
+		packet, C := reader.__read()
 		if packet == nil {
 
 			// wait access
-			_, exist := <-reader.onRecieve
+			packet, exist := <-C
+			func() {
+				// on appended to this instance
+				reader.lock.Lock()
+				defer reader.lock.Unlock()
 
-			if exist {
-				func() {
-					// on appended to this instance
-					reader.lock.Lock()
-					defer reader.lock.Unlock()
+				reader.isWaiting = false
 
-					reader.isWaiting = false
-				}()
+				for i, l := 0, len(reader.onRecieve); i < l; i++ {
+					_, ext := <-reader.onRecieve
+					exist = exist && ext
+				}
+			}()
 
-			} else {
+			if !exist {
 				// on reader is closed, empty bytes.
 				reader.lock.Lock()
 				defer reader.lock.Unlock()
 
 				// finalize
 				reader.isWaiting = false
-				reader.pool, reader.isClosed = nil, true
+				reader.isClosed = true
 
 				// call ended
 				callback(nil, []byte{})
@@ -81,15 +83,15 @@ func (reader *Reader) Read(callback func(*entities.Element, []byte)) {
 				reader.lock.Lock()
 				defer reader.lock.Unlock()
 
+				callback(packet.element, packet.bytes)
+
 				// increment read index
-				reader.numRPacket++
 				reader.readPacketPos++
 				reader.readPacketPos %= len(reader.pool)
 				reader.nContain--
 
 			}()
 
-			callback(packet.element, packet.bytes)
 			return
 		}
 	}
@@ -97,23 +99,28 @@ func (reader *Reader) Read(callback func(*entities.Element, []byte)) {
 
 }
 
-func (reader *Reader) __read() *__Packet {
+func (reader *Reader) __read() (*__Packet, chan *__Packet) {
 
 	reader.lock.Lock()
 	defer reader.lock.Unlock()
 
-	if reader.numRPacket < reader.numWPacket {
+	if reader.nContain > 0 {
 		// successfully
-		return reader.pool[(int(reader.numWPacket-reader.numRPacket-1)+reader.readPacketPos)%len(reader.pool)]
+		return reader.pool[reader.readPacketPos%len(reader.pool)], nil
 	} else {
 		// this doesn't have unread packets,
 		// make isWaiting true.
 		reader.isWaiting = true
-		return nil
+		return nil, reader.onRecieve
 	}
 }
 
 func (reader *Reader) Close() {
+
+	for reader.nContain > 0 {
+		time.Sleep(time.Millisecond)
+	}
+
 	reader.lock.Lock()
 	defer reader.lock.Unlock()
 
@@ -128,7 +135,7 @@ func (reader *Reader) __append(packet *__Packet) {
 	defer reader.lock.Unlock()
 
 	if reader.isClosed {
-
+		return
 	} else {
 		if reader.nContain >= len(reader.pool) {
 			// no capacity to append packet
@@ -140,16 +147,17 @@ func (reader *Reader) __append(packet *__Packet) {
 				panic("copied size is unexpected")
 			}
 
+			reader.pool = buffer
 			reader.readPacketPos = 0
 		}
 
 		// append packet
 		reader.pool[(reader.readPacketPos+reader.nContain)%len(reader.pool)] = packet
-	}
-	reader.nContain++
-	reader.numWPacket++
 
-	if reader.isWaiting {
-		reader.onRecieve <- nil
+		reader.nContain++
+
+		if reader.isWaiting {
+			reader.onRecieve <- nil
+		}
 	}
 }

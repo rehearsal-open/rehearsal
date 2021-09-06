@@ -59,10 +59,9 @@ func (cui *__task) ExecuteMain(args based.MainFuncArguments) error {
 	callback[task_element.StdIn] = based.MakeImplCallback(func(_ *entities.Element, b []byte) {
 		if stdin != nil {
 			if _, err := io.Copy(stdin, bytes.NewBuffer(b)); err != nil {
+				panic(err.Error())
 				// todo: error manage
 			}
-		} else {
-			panic("stdin finalized")
 		}
 	}, based.DefaultOnFinal)
 
@@ -74,7 +73,8 @@ func (cui *__task) ExecuteMain(args based.MainFuncArguments) error {
 
 	// start running element
 	go func() {
-		args.Close(cui.Cmd.Wait())
+		err := cui.Cmd.Wait()
+		args.Close(err)
 		stdin = nil
 	}()
 

@@ -25,7 +25,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_state"
 	"github.com/rehearsal-open/rehearsal/task"
-	"github.com/rehearsal-open/rehearsal/task/buffer"
+	"github.com/rehearsal-open/rehearsal/task/queue"
 )
 
 type (
@@ -111,16 +111,12 @@ type (
 
 	inputElem struct {
 		*taskElement
-		reciever    chan buffer.Packet
-		numSendFrom int
-		packets     []buffer.Packet
-		packetPos   [2]int // read pos, write pos
-		packetLock  *sync.Mutex
+		queue *queue.Reader
 	}
 
 	outputElem struct {
 		*taskElement
-		sender *buffer.Buffer
+		writer *queue.Senders
 	}
 )
 

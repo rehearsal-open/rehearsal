@@ -15,18 +15,3 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package based
-
-import (
-	"github.com/rehearsal-open/rehearsal/task/buffer"
-)
-
-// Send packet to this reciever instance.
-func (elem *inputElem) SendPacket(p buffer.Packet) {
-	elem.lock.Lock()
-	defer elem.lock.Unlock()
-	elem.reciever <- p
-}
-
-func (elem *inputElem) Registered() {
-	elem.numSendFrom++
-}
