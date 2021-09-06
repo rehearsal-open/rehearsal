@@ -1,8 +1,5 @@
-from time import sleep
 
-for i in range(10000):
-    a = int(input())
-    print(a * 2, flush=True)
-    
-    # sleep(1)
-
+i = 0
+while i < 10000000:
+    println(i, flush=True)
+    i = int(input())
