@@ -1,4 +1,6 @@
-from time import sleep
+i = 0
 
-for i in range(10000):
-    print(i, flush=True)
+for i < 10000000:
+    i = int(input())
+    i+=1
+    println(i, flush=True)
