@@ -28,7 +28,7 @@ import (
 )
 
 type (
-	frontTask interface {
+	Synthesized interface {
 		task.Task
 		based() *internalTask
 	}

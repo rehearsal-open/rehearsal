@@ -71,6 +71,10 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 	return basis
 }
 
+func (basis *internalTask) IsSupporting(elem task_element.Enum) bool {
+	return basis.impl.IsSupporting(elem)
+}
+
 // Gets task's configuration in entity
 func (basis *internalTask) Entity() *entities.Task {
 	return basis.entity
@@ -149,7 +153,7 @@ func (basis *internalTask) Connect(senderElem task_element.Enum, recieverElem ta
 	var recieverBased *internalTask
 
 	// check whether reciever is support based system
-	if rec, ok := reciever.(frontTask); !ok {
+	if rec, ok := reciever.(Synthesized); !ok {
 		panic("reciever task is unsupported")
 	} else {
 		recieverBased = rec.based()
