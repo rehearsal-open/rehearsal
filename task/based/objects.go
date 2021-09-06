@@ -17,7 +17,6 @@
 package based
 
 import (
-	"errors"
 	"io"
 	"sync"
 
@@ -118,10 +117,4 @@ type (
 		*taskElement
 		writer *queue.Senders
 	}
-)
-
-var (
-	ErrNotSupportingElement = errors.New("this task doesn't supports element")
-	ErrAlreadyRun           = errors.New("task has already run")
-	ErrAlreadyClosed        = errors.New("task has already closed")
 )

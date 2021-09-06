@@ -17,6 +17,8 @@
 package task
 
 import (
+	"errors"
+
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_state"
@@ -47,4 +49,10 @@ type (
 		// Append reciever to selected sender element.
 		Connect(senderElem task_element.Enum, recieverElem task_element.Enum, reciever Task) error
 	}
+)
+
+var (
+	ErrNotSupportingElement = errors.New("this task doesn't supports element")
+	ErrAlreadyRun           = errors.New("task has already run")
+	ErrAlreadyClosed        = errors.New("task has already closed")
 )

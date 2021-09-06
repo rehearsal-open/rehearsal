@@ -90,9 +90,9 @@ func (basis *internalTask) BeginTask() error {
 
 	// check task's running state
 	if basis.mainstate == task_state.Closed || basis.mainstate == task_state.Finalized {
-		return ErrAlreadyClosed // already closed
+		return task.ErrAlreadyClosed // already closed
 	} else if basis.mainstate == task_state.Running {
-		return ErrAlreadyRun // already run
+		return task.ErrAlreadyRun // already run
 	}
 
 	// begin main task
@@ -157,14 +157,14 @@ func (basis *internalTask) Connect(senderElem task_element.Enum, recieverElem ta
 
 	// check whether element is supported or not
 	if basis.outputs[senderElem] == nil {
-		return ErrNotSupportingElement
+		return task.ErrNotSupportingElement
 	} else if recieverBased.inputs[recieverElem] == nil {
-		return ErrNotSupportingElement
+		return task.ErrNotSupportingElement
 	}
 
 	// check whether task has already run or not
 	if basis.mainstate != task_state.Waiting {
-		return ErrAlreadyRun
+		return task.ErrAlreadyRun
 	} else {
 		basis.outputs[senderElem].writer.AppendWriter(queue.MakeWriter(recieverBased.inputs[recieverElem].queue))
 		return nil
@@ -178,7 +178,7 @@ func (basis *internalTask) based() *internalTask {
 // Gets io.Writer using sender object.
 func (basis *internalTask) Writer(elem task_element.Enum) (io.Writer, error) {
 	if basis.outputs[elem] == nil {
-		return nil, ErrNotSupportingElement
+		return nil, task.ErrNotSupportingElement
 	} else {
 		return basis.outputs[elem].writer, nil
 	}
