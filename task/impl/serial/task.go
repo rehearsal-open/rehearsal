@@ -17,14 +17,13 @@
 package serial
 
 import (
-	"bytes"
 	"io"
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
+	"github.com/rehearsal-open/rehearsal/task/wrapper/listen"
 )
 
 func (serial *__task) IsSupporting(elem task_element.Enum) bool {
@@ -43,34 +42,15 @@ func (serial *__task) ExecuteMain(args based.MainFuncArguments) error {
 		stdOut = stdout
 	}
 
-	callback := [task_element.Len]based.ImplCallback{nil}
-	callback[task_element.StdIn] = based.MakeImplCallback(func(elem *entities.Element, b []byte) {
-
-		io.Copy(serial.Port, bytes.NewBuffer(b))
-
-	}, based.DefaultOnFinal)
-
-	if err := serial.ResetInputBuffer(); err != nil {
-		return errors.WithStack(err)
-	} else if err := serial.ResetOutputBuffer(); err != nil {
-		return errors.WithStack(err)
-	}
-
-	args.ListenStart(callback)
+	listen.Listen(serial, task_element.StdIn, serial.Port, nil, nil)
+	closer := listen.SyncIoPipe(serial.Port, stdOut, time.Millisecond, nil)
 
 	go func() {
 
-		ticker := time.NewTicker(time.Millisecond)
+		exitErr := serial.Port.Close()
+		closer <- nil
 
-		for {
-			select {
-			case <-ticker.C:
-				io.Copy(stdOut, serial.Port)
-			case <-serial.close:
-				args.Close(serial.Port.Close())
-				return
-			}
-		}
+		args.Close(exitErr)
 	}()
 
 	return nil
