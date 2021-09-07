@@ -24,6 +24,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
+	"github.com/rehearsal-open/rehearsal/task/wrapper/listen"
 )
 
 type (
@@ -102,8 +103,7 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 	t.reciever = make(chan string)
 	t.close = make(chan error)
 
-	callback := [task_element.Len]based.ImplCallback{nil}
-	callback[task_element.StdIn] = based.MakeImplCallback(func(elem *entities.Element, buffer []byte) {
+	listen.ListenElemBytes(t, task_element.StdIn, func(elem *entities.Element, buffer []byte) {
 
 		name := elem.Fullname()
 		format := t.Format[name]
@@ -115,11 +115,10 @@ func (t *Task) ExecuteMain(args based.MainFuncArguments) error {
 
 		fmt.Println(format + str + ForeReset + BackReset)
 
-	}, based.DefaultOnFinal)
+	}, nil)
 
 	go func() {
 
-		args.ListenStart(callback)
 		<-t.close
 		args.Close(nil)
 

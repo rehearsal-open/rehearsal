@@ -24,6 +24,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/queue"
 	"github.com/rehearsal-open/rehearsal/task/wrapper"
+	"github.com/rehearsal-open/rehearsal/task/wrapper/listen"
 )
 
 func (parallel *__task) AppendElem(fromElem entities.Element, insert task.Task, inElem task_element.Enum, outElem task_element.Enum) error {
@@ -48,8 +49,7 @@ func (parallel *__task) IsSupporting(elem task_element.Enum) bool {
 
 func (parallel *__task) ExecuteMain(args based.MainFuncArguments) error {
 
-	callback := [task_element.Len]based.ImplCallback{nil}
-	callback[task_element.StdIn] = based.MakeImplCallback(func(elem *entities.Element, b []byte) {
+	listen.ListenElemBytes(parallel, task_element.StdIn, func(elem *entities.Element, b []byte) {
 		name := elem.Fullname()
 		if writer, exist := parallel.parallelWriter[name]; exist {
 			writer.Write(elem, b)
@@ -59,8 +59,6 @@ func (parallel *__task) ExecuteMain(args based.MainFuncArguments) error {
 			parallel.parallelWriter[key].Close()
 		}
 	})
-
-	args.ListenStart(callback)
 
 	go func() {
 		<-parallel.close
