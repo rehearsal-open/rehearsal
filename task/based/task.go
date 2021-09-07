@@ -204,34 +204,6 @@ func (basis *internalTask) Writer(elem task_element.Enum) (io.Writer, error) {
 	}
 }
 
-// Listen reciever element and begin to manage packet.
-func (basis *internalTask) ListenStart(callback [task_element.Len]ImplCallback) {
-
-	for i, l := 0, task_element.Len; i < l; i++ {
-		if basis.inputs[i] != nil {
-
-			// check whether callback isn't empty or not
-			if callback[i] == nil {
-				panic("task is supported, but callback is nil")
-			}
-
-			// begin to listen element goroutine
-			go func(elem int) {
-				for isContinue := true; isContinue; {
-					basis.inputs[elem].queue.Read(func(e *entities.Element, b []byte) {
-						if e != nil {
-							callback[elem].Recieve(e, b)
-						} else {
-							callback[elem].OnFinal()
-							isContinue = false
-						}
-					})
-				}
-			}(i)
-		}
-	}
-}
-
 func (basis *internalTask) Close(err error) {
 
 	basis.lock.Lock()
