@@ -42,6 +42,22 @@ func Listen(fromTask task.Task, fromElem task_element.Enum, destInput io.Writer,
 		onFinal = OnFinalDefault
 	}
 
+	ListenElemBytes(fromTask, fromElem, func(e *entities.Element, b []byte) {
+		if _, err := io.Copy(destInput, bytes.NewBuffer(b)); err != nil {
+			if err != io.EOF {
+				onErr(err)
+			}
+		}
+	}, onFinal)
+}
+
+func ListenElemBytes(fromTask task.Task, fromElem task_element.Enum, action func(e *entities.Element, b []byte), onFinal func()) {
+
+	// set default value
+	if onFinal == nil {
+		onFinal = OnFinalDefault
+	}
+
 	// get queue access
 	from := wrapper.GetQueueAccess(fromTask)
 
@@ -52,11 +68,7 @@ func Listen(fromTask task.Task, fromElem task_element.Enum, destInput io.Writer,
 		for isContinue := true; isContinue; {
 			reader.Read(func(e *entities.Element, b []byte) {
 				if e != nil {
-					if _, err := io.Copy(destInput, bytes.NewBuffer(b)); err != nil {
-						if err != io.EOF {
-							onErr(err)
-						}
-					}
+					action(e, b)
 				} else {
 					onFinal()
 				}
