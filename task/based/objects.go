@@ -51,9 +51,6 @@ type (
 		Writer(task_element.Enum) (io.Writer, error)
 		// Call basis that main task is closed. Main task must call when main task's closing.
 		Close(err error)
-		// Listen reciever element and begin to manage packet.
-		// Main task must call when main just after task's begining.
-		ListenStart(callback [task_element.Len]ImplCallback)
 	}
 
 	// Defines functions basis task including.
