@@ -54,23 +54,15 @@ func (cui *__task) ExecuteMain(args based.MainFuncArguments) error {
 		cui.Cmd.Stderr = out
 	}
 
-	// callback := [task_element.Len]based.ImplCallback{nil}
-	// callback[task_element.StdIn] = based.MakeImplCallback(func(_ *entities.Element, b []byte) {
-	// 	if stdin != nil {
-	// 		if _, err := io.Copy(stdin, bytes.NewBuffer(b)); err != nil {
-	// 			panic(err.Error())
-	// 			// todo: error manage
-	// 		}
-	// 	}
-	// }, based.DefaultOnFinal)
-
 	if err := cui.Start(); err != nil {
 		return errors.WithStack(err)
 	}
 
 	// args.ListenStart(callback)
 
-	listen.Listen(cui, task_element.StdIn, stdin, nil, nil)
+	listen.Listen(cui, task_element.StdIn, stdin, func(e error) {
+		panic(e.Error())
+	}, nil)
 
 	// start running element
 	go func() {
