@@ -17,13 +17,12 @@
 package cui
 
 import (
-	"bytes"
 	"io"
 
 	"github.com/pkg/errors"
-	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
+	"github.com/rehearsal-open/rehearsal/task/wrapper/listen"
 )
 
 func (cui *__task) IsSupporting(elem task_element.Enum) bool {
@@ -55,21 +54,23 @@ func (cui *__task) ExecuteMain(args based.MainFuncArguments) error {
 		cui.Cmd.Stderr = out
 	}
 
-	callback := [task_element.Len]based.ImplCallback{nil}
-	callback[task_element.StdIn] = based.MakeImplCallback(func(_ *entities.Element, b []byte) {
-		if stdin != nil {
-			if _, err := io.Copy(stdin, bytes.NewBuffer(b)); err != nil {
-				panic(err.Error())
-				// todo: error manage
-			}
-		}
-	}, based.DefaultOnFinal)
+	// callback := [task_element.Len]based.ImplCallback{nil}
+	// callback[task_element.StdIn] = based.MakeImplCallback(func(_ *entities.Element, b []byte) {
+	// 	if stdin != nil {
+	// 		if _, err := io.Copy(stdin, bytes.NewBuffer(b)); err != nil {
+	// 			panic(err.Error())
+	// 			// todo: error manage
+	// 		}
+	// 	}
+	// }, based.DefaultOnFinal)
 
 	if err := cui.Start(); err != nil {
 		return errors.WithStack(err)
 	}
 
-	args.ListenStart(callback)
+	// args.ListenStart(callback)
+
+	listen.Listen(cui, task_element.StdIn, stdin, nil, nil)
 
 	// start running element
 	go func() {
