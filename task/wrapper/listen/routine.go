@@ -19,6 +19,7 @@ package listen
 import (
 	"bytes"
 	"io"
+	"time"
 
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
@@ -62,4 +63,26 @@ func Listen(fromTask task.Task, fromElem task_element.Enum, destInput io.Writer,
 			})
 		}
 	}()
+}
+
+func SyncIoPipe(src io.Reader, dest io.Writer, duration time.Duration, onErr func(error)) (closer chan error) {
+
+	closer = make(chan error, 1)
+	ticker := time.NewTicker(duration)
+
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				if _, err := io.Copy(dest, src); err != nil {
+					if err != io.EOF {
+						onErr(err)
+					}
+				}
+			case <-closer:
+				return
+			}
+		}
+	}()
+	return closer
 }
