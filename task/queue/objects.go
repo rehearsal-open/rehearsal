@@ -36,6 +36,8 @@ type (
 		pool []*__Packet
 		// The number of packets containing now.
 		nContain int
+		// The number of registered writers.
+		nWriter int
 		// The position of numRPacket's index in pools.
 		readPacketPos int
 		// access mutex
@@ -64,8 +66,6 @@ type (
 		parallelLock sync.WaitGroup
 		// Access lock, Ban to multiple call function.
 		accessLock sync.Mutex
-		// Cache chan
-		cacheChan chan []byte
 	}
 
 	__Sender struct {

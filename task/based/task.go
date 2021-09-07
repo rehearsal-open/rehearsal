@@ -28,6 +28,59 @@ import (
 	"github.com/rehearsal-open/rehearsal/task/queue"
 )
 
+// Make task wrapper, shared entity and queue objects.
+// This function should be called from wrapper task's make function.
+func MakeWrap(wrapped task.Task, impl TaskImpl) Task {
+
+	var internal *internalTask
+
+	if wrapped, ok := wrapped.(Synthesized); !ok {
+		panic("wrapped task is invalid type, uses based.Task")
+	} else {
+		internal = wrapped.based()
+	}
+
+	// initialize shared member
+	basis := &internalTask{
+		impl:      impl,
+		entity:    wrapped.Entity(), // wrap shared entity
+		mainstate: task_state.Waiting,
+		closed:    make(chan error, 1),
+		lock:      sync.Mutex{},
+	}
+
+	// wrap task's element
+	for i, l := 0, task_element.Len; i < l; i++ {
+
+		elem := task_element.Enum(i)
+
+		if impl.IsSupporting(elem) {
+			if !wrapped.IsSupporting(elem) {
+				panic("wrapping task's element is supported, but wrapped task's element is un-supported")
+			}
+			switch elem {
+			case task_element.StdIn:
+				basis.inputs[i] = &inputElem{
+					taskElement: &taskElement{
+						internalTask: basis,
+						element:      &basis.entity.Element[i],
+					},
+					queue: internal.inputs[i].queue, // wrap shared queue
+				}
+			case task_element.StdOut, task_element.StdErr:
+				basis.outputs[i] = &outputElem{
+					taskElement: &taskElement{
+						internalTask: basis,
+						element:      &basis.entity.Element[i],
+					},
+					writer: internal.outputs[i].writer, // wrap shared queue writer
+				}
+			}
+		}
+	}
+	return basis
+}
+
 // Make task basis.
 // This function should be called from implemented task's make function.
 func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
