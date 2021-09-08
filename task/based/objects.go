@@ -76,14 +76,6 @@ type (
 		based() *internalTask
 	}
 
-	Wrap interface {
-		Task
-		// Use internal output as facing gateway.
-		UseWrappedOutput()
-		// Use internal input as facing gateway.
-		UseWrappedinput()
-	}
-
 	// Defines functions which implemented tasks are satisfied.
 	TaskImpl interface {
 		// Gets whether element is supported by task.
@@ -95,11 +87,6 @@ type (
 		ExecuteMain(args MainFuncArguments) error
 		// Stop main task
 		StopMain()
-	}
-
-	internalWrap struct {
-		internalTask
-		wrapped internalTask
 	}
 
 	internalTask struct {
