@@ -26,7 +26,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/task/wrapper/listen"
 )
 
-func (parallel *ElemParallel) AppendElem(fromElem entities.Element, insert wrapper.Filter, finallyElem task_element.Enum) {
+func (parallel *ElemParallel) AppendElem(fromElem *entities.Element, insert wrapper.Filter, finallyElem task_element.Enum) {
 	name := fromElem.Fullname()
 	if _, exist := parallel.parallelWriter[name]; exist {
 		panic("already registered element")
@@ -34,7 +34,9 @@ func (parallel *ElemParallel) AppendElem(fromElem entities.Element, insert wrapp
 		if sendto := parallel.GetInput(finallyElem); sendto == nil {
 			panic(task.ErrNotSupportingElement.Error())
 		} else {
-			insert.Output().AppendWriteTo(sendto)
+			senders := queue.MakeSenders(fromElem)
+			senders.AppendWriteTo(parallel.finallyTask.GetInput(finallyElem))
+			insert.OutputTo(senders)
 			parallel.parallelWriter[name] = insert
 		}
 

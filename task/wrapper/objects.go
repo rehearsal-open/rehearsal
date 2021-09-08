@@ -17,14 +17,15 @@
 package wrapper
 
 import (
+	"io"
+
 	"github.com/rehearsal-open/rehearsal/entities"
-	"github.com/rehearsal-open/rehearsal/task/queue"
 )
 
 type (
 	Filter interface {
 		Write(e *entities.Element, b []byte) error
 		Close()
-		Output() *queue.Senders
+		OutputTo(outto io.Writer)
 	}
 )
