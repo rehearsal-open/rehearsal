@@ -25,7 +25,7 @@ import (
 
 type (
 	__task struct {
-		based.Task
+		*based.Task
 		*exec.Cmd
 		*Detail
 	}

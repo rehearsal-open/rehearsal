@@ -23,16 +23,10 @@ import (
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_state"
-	"github.com/rehearsal-open/rehearsal/task"
 	"github.com/rehearsal-open/rehearsal/task/queue"
 )
 
 type (
-	Synthesized interface {
-		task.Task
-		based() *internalTask
-	}
-
 	implCallback struct {
 		reciever func(elem *entities.Element, bytes []byte)
 		onfinal  func()
@@ -53,29 +47,6 @@ type (
 		Close(err error)
 	}
 
-	// Defines functions basis task including.
-	// Implemented tasks should use this interface as embedded interface.
-	//
-	// These functions are partially satisfied gateways.Task interface.
-	// See functions' detail: github.com/rehearsal-open/rehearsal/enum/task_element
-	Task interface {
-		// Gets task's configuration in entities.
-		Entity() *entities.Task
-		// Gets main task's running state.
-		MainState() task_state.Enum
-		// Begin main task.
-		BeginTask() error
-		// Stop main task.
-		StopTask()
-		// Wait for closing main task.
-		WaitClosing()
-		// Release memory and any handler.
-		ReleaseResource()
-		// Append reciever to selected sender element.
-		Connect(senderElem task_element.Enum, recieverElem task_element.Enum, reciever task.Task) error
-		based() *internalTask
-	}
-
 	// Defines functions which implemented tasks are satisfied.
 	TaskImpl interface {
 		// Gets whether element is supported by task.
@@ -89,7 +60,12 @@ type (
 		StopMain()
 	}
 
-	internalTask struct {
+	// Defines functions basis task including.
+	// Implemented tasks should use this interface as embedded interface.
+	//
+	// These functions are partially satisfied gateways.Task interface.
+	// See functions' detail: github.com/rehearsal-open/rehearsal/enum/task_element
+	Task struct {
 		impl      TaskImpl
 		entity    *entities.Task
 		mainstate task_state.Enum
@@ -100,7 +76,7 @@ type (
 	}
 
 	taskElement struct {
-		*internalTask
+		*Task
 		element *entities.Element
 		lock    sync.Mutex
 	}

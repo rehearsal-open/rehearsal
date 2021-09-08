@@ -30,7 +30,7 @@ func Make(finally task.Task) ElemParallel {
 		close:          make(chan error),
 	}
 
-	result.Task = based.MakeWrap(finally, &result)
+	result.Task = based.MakeBasis(finally.Entity(), &result)
 
 	return &result
 }

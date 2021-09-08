@@ -28,7 +28,7 @@ type (
 	}
 
 	__task struct {
-		based.Task
+		*based.Task
 		parallelWriter map[string]*queue.Writer
 		finallyTask    task.Task
 		close          chan error

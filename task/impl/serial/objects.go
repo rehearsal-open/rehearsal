@@ -23,7 +23,7 @@ import (
 
 type (
 	__task struct {
-		based.Task
+		*based.Task
 		serial.Port
 		*Detail
 		close chan error

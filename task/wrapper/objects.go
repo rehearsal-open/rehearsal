@@ -15,17 +15,3 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package wrapper
-
-import (
-	"github.com/rehearsal-open/rehearsal/task"
-	"github.com/rehearsal-open/rehearsal/task/based"
-	"github.com/rehearsal-open/rehearsal/task/queue"
-)
-
-func GetQueueAccess(object task.Task) queue.Task {
-	if synth, ok := object.(based.Synthesized); ok {
-		return based.GetQueueAccess(synth)
-	} else {
-		panic("task instance is invalid type")
-	}
-}

@@ -28,65 +28,12 @@ import (
 	"github.com/rehearsal-open/rehearsal/task/queue"
 )
 
-// Make task wrapper, shared entity and queue objects.
-// This function should be called from wrapper task's make function.
-func MakeWrap(wrapped task.Task, impl TaskImpl) Task {
-
-	var internal *internalTask
-
-	if wrapped, ok := wrapped.(Synthesized); !ok {
-		panic("wrapped task is invalid type, uses based.Task")
-	} else {
-		internal = wrapped.based()
-	}
-
-	// initialize shared member
-	basis := &internalTask{
-		impl:      impl,
-		entity:    wrapped.Entity(), // wrap shared entity
-		mainstate: task_state.Waiting,
-		closed:    make(chan error, 1),
-		lock:      sync.Mutex{},
-	}
-
-	// wrap task's element
-	for i, l := 0, task_element.Len; i < l; i++ {
-
-		elem := task_element.Enum(i)
-
-		if impl.IsSupporting(elem) {
-			if !wrapped.IsSupporting(elem) {
-				panic("wrapping task's element is supported, but wrapped task's element is un-supported")
-			}
-			switch elem {
-			case task_element.StdIn:
-				basis.inputs[i] = &inputElem{
-					taskElement: &taskElement{
-						internalTask: basis,
-						element:      &basis.entity.Element[i],
-					},
-					queue: internal.inputs[i].queue, // wrap shared queue
-				}
-			case task_element.StdOut, task_element.StdErr:
-				basis.outputs[i] = &outputElem{
-					taskElement: &taskElement{
-						internalTask: basis,
-						element:      &basis.entity.Element[i],
-					},
-					writer: internal.outputs[i].writer, // wrap shared queue writer
-				}
-			}
-		}
-	}
-	return basis
-}
-
 // Make task basis.
 // This function should be called from implemented task's make function.
-func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
+func MakeBasis(entity *entities.Task, impl TaskImpl) *Task {
 
 	// initialize shared member
-	basis := &internalTask{
+	basis := &Task{
 		impl:      impl,
 		entity:    entity,
 		mainstate: task_state.Waiting,
@@ -104,16 +51,16 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 			case task_element.StdIn:
 				basis.inputs[i] = &inputElem{
 					taskElement: &taskElement{
-						internalTask: basis,
-						element:      &entity.Element[i],
+						Task:    basis,
+						element: &entity.Element[i],
 					},
 					queue: queue.MakeReader(),
 				}
 			case task_element.StdOut, task_element.StdErr:
 				basis.outputs[i] = &outputElem{
 					taskElement: &taskElement{
-						internalTask: basis,
-						element:      &entity.Element[i],
+						Task:    basis,
+						element: &entity.Element[i],
 					},
 					writer: queue.MakeSenders(&entity.Element[i]),
 				}
@@ -124,24 +71,24 @@ func MakeBasis(entity *entities.Task, impl TaskImpl) Task {
 	return basis
 }
 
-func (basis *internalTask) IsSupporting(elem task_element.Enum) bool {
+func (basis *Task) IsSupporting(elem task_element.Enum) bool {
 	return basis.impl.IsSupporting(elem)
 }
 
 // Gets task's configuration in entity
-func (basis *internalTask) Entity() *entities.Task {
+func (basis *Task) Entity() *entities.Task {
 	return basis.entity
 }
 
 // Gets main task's running state.
-func (basis *internalTask) MainState() task_state.Enum {
+func (basis *Task) MainState() task_state.Enum {
 	basis.lock.Lock()
 	defer basis.lock.Unlock()
 	return basis.mainstate
 }
 
 // Begin main task.
-func (basis *internalTask) BeginTask() error {
+func (basis *Task) BeginTask() error {
 	basis.lock.Lock()
 	defer basis.lock.Unlock()
 
@@ -163,13 +110,13 @@ func (basis *internalTask) BeginTask() error {
 }
 
 // Stop main task
-func (basis *internalTask) StopTask() {
+func (basis *Task) StopTask() {
 	basis.impl.StopMain()
 	<-basis.closed
 }
 
 // Wait for main task closing.
-func (basis *internalTask) WaitClosing() {
+func (basis *Task) WaitClosing() {
 	for {
 		_, exist := <-basis.closed
 		if !exist {
@@ -178,7 +125,7 @@ func (basis *internalTask) WaitClosing() {
 	}
 }
 
-func (basis *internalTask) ReleaseResource() {
+func (basis *Task) ReleaseResource() {
 
 	// check whether main task is running or not
 	if state := basis.MainState(); state == task_state.Running {
@@ -197,7 +144,7 @@ func (basis *internalTask) ReleaseResource() {
 	basis.mainstate = task_state.Finalized
 }
 
-func (basis *internalTask) GetInput(elem task_element.Enum) *queue.Reader {
+func (basis *Task) GetInput(elem task_element.Enum) *queue.Reader {
 	if basis.inputs[elem] == nil {
 		return nil
 	} else {
@@ -205,7 +152,7 @@ func (basis *internalTask) GetInput(elem task_element.Enum) *queue.Reader {
 	}
 }
 
-func (basis *internalTask) GetOutput(elem task_element.Enum) *queue.Senders {
+func (basis *Task) GetOutput(elem task_element.Enum) *queue.Senders {
 	if basis.outputs[elem] == nil {
 		return nil
 	} else {
@@ -214,42 +161,40 @@ func (basis *internalTask) GetOutput(elem task_element.Enum) *queue.Senders {
 }
 
 // Append reciever to selected sender element.
-func (basis *internalTask) Connect(senderElem task_element.Enum, recieverElem task_element.Enum, reciever task.Task) error {
+func (basis *Task) Connect(senderElem task_element.Enum, recieverElem task_element.Enum, reciever task.Task) error {
 
 	basis.lock.Lock()
 	defer basis.lock.Unlock()
 
-	var recieverBased *internalTask
+	var (
+		recieverBased queue.Task
+	)
 
 	// check whether reciever is support based system
-	if rec, ok := reciever.(Synthesized); !ok {
+	if rec, ok := reciever.(queue.Task); !ok {
 		panic("reciever task is unsupported")
 	} else {
-		recieverBased = rec.based()
-	}
-
-	// check whether element is supported or not
-	if basis.outputs[senderElem] == nil {
-		return task.ErrNotSupportingElement
-	} else if recieverBased.inputs[recieverElem] == nil {
-		return task.ErrNotSupportingElement
+		recieverBased = rec
 	}
 
 	// check whether task has already run or not
-	if basis.mainstate != task_state.Waiting {
+	if basis.mainstate != task_state.Waiting || reciever.MainState() != task_state.Waiting {
 		return task.ErrAlreadyRun
+	}
+
+	// check whether element is supported or not
+	if from := basis.GetOutput(senderElem); from == nil {
+		return task.ErrNotSupportingElement
+	} else if to := recieverBased.GetInput(recieverElem); to == nil {
+		return task.ErrNotSupportingElement
 	} else {
-		basis.outputs[senderElem].writer.AppendWriter(queue.MakeWriter(recieverBased.inputs[recieverElem].queue))
+		from.AppendWriter(queue.MakeWriter(to))
 		return nil
 	}
 }
 
-func (basis *internalTask) based() *internalTask {
-	return basis
-}
-
 // Gets io.Writer using sender object.
-func (basis *internalTask) Writer(elem task_element.Enum) (io.Writer, error) {
+func (basis *Task) Writer(elem task_element.Enum) (io.Writer, error) {
 	if basis.outputs[elem] == nil {
 		return nil, task.ErrNotSupportingElement
 	} else {
@@ -257,7 +202,7 @@ func (basis *internalTask) Writer(elem task_element.Enum) (io.Writer, error) {
 	}
 }
 
-func (basis *internalTask) Close(err error) {
+func (basis *Task) Close(err error) {
 
 	basis.lock.Lock()
 	defer basis.lock.Unlock()

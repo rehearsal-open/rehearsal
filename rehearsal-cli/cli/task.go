@@ -29,7 +29,7 @@ import (
 
 type (
 	Task struct {
-		based.Task
+		*based.Task
 		Format   map[string]string
 		reciever chan string
 		close    chan error

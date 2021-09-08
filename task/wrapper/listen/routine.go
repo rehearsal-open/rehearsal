@@ -24,7 +24,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task"
-	"github.com/rehearsal-open/rehearsal/task/wrapper"
+	"github.com/rehearsal-open/rehearsal/task/queue"
 )
 
 var (
@@ -59,22 +59,26 @@ func ListenElemBytes(fromTask task.Task, fromElem task_element.Enum, action func
 	}
 
 	// get queue access
-	from := wrapper.GetQueueAccess(fromTask)
+	if from, ok := fromTask.(queue.Task); !ok {
+		panic("uses queue, but task is unsupported queue")
+	} else {
 
-	// get element queue
-	reader := from.GetInput(fromElem)
+		// get element queue
+		reader := from.GetInput(fromElem)
 
-	go func() {
-		for isContinue := true; isContinue; {
-			reader.Read(func(e *entities.Element, b []byte) {
-				if e != nil {
-					action(e, b)
-				} else {
-					onFinal()
-				}
-			})
-		}
-	}()
+		go func() {
+			for isContinue := true; isContinue; {
+				reader.Read(func(e *entities.Element, b []byte) {
+					if e != nil {
+						action(e, b)
+					} else {
+						onFinal()
+					}
+				})
+			}
+		}()
+	}
+
 }
 
 func SyncIoPipe(src io.Reader, dest io.Writer, duration time.Duration, onErr func(error)) (closer chan error) {
