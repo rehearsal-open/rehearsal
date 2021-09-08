@@ -17,7 +17,6 @@
 package elem_parallel
 
 import (
-	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task"
@@ -27,27 +26,28 @@ import (
 	"github.com/rehearsal-open/rehearsal/task/wrapper/listen"
 )
 
-func (parallel *__task) AppendElem(fromElem entities.Element, insert task.Task, inElem task_element.Enum, outElem task_element.Enum) error {
+func (parallel *ElemParallel) AppendElem(fromElem entities.Element, insert wrapper.Filter, finallyElem task_element.Enum) {
 	name := fromElem.Fullname()
 	if _, exist := parallel.parallelWriter[name]; exist {
 		panic("already registered element")
 	} else {
-		if insertIn := wrapper.GetQueueAccess(insert).GetInput(inElem); insertIn == nil {
-			return errors.WithStack(task.ErrNotSupportingElement)
+		if sendto := parallel.GetInput(finallyElem); sendto == nil {
+			panic(task.ErrNotSupportingElement.Error())
 		} else {
-			parallel.parallelWriter[name] = queue.MakeWriter(insertIn)
+			insert.Output().AppendWriteTo(sendto)
+			parallel.parallelWriter[name] = insert
 		}
-		return errors.WithStack(queue.Connect(insert, outElem, parallel.finallyTask, task_element.StdIn /* TODO?: SHOULD BE TO MEMBER */))
+
 	}
 }
 
-func (parallel *__task) IsSupporting(elem task_element.Enum) bool {
+func (parallel *ElemParallel) IsSupporting(elem task_element.Enum) bool {
 	return [task_element.Len]bool{
 		true, parallel.finallyTask.IsSupporting(1), parallel.finallyTask.IsSupporting(2),
 	}[elem]
 }
 
-func (parallel *__task) ExecuteMain(args based.MainFuncArguments) error {
+func (parallel *ElemParallel) ExecuteMain(args based.MainFuncArguments) error {
 
 	listen.ListenElemBytes(parallel, task_element.StdIn, func(elem *entities.Element, b []byte) {
 		name := elem.Fullname()
@@ -68,6 +68,10 @@ func (parallel *__task) ExecuteMain(args based.MainFuncArguments) error {
 	return nil
 }
 
-func (parallel *__task) StopMain() {
+func (parallel *ElemParallel) StopMain() {
 	close(parallel.close)
+}
+
+func (parallel *ElemParallel) GetOutput(elem task_element.Enum) *queue.Senders {
+	return parallel.finallyTask.GetOutput(elem)
 }

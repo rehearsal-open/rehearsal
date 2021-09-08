@@ -17,20 +17,18 @@
 package elem_parallel
 
 import (
-	"github.com/rehearsal-open/rehearsal/task"
+	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/queue"
+	"github.com/rehearsal-open/rehearsal/task/wrapper"
 )
 
 type (
-	ElemParallel interface {
-		task.Task
-	}
-
-	__task struct {
+	ElemParallel struct {
 		*based.Task
-		parallelWriter map[string]*queue.Writer
-		finallyTask    task.Task
+		isSupport      [task_element.Len]bool
+		parallelWriter map[string]wrapper.Filter
+		finallyTask    queue.Task
 		close          chan error
 	}
 )

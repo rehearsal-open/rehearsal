@@ -15,3 +15,16 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 package wrapper
+
+import (
+	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/task/queue"
+)
+
+type (
+	Filter interface {
+		Write(e *entities.Element, b []byte) error
+		Close()
+		Output() *queue.Senders
+	}
+)
