@@ -30,5 +30,6 @@ type (
 		io.WriteCloser
 		Tickers [task_element.Len]*time.Ticker // default is 1ms ticker
 		close   chan error
+		closed  bool
 	}
 )

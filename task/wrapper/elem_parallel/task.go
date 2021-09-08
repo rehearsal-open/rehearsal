@@ -17,6 +17,7 @@
 package elem_parallel
 
 import (
+	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task"
@@ -56,11 +57,7 @@ func (parallel *ElemParallel) ExecuteMain(args based.MainFuncArguments) error {
 		if writer, exist := parallel.parallelWriter[name]; exist {
 			writer.Write(elem, b)
 		}
-	}, func() {
-		for key := range parallel.parallelWriter {
-			parallel.parallelWriter[key].Close()
-		}
-	})
+	}, nil)
 
 	go func() {
 		<-parallel.close
@@ -69,9 +66,26 @@ func (parallel *ElemParallel) ExecuteMain(args based.MainFuncArguments) error {
 
 	return nil
 }
-
 func (parallel *ElemParallel) StopMain() {
 	close(parallel.close)
+
+}
+
+func (parallel *ElemParallel) BeginTask() error {
+	if err := parallel.Task.BeginTask(); err != nil {
+		return errors.WithStack(err)
+	} else if err := parallel.finallyTask.BeginTask(); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
+func (parallel *ElemParallel) StopTask() {
+	parallel.Task.StopTask()
+	for key := range parallel.parallelWriter {
+		parallel.parallelWriter[key].Close()
+	}
+	parallel.finallyTask.StopTask()
 }
 
 func (parallel *ElemParallel) GetOutput(elem task_element.Enum) *queue.Senders {

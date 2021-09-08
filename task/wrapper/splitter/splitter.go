@@ -39,7 +39,7 @@ func (splitter *Splitter) Write(e *entities.Element, b []byte) error {
 	}
 
 	for i, l := 0, len(splitted)-1; i < l; i++ {
-		splitter.writer.Write([]byte(splitted[i]))
+		splitter.writer.Write([]byte(splitter.Prefix + splitted[i] + splitter.Suffix))
 	}
 
 	splitter.cache = splitted[len(splitted)-1]

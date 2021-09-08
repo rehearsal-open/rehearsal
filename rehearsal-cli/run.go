@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/engine"
 	"github.com/rehearsal-open/rehearsal/parser/yaml"
+	"github.com/rehearsal-open/rehearsal/rehearsal-cli/cli"
 	"github.com/rehearsal-open/rehearsal/task/impl/cui"
 	"github.com/rehearsal-open/rehearsal/task/impl/serial"
 	"github.com/rehearsal-open/rehearsal/task/maker"
@@ -66,13 +67,12 @@ func Run(confFile string) error {
 	if err := en.Init(&parser, &frontend, SupportedTasks, &frontend); err != nil {
 		return errors.WithStack(err)
 
-		// initialize logger configuration with entities
-	} else if err := frontend.logger.SetTaskEntities(en.Entity); err != nil {
-		return errors.WithStack(err)
-	} else if err := en.Execute(); err != nil {
-		return errors.WithStack(err)
+	} else {
+		cli.InitLogger(en.Entity, frontend.logger)
+		if err := en.Execute(); err != nil {
+			return errors.WithStack(err)
+		}
 	}
-
 	time.Sleep(time.Second)
 
 	return nil

@@ -43,6 +43,9 @@ func (r *Rehearsal) Init(parser parser.Parser, envConfig parser.EnvConfig, maker
 		return errors.WithMessage(err, "rehearsal cannot parse")
 	}
 
+	// initialize frontend
+	frontend.Init(r.Entity)
+
 	// initialize task schedule array[1]
 	r.tasks = []Task{}
 	r.beginTasks = make([][]int, r.Entity.NPhase)

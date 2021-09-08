@@ -25,14 +25,14 @@ import (
 	"github.com/rehearsal-open/rehearsal/parser"
 	"github.com/rehearsal-open/rehearsal/rehearsal-cli/cli"
 	"github.com/rehearsal-open/rehearsal/task"
-	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/impl/cui"
+	"github.com/rehearsal-open/rehearsal/task/wrapper/elem_parallel"
 	"github.com/streamwest-1629/convertobject"
 )
 
 type (
 	Frontend struct {
-		logger *cli.Task
+		logger *elem_parallel.ElemParallel
 		config *Config
 	}
 
@@ -87,9 +87,9 @@ func (f *Frontend) InitConfig(src parser.MappingType) error {
 	// set default execute directory
 	cui.DefaultDir = f.config.BaseDir
 
-	f.logger = &cli.Task{}
-	f.logger.Task = based.MakeBasis(&entities.Task{}, f.logger)
-
 	return nil
+}
 
+func (f *Frontend) Init(entity *entities.Rehearsal) {
+	f.logger = cli.Make(entity)
 }

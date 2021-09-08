@@ -16,7 +16,10 @@
 
 package frontend
 
-import "github.com/rehearsal-open/rehearsal/task"
+import (
+	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/task"
+)
 
 type (
 	Frontend interface {
@@ -29,5 +32,8 @@ type (
 
 		// Select one.
 		Select(msg string, options []string) int
+
+		// Initialize with entity
+		Init(entity *entities.Rehearsal)
 	}
 )

@@ -18,8 +18,14 @@ package cli
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
+	"github.com/rehearsal-open/rehearsal/task/wrapper/elem_parallel"
+	"github.com/rehearsal-open/rehearsal/task/wrapper/rw_sync"
+	"github.com/rehearsal-open/rehearsal/task/wrapper/splitter"
 )
 
 const (
@@ -40,11 +46,69 @@ const (
 )
 
 type (
-	Cli struct {
-		Entity *entities.Rehearsal
-	}
+	__logger struct{}
 )
 
-func (c *Cli) Log(flag int, msg string) {
-	fmt.Println(msg)
+func Make(entity *entities.Rehearsal) *elem_parallel.ElemParallel {
+
+	// make task's instance
+	sync := rw_sync.Make(&entities.Task{}, &__logger{})
+	sync.Tickers[task_element.StdIn] = time.NewTicker(33 * time.Millisecond)
+	result := elem_parallel.Make(sync)
+	return result
+
+}
+
+func InitLogger(entity *entities.Rehearsal, result *elem_parallel.ElemParallel) {
+	colorSet := [...]string{
+		ForeRed, ForeGreen, ForeYellow, ForeBlue, ForeMagenta, ForeSyan,
+	}
+
+	nameSize := 0
+	idx := 0
+
+	// get max length of logging task's names
+	entity.ForeachTask(func(idx int, task *entities.Task) error {
+		for i, l := 0, task_element.Len; i < l; i++ {
+			switch elem := task_element.Enum(i); elem {
+			case task_element.StdOut, task_element.StdErr:
+				if element := task.Element[elem]; element.WriteLog {
+					name := element.Fullname()
+					if length := len(name); length > nameSize {
+						nameSize = length
+					}
+				}
+			}
+		}
+		return nil
+	})
+
+	// set max length
+	entity.ForeachTask(func(_ int, task *entities.Task) error {
+		for i, l := 0, task_element.Len; i < l; i++ {
+			switch elem := task_element.Enum(i); elem {
+			case task_element.StdOut, task_element.StdErr:
+				if element := task.Element[elem]; element.WriteLog {
+					name := element.Fullname()
+					result.AppendElem(&element, &splitter.Splitter{
+						SplitStr: []string{"\r\n", "\n", "\r"},
+						Prefix:   colorSet[idx%len(colorSet)] + BackReset + name + strings.Repeat(" ", nameSize-len(name)) + " : ",
+						Suffix:   ForeReset + BackReset + "\n",
+					}, task_element.StdIn)
+					idx++
+				}
+			}
+		}
+		return nil
+	})
+
+}
+
+func (*__logger) Write(src []byte) (read int, err error) {
+	fmt.Print(string(src))
+	return len(src), nil
+}
+
+func (*__logger) Close() error {
+	return nil
 }

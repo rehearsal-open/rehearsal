@@ -50,12 +50,11 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 						select {
 						case <-closer:
 							func() {
-								lock.Lock()
-								defer lock.Unlock()
 								if len(cache) > 0 {
 									ticked.WriteCloser.Write(cache)
 								}
 								ticked.WriteCloser.Close()
+								ticked.Tickers[elem].Stop()
 							}()
 
 							return
@@ -63,7 +62,11 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 							func() {
 								lock.Lock()
 								defer lock.Unlock()
-								ticked.WriteCloser.Write(cache)
+								if len(cache) > 0 {
+									ticked.WriteCloser.Write(cache)
+								}
+								cache = nil
+								cache = []byte{}
 							}()
 						}
 					}
@@ -74,9 +77,7 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 					lock.Lock()
 					defer lock.Unlock()
 					cache = append(cache, bytes...)
-				}, func() {
-					close(closer)
-				})
+				}, nil)
 			}
 		}
 	}
