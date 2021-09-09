@@ -25,7 +25,7 @@ func (r *Rehearsal) Execute() error {
 	for i := range r.beginTasks {
 		beginTasks, waitTasks, closeTasks := r.beginTasks[i], r.waitTasks[i], r.closeTasks[i]
 
-		r.frontend.Log(0, "start phase ("+strconv.Itoa(i)+" / "+strconv.Itoa(len(r.beginTasks))+")")
+		r.frontend.Log(0, "start phase ("+strconv.Itoa(i+1)+" / "+strconv.Itoa(len(r.beginTasks))+")")
 
 		for _, val := range beginTasks {
 
