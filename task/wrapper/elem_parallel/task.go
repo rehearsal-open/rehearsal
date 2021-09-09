@@ -68,7 +68,10 @@ func (parallel *ElemParallel) ExecuteMain(args based.MainFuncArguments) error {
 }
 func (parallel *ElemParallel) StopMain() {
 	close(parallel.close)
-
+	for key := range parallel.parallelWriter {
+		parallel.parallelWriter[key].Close()
+	}
+	parallel.finallyTask.StopTask()
 }
 
 func (parallel *ElemParallel) BeginTask() error {
@@ -78,14 +81,6 @@ func (parallel *ElemParallel) BeginTask() error {
 		return errors.WithStack(err)
 	}
 	return nil
-}
-
-func (parallel *ElemParallel) StopTask() {
-	parallel.Task.StopTask()
-	for key := range parallel.parallelWriter {
-		parallel.parallelWriter[key].Close()
-	}
-	parallel.finallyTask.StopTask()
 }
 
 func (parallel *ElemParallel) GetOutput(elem task_element.Enum) *queue.Senders {

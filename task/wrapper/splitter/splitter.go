@@ -25,24 +25,48 @@ import (
 
 func (splitter *Splitter) Write(e *entities.Element, b []byte) error {
 
-	splitter.cache += string(b)
+	if splitter.cache == nil {
+		splitter.cache = make([]byte, 0, 1024)
+		splitter.buffer = make([]byte, 0, 1024)
+		splitter.buffer = append(splitter.buffer, []byte(splitter.Prefix)...)
+	}
 
-	splitted := []string{splitter.cache}
+	splitter.cache = append(splitter.cache, b...)
+	begins := 0
 
-	for _, splitStr := range splitter.SplitStr {
-		splittedCache := splitted
-		splitted = make([]string, 0)
+	for isContinue := true; isContinue && begins < len(splitter.cache); {
+		isContinue = false
+		for _, splitStr := range splitter.SplitStr {
+			if ends := strings.Index(string(splitter.cache[begins:]), splitStr); ends > -1 {
 
-		for _, val := range splittedCache {
-			splitted = append(splitted, strings.Split(val, splitStr)...)
+				// when splitting string is found
+				isContinue = true
+				ends += begins
+
+				// append bytes
+				splitter.buffer = append(splitter.buffer, splitter.cache[begins:ends]...)
+				splitter.buffer = append(splitter.buffer, []byte(splitter.Suffix)...)
+				splitter.writer.Write(splitter.buffer)
+
+				// reset bytes
+				splitter.buffer = splitter.buffer[:len(splitter.Prefix)]
+				begins += ends + len(splitStr)
+				break
+			}
 		}
 	}
 
-	for i, l := 0, len(splitted)-1; i < l; i++ {
-		splitter.writer.Write([]byte(splitter.Prefix + splitted[i] + splitter.Suffix))
+	// cache set
+	if begins > 0 {
+		if begins < len(splitter.cache) {
+			copy(splitter.cache, splitter.cache[begins:])
+			splitter.cache = splitter.cache[:len(splitter.cache)-begins]
+		} else {
+			splitter.cache = splitter.cache[:0]
+		}
+
 	}
 
-	splitter.cache = splitted[len(splitted)-1]
 	return nil
 }
 

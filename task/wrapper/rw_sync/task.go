@@ -65,8 +65,7 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 								if len(cache) > 0 {
 									ticked.WriteCloser.Write(cache)
 								}
-								cache = nil
-								cache = []byte{}
+								cache = cache[:0]
 							}()
 						}
 					}

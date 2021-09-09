@@ -23,7 +23,8 @@ type (
 		SplitStr []string
 		Prefix   string
 		Suffix   string
-		cache    string
+		cache    []byte
+		buffer   []byte
 		writer   io.Writer
 	}
 )
