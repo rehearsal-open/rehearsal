@@ -40,7 +40,7 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 					ticked.Tickers[i] = time.NewTicker(time.Millisecond)
 				}
 
-				closer := make(chan error)
+				closer := false
 				lock := sync.Mutex{}
 				cache := []byte{}
 
@@ -48,24 +48,23 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 				go func() {
 					for {
 						select {
-						case <-closer:
-							func() {
-								if len(cache) > 0 {
-									ticked.WriteCloser.Write(cache)
-								}
-								ticked.WriteCloser.Close()
-								ticked.Tickers[elem].Stop()
-							}()
-
-							return
 						case <-ticked.Tickers[elem].C:
 							func() {
 								lock.Lock()
 								defer lock.Unlock()
 								if len(cache) > 0 {
 									ticked.WriteCloser.Write(cache)
+									cache = cache[:0]
+
+								} else if closer {
+									if len(cache) > 0 {
+										ticked.WriteCloser.Write(cache)
+									}
+									ticked.WriteCloser.Close()
+									ticked.Tickers[elem].Stop()
+									ticked.closed <- nil
+									return
 								}
-								cache = cache[:0]
 							}()
 						}
 					}
@@ -76,7 +75,9 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 					lock.Lock()
 					defer lock.Unlock()
 					cache = append(cache, bytes...)
-				}, nil)
+				}, func() {
+					closer = true
+				})
 			}
 		}
 	}
@@ -91,4 +92,5 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 
 func (ticked *TickedInput) StopMain() {
 	close(ticked.close)
+	<-ticked.closed
 }

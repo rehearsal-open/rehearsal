@@ -19,6 +19,7 @@ package cli
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/rehearsal-open/rehearsal/entities"
@@ -46,7 +47,10 @@ const (
 )
 
 type (
-	__logger struct{}
+	__logger struct {
+		lock   sync.Mutex
+		isRead bool
+	}
 )
 
 func Make(entity *entities.Rehearsal) *elem_parallel.ElemParallel {
@@ -104,11 +108,28 @@ func InitLogger(entity *entities.Rehearsal, result *elem_parallel.ElemParallel) 
 
 }
 
-func (*__logger) Write(src []byte) (read int, err error) {
+func (logger *__logger) Write(src []byte) (read int, err error) {
+	logger.lock.Lock()
+	defer logger.lock.Unlock()
+
+	logger.isRead = true
+
 	fmt.Print(string(src))
 	return len(src), nil
 }
 
-func (*__logger) Close() error {
+func (logger *__logger) Close() error {
+
+	isRead := func() bool {
+		logger.lock.Lock()
+		defer logger.lock.Unlock()
+		return logger.isRead
+
+	}
+
+	for read := isRead(); read; read = isRead() {
+		time.Sleep(66 * time.Millisecond)
+	}
+
 	return nil
 }

@@ -25,6 +25,9 @@ import (
 
 func (splitter *Splitter) Write(e *entities.Element, b []byte) error {
 
+	splitter.lock.Lock()
+	defer splitter.lock.Unlock()
+
 	if splitter.cache == nil {
 		splitter.cache = make([]byte, 0, 1024)
 		splitter.buffer = make([]byte, 0, 1024)
@@ -71,6 +74,8 @@ func (splitter *Splitter) Write(e *entities.Element, b []byte) error {
 }
 
 func (splitter *Splitter) Close() {
+	splitter.lock.Lock()
+	defer splitter.lock.Unlock()
 	splitter.writer.Write([]byte(splitter.cache))
 }
 

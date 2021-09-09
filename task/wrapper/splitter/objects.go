@@ -16,7 +16,10 @@
 
 package splitter
 
-import "io"
+import (
+	"io"
+	"sync"
+)
 
 type (
 	Splitter struct {
@@ -26,5 +29,6 @@ type (
 		cache    []byte
 		buffer   []byte
 		writer   io.Writer
+		lock     sync.Mutex
 	}
 )
