@@ -32,6 +32,8 @@ func (ticked *TickedInput) IsSupporting(elem task_element.Enum) bool {
 
 func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 
+	ticked.closed = make(chan error)
+
 	for i := range ticked.Tickers {
 		switch elem := task_element.Enum(i); elem {
 		case task_element.StdIn: // input
@@ -47,26 +49,22 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 				// launch sender
 				go func() {
 					for {
-						select {
-						case <-ticked.Tickers[elem].C:
-							func() {
-								lock.Lock()
-								defer lock.Unlock()
-								if len(cache) > 0 {
-									ticked.WriteCloser.Write(cache)
-									cache = cache[:0]
+						<-ticked.Tickers[elem].C
+						lock.Lock()
+						if len(cache) > 0 {
+							ticked.WriteCloser.Write(cache)
+							cache = cache[:0]
 
-								} else if closer {
-									if len(cache) > 0 {
-										ticked.WriteCloser.Write(cache)
-									}
-									ticked.WriteCloser.Close()
-									ticked.Tickers[elem].Stop()
-									ticked.closed <- nil
-									return
-								}
-							}()
+						} else if closer {
+
+							// when recieving ended
+							ticked.WriteCloser.Close()
+							ticked.Tickers[elem].Stop()
+							close(ticked.closed)
+							return
+
 						}
+						lock.Unlock()
 					}
 				}()
 
@@ -76,6 +74,8 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 					defer lock.Unlock()
 					cache = append(cache, bytes...)
 				}, func() {
+					lock.Lock()
+					defer lock.Unlock()
 					closer = true
 				})
 			}
@@ -93,4 +93,5 @@ func (ticked *TickedInput) ExecuteMain(args based.MainFuncArguments) error {
 func (ticked *TickedInput) StopMain() {
 	close(ticked.close)
 	<-ticked.closed
+	return
 }

@@ -52,12 +52,30 @@ func (parallel *ElemParallel) IsSupporting(elem task_element.Enum) bool {
 
 func (parallel *ElemParallel) ExecuteMain(args based.MainFuncArguments) error {
 
+	closed := false
+	parallel.closed = make(chan error)
+
 	listen.ListenElemBytes(parallel, task_element.StdIn, func(elem *entities.Element, b []byte) {
+		parallel.lock.Lock()
+		defer parallel.lock.Unlock()
+
 		name := elem.Fullname()
 		if writer, exist := parallel.parallelWriter[name]; exist {
 			writer.Write(elem, b)
 		}
-	}, nil)
+	}, func() {
+		parallel.lock.Lock()
+		defer parallel.lock.Unlock()
+
+		if !closed {
+			closed = true
+			for key := range parallel.parallelWriter {
+				parallel.parallelWriter[key].Close()
+			}
+			parallel.finallyTask.StopTask()
+			close(parallel.closed)
+		}
+	})
 
 	go func() {
 		<-parallel.close
@@ -68,10 +86,7 @@ func (parallel *ElemParallel) ExecuteMain(args based.MainFuncArguments) error {
 }
 func (parallel *ElemParallel) StopMain() {
 	close(parallel.close)
-	for key := range parallel.parallelWriter {
-		parallel.parallelWriter[key].Close()
-	}
-	parallel.finallyTask.StopTask()
+	<-parallel.closed
 }
 
 func (parallel *ElemParallel) BeginTask() error {

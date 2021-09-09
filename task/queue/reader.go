@@ -44,6 +44,8 @@ func (reader *Reader) Read(callback func(*entities.Element, []byte)) {
 	// when totally closed
 	if reader.isClosed || reader.onRecieve == nil {
 		callback(nil, []byte{})
+	} else if callback == nil {
+		panic("callback is nil")
 	}
 
 	// get cached buffers

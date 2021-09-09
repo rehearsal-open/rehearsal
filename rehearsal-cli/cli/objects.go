@@ -17,7 +17,7 @@
 package cli
 
 import (
-	"fmt"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -50,6 +50,7 @@ type (
 	__logger struct {
 		lock   sync.Mutex
 		isRead bool
+		waiter sync.WaitGroup
 	}
 )
 
@@ -109,27 +110,19 @@ func InitLogger(entity *entities.Rehearsal, result *elem_parallel.ElemParallel) 
 }
 
 func (logger *__logger) Write(src []byte) (read int, err error) {
+
+	logger.waiter.Add(1)
+	defer logger.waiter.Done()
+
 	logger.lock.Lock()
 	defer logger.lock.Unlock()
 
-	logger.isRead = true
-
-	fmt.Print(string(src))
+	os.Stdout.Write(src)
 	return len(src), nil
 }
 
 func (logger *__logger) Close() error {
 
-	isRead := func() bool {
-		logger.lock.Lock()
-		defer logger.lock.Unlock()
-		return logger.isRead
-
-	}
-
-	for read := isRead(); read; read = isRead() {
-		time.Sleep(66 * time.Millisecond)
-	}
-
+	logger.waiter.Wait()
 	return nil
 }

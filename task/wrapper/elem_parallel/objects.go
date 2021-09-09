@@ -17,6 +17,8 @@
 package elem_parallel
 
 import (
+	"sync"
+
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/queue"
@@ -30,5 +32,7 @@ type (
 		parallelWriter map[string]wrapper.Filter
 		finallyTask    queue.Task
 		close          chan error
+		closed         chan error
+		lock           sync.Mutex
 	}
 )
