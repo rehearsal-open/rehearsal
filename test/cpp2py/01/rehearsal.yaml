@@ -1,0 +1,34 @@
+version: 1.202109
+phase:
+  - name: build # c++のビルドタスクもrehearsal.yaml内で定義する
+    task:
+    - name: cpp_build
+      kind: cui
+      cmd: g++
+      args:
+        - solver.cpp
+        - -std=c++20
+        - -o
+        - solver.exe
+      stdout:
+        write-log: true
+      stderr:
+        write-log: true
+  - name: test
+    task:
+    - name: solver
+      kind: cui
+      cmd: ./solver.exe
+      stdout:
+        sendto:
+          - questioner
+        write-log: true
+    - name: questioner
+      kind: cui
+      cmd: python
+      args:
+        - ./questioner.py
+      stdout:
+        write-log: true
+        sendto: 
+          - solver
