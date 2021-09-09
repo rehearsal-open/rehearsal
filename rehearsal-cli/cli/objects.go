@@ -58,7 +58,7 @@ func Make(entity *entities.Rehearsal) *elem_parallel.ElemParallel {
 
 	// make task's instance
 	sync := rw_sync.Make(&entities.Task{}, &__logger{})
-	sync.Tickers[task_element.StdIn] = time.NewTicker(33 * time.Millisecond)
+	sync.Tickers[task_element.StdIn] = time.NewTicker(100 * time.Millisecond)
 	result := elem_parallel.Make(sync)
 	return result
 
@@ -116,6 +116,7 @@ func (logger *__logger) Write(src []byte) (read int, err error) {
 
 	logger.lock.Lock()
 	defer logger.lock.Unlock()
+	logger.isRead = true
 
 	os.Stdout.Write(src)
 	return len(src), nil
@@ -123,6 +124,19 @@ func (logger *__logger) Write(src []byte) (read int, err error) {
 
 func (logger *__logger) Close() error {
 
-	logger.waiter.Wait()
+	for con := true; con; {
+		logger.waiter.Wait()
+		con = func() bool {
+			logger.lock.Lock()
+			defer logger.lock.Unlock()
+			if logger.isRead {
+				logger.isRead = false
+				return true
+			} else {
+				return false
+			}
+		}()
+	}
+
 	return nil
 }

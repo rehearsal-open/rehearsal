@@ -1,0 +1,69 @@
+version: 1.202109
+phase:
+- name: phase_1
+  task:
+  - name: python_save
+    kind: cui
+    cmd: python
+    args:
+    - ./python_save.py
+    wait: false
+    until: __endless
+  - name: python_1
+    kind: cui
+    cmd: python
+    args:
+    - ./python2.py
+    stdout:  
+      sendto:
+      - python_2
+      - phase_2::python_2
+      - python_save
+  - name: python_2
+    kind: cui
+    cmd: python
+    args:
+    - ./python1.py
+    stdout:
+      sendto:
+      - phase_1::python_save
+- name: phase_2
+  task:
+  - name: python_2
+    kind: cui
+    cmd: python
+    args:
+    - ./python1.py
+    stdout:
+      sendto:
+      - phase_1::python_save
+- name: phase_3
+  task:
+  - name: python_3
+    kind: cui
+    cmd: python
+    args:
+    - ./python4.py
+    stdout:
+      sendto:
+      - python_2
+      - phase_4::python_2
+      - phase_1::python_save
+  - name: python_2
+    kind: cui
+    cmd: python
+    args:
+    - ./python3.py
+    stdout:
+      sendto:
+      - phase_1::python_save
+- name: phase_4
+  task:
+  - name: python_2
+    kind: cui
+    cmd: python
+    args:
+    - ./python3.py
+    stdout:
+      sendto:
+      - phase_1::python_save
