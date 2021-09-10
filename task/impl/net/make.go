@@ -36,8 +36,7 @@ func GetDetail(_ frontend.Frontend, def *entities.Rehearsal, mapping parser.Mapp
 
 	// make instance and set default value
 	detail := &Detail{
-		TimeoutSec: 10.0,
-		SyncSec:    1.0,
+		SyncSec: 1.0,
 	}
 
 	if err := convertobject.DirectConvert(mapping, detail); err != nil {
