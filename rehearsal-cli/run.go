@@ -26,6 +26,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/parser/yaml"
 	"github.com/rehearsal-open/rehearsal/rehearsal-cli/cli"
 	"github.com/rehearsal-open/rehearsal/task/impl/cui"
+	"github.com/rehearsal-open/rehearsal/task/impl/net"
 	"github.com/rehearsal-open/rehearsal/task/impl/serial"
 	"github.com/rehearsal-open/rehearsal/task/maker"
 )
@@ -39,6 +40,9 @@ func init_run() {
 	SupportedTasks = &maker.Maker{}
 	SupportedTasks.RegisterMaker("cui", &cui.MakeCollection)
 	SupportedTasks.RegisterMaker("serial", &serial.MakeCollection)
+	SupportedTasks.RegisterMaker("tcp", &net.MakeCollection)
+	SupportedTasks.RegisterMaker("udp", &net.MakeCollection)
+	SupportedTasks.RegisterMaker("unix", &net.MakeCollection)
 	Wd, _ = os.Getwd()
 }
 
