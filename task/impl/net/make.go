@@ -17,8 +17,6 @@
 package net
 
 import (
-	"time"
-
 	"github.com/pkg/errors"
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/frontend"
@@ -53,7 +51,9 @@ func GetDetail(_ frontend.Frontend, def *entities.Rehearsal, mapping parser.Mapp
 
 func Make(entity *entities.Task) (t task.Task, err error) {
 
-	result := __task{}
+	result := __task{
+		close: make(chan error, 1),
+	}
 
 	// check detail instance is valid or not
 	if detail, ok := entity.Detail.(*Detail); !ok {
@@ -63,7 +63,6 @@ func Make(entity *entities.Task) (t task.Task, err error) {
 	}
 
 	result.Task = based.MakeBasis(entity, &result)
-	result.timeout = time.Duration(int64(result.Detail.TimeoutSec * float64(int64(time.Second))))
 
-	return result, errors.WithStack(err)
+	return &result, errors.WithStack(err)
 }

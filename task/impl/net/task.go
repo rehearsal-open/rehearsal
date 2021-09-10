@@ -17,18 +17,49 @@
 package net
 
 import (
+	"io"
 	"net"
+	"time"
 
 	"github.com/pkg/errors"
+	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
+	"github.com/rehearsal-open/rehearsal/task/wrapper/listen"
 )
 
-func (t *__task) Init(args based.MainFuncArguments) error {
+func (t *__task) IsSupporting(elem task_element.Enum) bool {
+	return [task_element.Len]bool{
+		true, true, false,
+	}[elem]
+}
 
-	if conn, err := net.DialTimeout(t.Entity().Kind, t.Address, t.timeout); err != nil {
+func (t *__task) ExecuteMain(args based.MainFuncArguments) error {
+
+	var stdOut io.Writer
+
+	if conn, err := net.DialTimeout(t.Entity().Kind, t.Address, 10*time.Second); err != nil {
 		return errors.WithStack(err)
 	} else {
 		t.Conn = conn
 	}
+
+	sync := time.Duration(t.Detail.SyncSec * float64(int64(time.Second)))
+	closer := listen.SyncIoPipe(t.Conn, stdOut, sync, nil)
+
+	listen.Listen(t, task_element.StdIn, t.Conn, nil, nil)
+
+	go func() {
+
+		<-t.close
+		closer <- nil
+		t.Conn.Close()
+
+		args.Close(nil)
+	}()
+
 	return nil
+}
+
+func (t *__task) StopMain() {
+	close(t.close)
 }

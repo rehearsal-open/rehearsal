@@ -18,22 +18,20 @@ package net
 
 import (
 	"net"
-	"time"
 
 	"github.com/rehearsal-open/rehearsal/task/based"
 )
 
 type (
 	__task struct {
-		based.Task
+		*based.Task
 		net.Conn
 		*Detail
-		timeout time.Duration
+		close chan error
 	}
 
 	Detail struct {
-		Address    string  `map-to:"address"`
-		TimeoutSec float64 `map-to:"timeout"`
-		SyncSec    float64 `map-to:"sync"`
+		Address string  `map-to:"address"`
+		SyncSec float64 `map-to:"sync"`
 	}
 )

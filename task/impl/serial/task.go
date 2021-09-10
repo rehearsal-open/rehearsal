@@ -47,8 +47,9 @@ func (serial *__task) ExecuteMain(args based.MainFuncArguments) error {
 
 	go func() {
 
-		exitErr := serial.Port.Close()
+		<-serial.close
 		closer <- nil
+		exitErr := serial.Port.Close()
 
 		args.Close(exitErr)
 	}()
