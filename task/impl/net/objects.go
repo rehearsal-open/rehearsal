@@ -31,7 +31,7 @@ type (
 	}
 
 	Detail struct {
-		Address string  `map-to:"address"`
+		Address string  `map-to:"address!"`
 		SyncSec float64 `map-to:"sync"`
 	}
 )

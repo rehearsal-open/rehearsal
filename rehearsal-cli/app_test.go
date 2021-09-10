@@ -110,7 +110,7 @@ import (
 // }
 
 func TestRun(t *testing.T) {
-	if err := Run("../test/py2py/01/rehearsal.yml"); err != nil {
+	if err := Run("../test/tcp/rehearsal.yml"); err != nil {
 		fmt.Println(err.Error())
 		panic(err.Error())
 	}

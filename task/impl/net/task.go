@@ -18,6 +18,7 @@ package net
 
 import (
 	"io"
+	"log"
 	"net"
 	"time"
 
@@ -43,10 +44,28 @@ func (t *__task) ExecuteMain(args based.MainFuncArguments) error {
 		t.Conn = conn
 	}
 
-	sync := time.Duration(t.Detail.SyncSec * float64(int64(time.Second)))
-	closer := listen.SyncIoPipe(t.Conn, stdOut, sync, nil)
+	if stdout, err := args.Writer(task_element.StdOut); err != nil {
+		return errors.WithStack(err)
+	} else {
+		stdOut = stdout
+	}
 
-	listen.Listen(t, task_element.StdIn, t.Conn, nil, nil)
+	sync := time.Duration(t.Detail.SyncSec * float64(int64(time.Second)))
+	closer := listen.SyncIoPipe(t.Conn, stdOut, sync, func(e error) {
+		if e == net.ErrClosed {
+			t.StopMain()
+		} else {
+			log.Println(e.Error())
+		}
+	})
+
+	listen.Listen(t, task_element.StdIn, t.Conn, func(e error) {
+		if e == net.ErrClosed {
+			t.StopMain()
+		} else {
+			log.Println(e.Error())
+		}
+	}, nil)
 
 	go func() {
 

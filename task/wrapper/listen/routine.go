@@ -70,7 +70,9 @@ func ListenElemBytes(fromTask task.Task, fromElem task_element.Enum, action func
 			for isContinue := true; isContinue; {
 				reader.Read(func(e *entities.Element, b []byte) {
 					if e != nil {
-						action(e, b)
+						if len(b) > 0 {
+							action(e, b)
+						}
 					} else {
 						onFinal()
 					}
