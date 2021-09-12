@@ -17,7 +17,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 )
 
@@ -26,6 +25,6 @@ func init() {
 }
 
 func main() {
-	fmt.Println(Abstruct)
+	println(Abstruct)
 	app.Run(os.Args)
 }
