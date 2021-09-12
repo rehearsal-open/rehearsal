@@ -62,6 +62,7 @@ func init() {
 			Action: func(c *Context) error {
 
 				// print version
+				Version()
 				return nil
 			},
 		},

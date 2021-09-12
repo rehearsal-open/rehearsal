@@ -16,12 +16,16 @@
 
 package main
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 // initialize application
 func init() {
 }
 
 func main() {
+	fmt.Println(Abstruct)
 	app.Run(os.Args)
 }
