@@ -29,6 +29,10 @@ import (
 	"github.com/rehearsal-open/rehearsal/task/wrapper/splitter"
 )
 
+var (
+	IsPlain = false
+)
+
 const (
 	ForeRed     = "\x1b[31m"
 	ForeGreen   = "\x1b[32m"
@@ -95,11 +99,20 @@ func InitLogger(entity *entities.Rehearsal, result *elem_parallel.ElemParallel) 
 			case task_element.StdOut, task_element.StdErr:
 				if element := task.Element[elem]; element.WriteLog {
 					name := element.Fullname()
-					result.AppendElem(&element, &splitter.Splitter{
-						SplitStr: []string{"\r\n", "\n", "\r"},
-						Prefix:   colorSet[idx%len(colorSet)] + BackReset + name + strings.Repeat(" ", nameSize-len(name)) + " : ",
-						Suffix:   ForeReset + BackReset + "\n",
-					}, task_element.StdIn)
+					if IsPlain {
+						result.AppendElem(&element, &splitter.Splitter{
+							SplitStr: []string{"\r\n", "\n", "\r"},
+							Prefix:   name + strings.Repeat(" ", nameSize-len(name)) + " : ",
+							Suffix:   "\n",
+						}, task_element.StdIn)
+					} else {
+						result.AppendElem(&element, &splitter.Splitter{
+							SplitStr: []string{"\r\n", "\n", "\r"},
+							Prefix:   colorSet[idx%len(colorSet)] + BackReset + name + strings.Repeat(" ", nameSize-len(name)) + " : ",
+							Suffix:   ForeReset + BackReset + "\n",
+						}, task_element.StdIn)
+					}
+
 					idx++
 				}
 			}

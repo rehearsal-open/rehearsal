@@ -17,6 +17,7 @@
 package main
 
 import (
+	"flag"
 	"os"
 	"path/filepath"
 	"time"
@@ -44,6 +45,7 @@ func init_run() {
 	SupportedTasks.RegisterMaker("udp", &net.MakeCollection)
 	SupportedTasks.RegisterMaker("unix", &net.MakeCollection)
 	Wd, _ = os.Getwd()
+	flag.BoolVar(&cli.IsPlain, "-plain", true, "This flag cointaining, rehearsal-cli logs with plain text.")
 }
 
 func Run(confFile string) error {
