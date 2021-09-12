@@ -37,7 +37,7 @@ var (
 	Wd             string
 )
 
-func init_run() {
+func init() {
 	SupportedTasks = &maker.Maker{}
 	SupportedTasks.RegisterMaker("cui", &cui.MakeCollection)
 	SupportedTasks.RegisterMaker("serial", &serial.MakeCollection)

@@ -16,42 +16,12 @@
 
 package main
 
-import (
-	"flag"
-	"fmt"
-)
+import "os"
 
+// initialize application
 func init() {
-	init_run()
-	flag.Usage = PutHelpDefault
 }
 
 func main() {
-
-	fmt.Println(Abstruct)
-
-	flag.Parse()
-
-	if flag.NArg() < 1 {
-		fmt.Println("This program is required subcommands!")
-		PutHelpDefault()
-	}
-
-	switch flag.Arg(0) {
-	case "run":
-		if flag.NArg() < 2 {
-			fmt.Println("'rehearsal-cli run' command is require config file's path")
-			fmt.Println(helpRun)
-			return
-		} else if sub := flag.Arg(1); sub == "help" {
-			fmt.Println(helpRun)
-			return
-		} else if err := Run(sub); err != nil {
-			fmt.Println(err.Error())
-			return
-		}
-	case "version":
-		Version()
-		return
-	}
+	app.Run(os.Args)
 }
