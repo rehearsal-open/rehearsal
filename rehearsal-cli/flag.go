@@ -51,7 +51,9 @@ func init() {
 
 				// execute rehearsal task
 				cli.IsPlain = c.Bool("plain")
-				Run(c.String("path"))
+				if err := Run(c.String("path")); err != nil {
+					println("ERROR: ", err.Error())
+				}
 			},
 		},
 		{
