@@ -37,6 +37,7 @@ type (
 
 	Task struct {
 		task.Task
-		entity *entities.Task
+		entity   *entities.Task
+		frontend frontend.Frontend
 	}
 )

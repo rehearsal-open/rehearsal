@@ -62,8 +62,9 @@ func (r *Rehearsal) Init(parser parser.Parser, envConfig parser.EnvConfig, maker
 		entity := t.Entity()
 
 		r.tasks = append(r.tasks, Task{
-			Task:   t,
-			entity: entity,
+			Task:     t,
+			entity:   entity,
+			frontend: frontend,
 		})
 
 		nameList[t.Entity().Fullname()] = appended

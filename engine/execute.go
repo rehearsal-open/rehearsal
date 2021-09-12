@@ -47,12 +47,9 @@ func (r *Rehearsal) Execute() error {
 		r.frontend.Log(0, "start phase ("+strconv.Itoa(i+1)+" / "+strconv.Itoa(len(r.beginTasks))+")")
 
 		for _, val := range beginTasks {
-
 			if err := r.tasks[val].BeginTask(); err != nil {
 				return err
 			}
-
-			r.frontend.Log(0, "running start: "+r.tasks[val].entity.Taskname)
 		}
 
 		for _, val := range waitTasks {
@@ -61,7 +58,6 @@ func (r *Rehearsal) Execute() error {
 
 		for _, val := range closeTasks {
 			r.tasks[val].StopTask()
-			r.frontend.Log(0, "task closed ("+r.tasks[val].entity.Fullname()+")")
 		}
 	}
 	return nil
