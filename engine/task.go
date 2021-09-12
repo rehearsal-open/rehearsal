@@ -16,13 +16,32 @@
 
 package engine
 
-import "strconv"
+import (
+	"os"
+	"os/signal"
+	"strconv"
+)
 
 func (r *Rehearsal) Execute() error {
 
 	defer r.releaseResources()
+	closed := false
+
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		<-c
+		closed = true
+		println("Force stopping...")
+		r.releaseResources()
+		println("OK! All tasks ware stopped.")
+	}()
 
 	for i := range r.beginTasks {
+		if closed {
+			return nil
+		}
+
 		beginTasks, waitTasks, closeTasks := r.beginTasks[i], r.waitTasks[i], r.closeTasks[i]
 
 		r.frontend.Log(0, "start phase ("+strconv.Itoa(i+1)+" / "+strconv.Itoa(len(r.beginTasks))+")")
@@ -52,4 +71,5 @@ func (r *Rehearsal) releaseResources() {
 	for i := range r.tasks {
 		r.tasks[i].ReleaseResource()
 	}
+
 }
