@@ -87,42 +87,95 @@ subgraph interface-packages
   cli[rehearsal-cli/cli]
 end
 
-engine --> entities & task_element & task_state
-engine --> frontend & parser & task & maker
+engine --> entities
+engine --> task_element
+engine --> task_state
+engine --> frontend
+engine --> parser
+engine --> task
+engine --> maker
 entities --> task_element
 frontend --> entities
 frontend --> task
-mapped --> entities & task_element
+mapped --> entities
+mapped --> task_element
 mapped --> parser
 yaml --> entities
-yaml --> parser & mapped
+yaml --> mapped
+yaml --> parser
 parser --> entities
-cli --> entities & task_element
-cli --> elem_parallel & rw_sync & splitter
+cli --> entities
+cli --> task_element
+cli --> elem_parallel
+cli --> rw_sync
+cli --> splitter
 main --> entities
-main --> engine & parser & task & maker & elem_parallel
-main --> yaml & cli & cui & net & serial
-based --> entities & task_element & task_state
-based --> task & queue
-cui --> entities & task_element
-cui --> frontend & parser & task & based & maker & listen
-net --> entities & task_element
-net --> frontend & parser & task & based & maker & listen
-serial --> entities & task_element
-serial --> frontend & parser & task & based & maker & listen
+main --> engine
+main --> parser
+main --> task
+main --> maker
+main --> elem_parallel
+main --> yaml
+main --> cli
+main --> cui
+main --> net
+main --> serial
+based --> entities
+based --> task_element
+based --> task_state
+based --> task
+based --> queue
+cui --> entities
+cui --> task_element
+cui --> frontend
+cui --> parser
+cui --> task
+cui --> based
+cui --> maker
+cui --> listen
+net --> entities
+net --> task_element
+net --> frontend
+net --> parser
+net --> task
+net --> based
+net --> maker
+net --> listen
+serial --> entities
+serial --> task_element
+serial --> frontend
+serial --> parser
+serial --> task
+serial --> based
+serial --> maker
+serial --> listen
 maker --> entities
-maker --> frontend & parser & task
-queue --> entities & task_element
+maker --> frontend
+maker --> parser
+maker --> task
+queue --> entities
+maker --> task_element
 queue --> task
-elem_parallel --> entities & task_element
-elem_parallel --> task & based & queue & wrapper & listen
-listen --> entities & task_element
-listen --> task & queue
-rw_sync --> entities & task_element
-rw_sync --> based & listen
+elem_parallel --> entities
+elem_parallel --> task_element
+elem_parallel --> task
+elem_parallel --> based
+elem_parallel --> queue
+elem_parallel --> wrapper
+elem_parallel --> listen
+listen --> entities
+listen --> task_element
+listen --> task
+listen --> queue
+rw_sync --> entities
+rw_sync --> task_element
+rw_sync --> based
+rw_sync --> listen
 splitter --> entities
 wrapper --> entities
-task --> entities & task_element & task_state
+task --> entities
+task --> task_element
+task --> task_state
 ```
 
 ## Special Thanks
