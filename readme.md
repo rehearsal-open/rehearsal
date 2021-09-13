@@ -47,73 +47,82 @@ _/\  /\_\_\ \__\ \____/  \\ \_/ \_____//_/    \_\\_\ \__\\____//_/    \_\\_____/
 ![](icons/gopherbw.png) ![](icons/vscode.svg) ![](icons/github.svg)
 
 ## 依存関係図
-Go言語はディレクトリベースのモジュール構造をもっています。以下のグラフはその依存関係を示しています。`github.com/rehearsal-open/rehearsal/` 以下のディレクトリに対してのみ示しています。
+Go言語はディレクトリベースのモジュール構造をもっています。以下のグラフはその依存関係を示しています。`github.com/rehearsal-open/rehearsal/` 以下のディレクトリに対してのみ示しています。[mermaid.js](https://mermaid-js.github.io/mermaid/#/)を使用しています。GitHubで閲覧する場合には[拡張機能](https://chrome.google.com/webstore/detail/github-%20-mermaid/goiiopgdnkogdbjmncgedmgpoajilohe)が必要となるのでご注意ください。
 
 ```mermaid
-graph TD
+graph LR
 
-engine --> entities
-engine --> entities/enum/task_element
-engine --> frontend
-engine --> parser
-engine --> task
-engine --> task/maker
-entities --> entities/enum/task_element
+subgraph entities-packages
+  entities[entities]
+  task_element[entities/enum/task_element]
+  task_state[entieies/enum/task_state]
+end
+
+subgraph task_usecases-packages
+  based[task/based]
+  wrapper[task/wrapper]
+  queue[task/queue]
+  convert[task/wrapper/convert]
+  elem_parallel[task/wrapper/elem_parallel]
+  listen[task/wrapper/listen]
+  rw_sync[task/wrapper/rw_sync]
+  splitter[task/wrapper/splitter]
+end
+
+subgraph work_usecases-packages
+  parser[parser]
+  frontend[frontend]
+  task[task]
+  engine[engine]
+  mapped[parser/mapped]
+  maker[task/maker]
+end
+
+subgraph interface-packages
+  yaml[parser/yaml]
+  cui[task/impl/cui]
+  net[task/impl/net]
+  serial[task/impl/serial]
+  main[rehearsal-cli]
+  cli[rehearsal-cli/cli]
+end
+
+engine --> entities & task_element & task_state
+engine --> frontend & parser & task & maker
+entities --> task_element
+frontend --> entities
 frontend --> task
-parser/mapped --> entities
-parser/mapped --> entities/enum/task_element
-parser/mapped --> parser
-parser/yaml --> entities
-parser/yaml --> parser
-parser/yaml --> parser/mapped
+mapped --> entities & task_element
+mapped --> parser
+yaml --> entities
+yaml --> parser & mapped
 parser --> entities
-rehearsal-cli/cli --> entities
-rehearsal-cli/cli --> entities/enum/task_element
-rehearsal-cli/cli --> task/based
-rehearsal-cli --> engine
-rehearsal-cli --> entities
-rehearsal-cli --> parser
-rehearsal-cli --> parser/yaml
-rehearsal-cli --> rehearsal-cli/cli
-rehearsal-cli --> task
-rehearsal-cli --> task/based
-rehearsal-cli --> task/impl/cui
-rehearsal-cli --> task/impl/serial
-rehearsal-cli --> task/maker
-task/based --> entities
-task/based --> entities/enum/task_element
-task/based --> entities/enum/task_state
-task/based --> task
-task/based --> task/queue
-task/impl/cui --> entities
-task/impl/cui --> entities/enum/task_element
-task/impl/cui --> frontend
-task/impl/cui --> parser
-task/impl/cui --> task
-task/impl/cui --> task/based
-task/impl/cui --> task/maker
-task/impl/regexp --> entities
-task/impl/regexp --> entities/enum/task_element
-task/impl/regexp --> frontend
-task/impl/regexp --> parser
-task/impl/regexp --> task
-task/impl/regexp --> task/based
-task/impl/regexp --> task/maker
-task/impl/serial --> entities
-task/impl/serial --> frontend
-task/impl/serial --> parser
-task/impl/serial --> task
-task/impl/serial --> task/based
-task/impl/serial --> task/maker
-task/maker --> entities
-task/maker --> frontend
-task/maker --> parser
-task/maker --> task
-task/queue --> entities
-task --> entities
-task --> entities/enum/task_element
-task --> entities/enum/task_state
-
+cli --> entities & task_element
+cli --> elem_parallel & rw_sync & splitter
+main --> entities
+main --> engine & parser & task & maker & elem_parallel
+main --> yaml & cli & cui & net & serial
+based --> entities & task_element & task_state
+based --> task & queue
+cui --> entities & task_element
+cui --> frontend & parser & task & based & maker & listen
+net --> entities & task_element
+net --> frontend & parser & task & based & maker & listen
+serial --> entities & task_element
+serial --> frontend & parser & task & based & maker & listen
+maker --> entities
+maker --> frontend & parser & task
+queue --> entities & task_element
+queue --> task
+elem_parallel --> entities & task_element
+elem_parallel --> task & based & queue & wrapper & listen
+listen --> entities & task_element
+listen --> task & queue
+rw_sync --> entities & task_element
+rw_sync --> based & listen
+splitter --> entities
+wrapper --> entities
+task --> entities & task_element & task_state
 ```
 
 ## Special Thanks
