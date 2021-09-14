@@ -80,7 +80,7 @@ func (f *Frontend) InitConfig(src parser.MappingType) error {
 		if filepath.IsAbs(parseRes.BaseDir) {
 			f.config.BaseDir = parseRes.BaseDir
 		} else {
-			f.config.BaseDir = filepath.Join(parseRes.BaseDir)
+			f.config.BaseDir = filepath.Join(f.config.BaseDir, parseRes.BaseDir)
 		}
 	}
 
