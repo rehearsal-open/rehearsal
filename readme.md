@@ -58,17 +58,6 @@ subgraph entities-packages
   task_state[entieies/enum/task_state]
 end
 
-subgraph task_usecases-packages
-  based[task/based]
-  wrapper[task/wrapper]
-  queue[task/queue]
-  convert[task/wrapper/convert]
-  elem_parallel[task/wrapper/elem_parallel]
-  listen[task/wrapper/listen]
-  rw_sync[task/wrapper/rw_sync]
-  splitter[task/wrapper/splitter]
-end
-
 subgraph work_usecases-packages
   parser[parser]
   frontend[frontend]
@@ -76,15 +65,29 @@ subgraph work_usecases-packages
   engine[engine]
   mapped[parser/mapped]
   maker[task/maker]
+
+  subgraph task_usecases-packages
+    based[task/based]
+    wrapper[task/wrapper]
+    queue[task/queue]
+    convert[task/wrapper/convert]
+    elem_parallel[task/wrapper/elem_parallel]
+    listen[task/wrapper/listen]
+    rw_sync[task/wrapper/rw_sync]
+    splitter[task/wrapper/splitter]
+  end
+
 end
 
 subgraph interface-packages
   yaml[parser/yaml]
-  cui[task/impl/cui]
-  net[task/impl/net]
-  serial[task/impl/serial]
   main[rehearsal-cli]
-  cli[rehearsal-cli/cli]
+  subgraph task_interface-packages   
+    cui[task/impl/cui]
+    net[task/impl/net]
+    serial[task/impl/serial]
+    cli[rehearsal-cli/cli]
+  end
 end
 
 engine --> entities
