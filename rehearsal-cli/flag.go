@@ -31,6 +31,8 @@ func init() {
 	// initialize command and subcommand
 	app = NewApp()
 	app.Name = "rehearsal-cli"
+	app.Description = "rehearsal-cli is testing-environment developping tool. More info: https://rehearsal-open.github.io"
+
 	app.Commands = []Command{
 		{
 			// `rehearsal-cli run` command
