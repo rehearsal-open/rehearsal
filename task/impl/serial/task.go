@@ -24,15 +24,16 @@ import (
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task/based"
 	"github.com/rehearsal-open/rehearsal/task/wrapper/listen"
+	"go.bug.st/serial"
 )
 
-func (serial *__task) IsSupporting(elem task_element.Enum) bool {
+func (t *__task) IsSupporting(elem task_element.Enum) bool {
 	return [task_element.Len]bool{
 		true, true, false,
 	}[elem]
 }
 
-func (serial *__task) ExecuteMain(args based.MainFuncArguments) error {
+func (t *__task) ExecuteMain(args based.MainFuncArguments) error {
 
 	var stdOut io.Writer
 
@@ -42,14 +43,28 @@ func (serial *__task) ExecuteMain(args based.MainFuncArguments) error {
 		stdOut = stdout
 	}
 
-	listen.Listen(serial, task_element.StdIn, serial.Port, nil, nil)
-	closer := listen.SyncIoPipe(serial.Port, stdOut, time.Millisecond, nil)
+	listen.Listen(t, task_element.StdIn, t.Port, func(e error) {
+		if err, ok := e.(serial.PortError); ok {
+			switch err.Code() {
+			case serial.PortClosed:
+				t.StopMain()
+			}
+		}
+	}, nil)
+	closer := listen.SyncIoPipe(t.Port, stdOut, time.Millisecond, func(e error) {
+		if err, ok := e.(serial.PortError); ok {
+			switch err.Code() {
+			case serial.PortClosed:
+				t.StopMain()
+			}
+		}
+	})
 
 	go func() {
 
-		<-serial.close
+		<-t.close
 		closer <- nil
-		exitErr := serial.Port.Close()
+		exitErr := t.Port.Close()
 
 		args.Close(exitErr)
 	}()
@@ -57,6 +72,6 @@ func (serial *__task) ExecuteMain(args based.MainFuncArguments) error {
 	return nil
 }
 
-func (serial *__task) StopMain() {
-	close(serial.close)
+func (t *__task) StopMain() {
+	close(t.close)
 }

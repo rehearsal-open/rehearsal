@@ -18,7 +18,6 @@ package net
 
 import (
 	"io"
-	"log"
 	"net"
 	"time"
 
@@ -54,16 +53,12 @@ func (t *__task) ExecuteMain(args based.MainFuncArguments) error {
 	closer := listen.SyncIoPipe(t.Conn, stdOut, sync, func(e error) {
 		if e == net.ErrClosed {
 			t.StopMain()
-		} else {
-			log.Println(e.Error())
 		}
 	})
 
 	listen.Listen(t, task_element.StdIn, t.Conn, func(e error) {
 		if e == net.ErrClosed {
 			t.StopMain()
-		} else {
-			log.Println(e.Error())
 		}
 	}, nil)
 
