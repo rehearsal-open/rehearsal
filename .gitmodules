@@ -1,0 +1,3 @@
+[submodule "test/sample"]
+	path = test/sample
+	url = https://github.com/rehearsal-open/template-sample

@@ -60,9 +60,7 @@ func (cui *__task) ExecuteMain(args based.MainFuncArguments) error {
 
 	// args.ListenStart(callback)
 
-	listen.Listen(cui, task_element.StdIn, stdin, func(e error) {
-		panic(e.Error())
-	}, nil)
+	listen.Listen(cui, task_element.StdIn, stdin, nil, nil)
 
 	// start running element
 	go func() {
