@@ -19,20 +19,20 @@ package queue
 import "github.com/rehearsal-open/rehearsal/entities"
 
 // Make Writer instance.
-func MakeWriter(writeTo *Reader) *Writer {
+func MakeWriter(writeTo *Reader) Writer {
 	writeTo.lock.Lock()
 	defer writeTo.lock.Unlock()
 
 	// increment registered writer's count
 	writeTo.nWriter++
 
-	return &Writer{
+	return &__Writer{
 		parent: writeTo,
 	}
 }
 
 // Write data, in this function cloning bytes array.
-func (writer *Writer) Write(elem *entities.Element, bytes []byte, onFinal func()) {
+func (writer *__Writer) Write(elem *entities.Element, bytes []byte, onFinal func()) {
 	defer onFinal()
 	cache := make([]byte, len(bytes))
 	if copied := copy(cache, bytes); copied != len(bytes) {
@@ -44,7 +44,7 @@ func (writer *Writer) Write(elem *entities.Element, bytes []byte, onFinal func()
 	})
 }
 
-func (writer *Writer) Close() {
+func (writer *__Writer) Close() {
 	writer.parent.lock.Lock()
 	defer writer.parent.lock.Unlock()
 

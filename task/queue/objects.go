@@ -51,8 +51,12 @@ type (
 	}
 
 	// Packet query sender side instance.
-	Writer struct {
+	__Writer struct {
 		parent *Reader
+	}
+
+	Writer interface {
+		Write(elem *entities.Element, bytes []byte, onFinal func())
 	}
 
 	// Parallel data sender.
@@ -70,7 +74,7 @@ type (
 
 	__Sender struct {
 		parent *Senders
-		*Writer
+		Writer
 		conn chan []byte
 	}
 

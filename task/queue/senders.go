@@ -71,7 +71,7 @@ func (senders *Senders) Release() {
 	senders.parallelLock.Wait()
 }
 
-func (senders *Senders) AppendWriter(writer *Writer) {
+func (senders *Senders) AppendWriter(writer Writer) {
 	senders.accessLock.Lock()
 	defer senders.accessLock.Unlock()
 
