@@ -32,7 +32,8 @@ func MakeWriter(writeTo *Reader) *Writer {
 }
 
 // Write data, in this function cloning bytes array.
-func (writer *Writer) Write(elem *entities.Element, bytes []byte) {
+func (writer *Writer) Write(elem *entities.Element, bytes []byte, onFinal func()) {
+	defer onFinal()
 	cache := make([]byte, len(bytes))
 	if copied := copy(cache, bytes); copied != len(bytes) {
 		panic("unfully clone")

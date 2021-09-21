@@ -95,8 +95,9 @@ func (sender *__Sender) __routine() {
 	for {
 		bytes, exist := <-sender.conn
 		if exist {
-			sender.Write(sender.parent.elem, bytes)
-			sender.parent.parallelLock.Done()
+			sender.Write(sender.parent.elem, bytes, func() {
+				sender.parent.parallelLock.Done()
+			})
 		} else {
 			sender.parent.parallelLock.Done()
 			return
