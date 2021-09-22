@@ -16,10 +16,13 @@
 
 package queue
 
-import "github.com/rehearsal-open/rehearsal/entities"
+import (
+	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/task/connector"
+)
 
 // Make Writer instance.
-func MakeWriter(writeTo *Reader) Writer {
+func MakeWriter(writeTo *Reader) connector.Writer {
 	writeTo.lock.Lock()
 	defer writeTo.lock.Unlock()
 

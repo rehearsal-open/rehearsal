@@ -20,6 +20,7 @@ import (
 	"sync"
 
 	"github.com/rehearsal-open/rehearsal/entities"
+	"github.com/rehearsal-open/rehearsal/task/connector"
 )
 
 // Make parallel senders instance.
@@ -71,7 +72,7 @@ func (senders *Senders) Release() {
 	senders.parallelLock.Wait()
 }
 
-func (senders *Senders) AppendWriter(writer Writer) {
+func (senders *Senders) AppendWriter(writer connector.Writer) {
 	senders.accessLock.Lock()
 	defer senders.accessLock.Unlock()
 

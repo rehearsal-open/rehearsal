@@ -22,6 +22,7 @@ import (
 	"github.com/rehearsal-open/rehearsal/entities"
 	"github.com/rehearsal-open/rehearsal/entities/enum/task_element"
 	"github.com/rehearsal-open/rehearsal/task"
+	"github.com/rehearsal-open/rehearsal/task/connector"
 )
 
 type (
@@ -55,10 +56,6 @@ type (
 		parent *Reader
 	}
 
-	Writer interface {
-		Write(elem *entities.Element, bytes []byte, onFinal func())
-	}
-
 	// Parallel data sender.
 	// Use for convert from io.Writer() to QueryWriter().
 	Senders struct {
@@ -74,7 +71,7 @@ type (
 
 	__Sender struct {
 		parent *Senders
-		Writer
+		connector.Writer
 		conn chan []byte
 	}
 
