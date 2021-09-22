@@ -23,6 +23,7 @@ type (
 	// interface uses as input writer
 	Writer interface {
 		Write(elem *entities.Element, bytes []byte, onFinal func())
+		Close()
 	}
 
 	// interface uses as output writer
