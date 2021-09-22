@@ -188,7 +188,7 @@ func (basis *Task) Connect(senderElem task_element.Enum, recieverElem task_eleme
 	} else if to := recieverBased.GetInput(recieverElem); to == nil {
 		return task.ErrNotSupportingElement
 	} else {
-		from.AppendWriter(queue.MakeWriter(to))
+		from.AppendInput(queue.MakeWriter(to))
 		return nil
 	}
 }

@@ -38,7 +38,7 @@ func Connect(fromOut task.Task, fromElem task_element.Enum, toIn task.Task, toEl
 		} else {
 
 			// connect
-			out.AppendWriteTo(in)
+			out.AppendInput(MakeWriter(in))
 			return nil
 
 		}

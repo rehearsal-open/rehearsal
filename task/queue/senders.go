@@ -72,7 +72,7 @@ func (senders *Senders) Release() {
 	senders.parallelLock.Wait()
 }
 
-func (senders *Senders) AppendWriter(writer connector.Writer) {
+func (senders *Senders) AppendInput(writer connector.Writer) error {
 	senders.accessLock.Lock()
 	defer senders.accessLock.Unlock()
 
@@ -86,10 +86,7 @@ func (senders *Senders) AppendWriter(writer connector.Writer) {
 	})
 
 	go senders.sendto[appended].__routine()
-}
-
-func (senders *Senders) AppendWriteTo(writeTo *Reader) {
-	senders.AppendWriter(MakeWriter(writeTo))
+	return nil
 }
 
 func (sender *__Sender) __routine() {

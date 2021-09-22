@@ -36,7 +36,7 @@ func (parallel *ElemParallel) AppendElem(fromElem *entities.Element, insert wrap
 			panic(task.ErrNotSupportingElement.Error())
 		} else {
 			senders := queue.MakeSenders(fromElem)
-			senders.AppendWriteTo(parallel.finallyTask.GetInput(finallyElem))
+			senders.AppendInput(queue.MakeWriter(parallel.finallyTask.GetInput(finallyElem)))
 			insert.OutputTo(senders)
 			parallel.parallelWriter[name] = insert
 		}
