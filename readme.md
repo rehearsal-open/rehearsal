@@ -10,7 +10,9 @@ _/\  /\_\_\ \__\ \____/  \\ \_/ \_____//_/    \_\\_\ \__\\____//_/    \_\\_____/
 ```
 
 ハッカソン用の発表資料を公開しています。ぜひご覧ください。 [Google Slide](https://docs.google.com/presentation/d/1BZcwHe4nWJIgxGl1mR7c9_kgf23wZgf0JXtp0F24t0I/edit?usp=sharing) [Youtube](https://youtu.be/IeI_CtIQk_A)
-
+技育展用の発表資料を公開しています。ぜひご覧ください。[Google Slide](https://docs.google.com/presentation/d/1J3_SWNBf7IMG5vJ5vbOfi0EcT-KtYTzFe77LGW7FBNw/edit?usp=sharing)
+また、その他の情報についてはオンラインドキュメントをご覧ください。
+[rehearsal - https://rehearsal-open.github.io](https://rehearsal-open.github.io)
 ## Contents
 
 
