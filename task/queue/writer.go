@@ -36,14 +36,10 @@ func MakeWriter(writeTo *Reader) connector.Writer {
 
 // Write data, in this function cloning bytes array.
 func (writer *__Writer) Write(elem *entities.Element, bytes []byte, onFinal func()) {
-	defer onFinal()
-	cache := make([]byte, len(bytes))
-	if copied := copy(cache, bytes); copied != len(bytes) {
-		panic("unfully clone")
-	}
 	writer.parent.__append(&__Packet{
 		element: elem,
-		bytes:   cache,
+		bytes:   bytes,
+		onFinal: onFinal,
 	})
 }
 

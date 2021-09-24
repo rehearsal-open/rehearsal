@@ -69,6 +69,7 @@ func (reader *Reader) Read(callback func(*entities.Element, []byte)) {
 				callback(nil, []byte{})
 				return
 			} else {
+				defer packet.onFinal()
 				callback(packet.element, packet.bytes)
 				return
 			}
@@ -85,6 +86,7 @@ func (reader *Reader) Read(callback func(*entities.Element, []byte)) {
 	func() {
 		reader.lock.Lock()
 		defer reader.lock.Unlock()
+		defer packet.onFinal()
 
 		callback(packet.element, packet.bytes)
 
@@ -136,6 +138,7 @@ func (reader *Reader) __append(packet *__Packet) {
 	defer reader.lock.Unlock()
 
 	if reader.isClosed {
+		defer packet.onFinal()
 		return
 	} else {
 		if reader.nContain >= len(reader.pool) {
@@ -157,6 +160,18 @@ func (reader *Reader) __append(packet *__Packet) {
 			reader.isWaiting = false
 		} else {
 			// append packet
+
+			onFinal := packet.onFinal
+			defer onFinal()
+
+			cache := make([]byte, len(packet.bytes))
+			if copied := copy(cache, packet.bytes); copied != len(packet.bytes) {
+				panic("unfully clone")
+			}
+
+			packet.onFinal = func() {}
+			packet.bytes = cache
+
 			reader.pool[(reader.readPacketPos+reader.nContain)%len(reader.pool)] = packet
 
 			reader.nContain++

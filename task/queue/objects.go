@@ -29,6 +29,7 @@ type (
 	__Packet struct {
 		element *entities.Element
 		bytes   []byte
+		onFinal func()
 	}
 
 	// Packet query reciever side instance.
